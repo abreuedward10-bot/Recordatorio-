@@ -11,15 +11,12 @@
     :root {
       --bg: #111111; --card: #1c1c1e; --txt: #f2f2f7; --muted: #8e8e93;
       --ok: #30d158; --warn: #ff9f0a; --bad: #ff453a; --input-bg: #2c2c2e; --border: #3a3a3c;
-      --glass-bg: rgba(28, 28, 30, 0.65); --glass-border: rgba(255, 255, 255, 0.08);
-      
-      /* Colores por defecto de los pilares */
-      --c-yt: #ff453a; --c-fin: #30d158; --c-hija: #ff2d55; --c-casa: #0a84ff; --c-social: #bf5af2; --c-carro: #ff9f0a; --c-custom: #64d2ff;
+      --glass-bg: rgba(28, 28, 30, 0.75); --glass-border: rgba(255, 255, 255, 0.1);
     }
     body.light-theme {
       --bg: #f2f2f7; --card: #ffffff; --txt: #1c1c1e; --muted: #8e8e93;
       --input-bg: #e5e5ea; --border: #d1d1d6;
-      --glass-bg: rgba(255, 255, 255, 0.7); --glass-border: rgba(0, 0, 0, 0.05);
+      --glass-bg: rgba(255, 255, 255, 0.8); --glass-border: rgba(0, 0, 0, 0.05);
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { margin:0; font-family: -apple-system, system-ui, sans-serif; background:var(--bg); color:var(--txt); padding: 0; padding-top: 60px; padding-bottom: 95px; transition: background 0.3s, color 0.3s; }
@@ -44,14 +41,16 @@
     .cal-day.past .name, .cal-day.past .num { opacity: 0.5; }
     .cal-day.future { opacity: 0.3; cursor: default; }
 
-    /* DISEÑO DE TARJETAS CON COLOR */
-    .card-separada { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border); transition: all 0.4s ease; border-top: 4px solid var(--accent-color, var(--muted)); }
-    .card-separada h3 { font-size: 16px; margin: 0 0 12px 0; color: var(--accent-color, var(--txt)); border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
+    /* DISEÑO DE TARJETAS CON COLOR COMPLETO */
+    .card-separada { background: var(--card-bg, var(--card)); border-radius: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1.5px solid var(--accent-color, var(--border)); overflow: hidden; transition: all 0.4s ease; }
     
-    .card-completada { background: rgba(48, 209, 88, 0.1); border-color: var(--ok); box-shadow: 0 0 15px rgba(48, 209, 88, 0.2); }
-    .card-completada h3 { color: var(--ok); border-bottom-color: rgba(48, 209, 88, 0.3); }
-    .badge-completado { font-size: 10px; background: var(--ok); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold;}
-    .racha-pilar { font-size: 11px; color: var(--muted); font-weight: normal; margin-left: 5px; }
+    .card-header { background: var(--accent-color, var(--border)); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; color: #fff; }
+    .card-header h3 { font-size: 16px; margin: 0; color: #fff; font-weight: 700; display: flex; flex-direction: column; gap: 2px;}
+    .racha-pilar { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: normal;}
+    
+    .card-body { padding: 12px 16px; background: var(--card-bg, var(--card)); }
+    .card-completada { opacity: 0.7; filter: grayscale(0.5); }
+    .badge-completado { font-size: 10px; background: rgba(255,255,255,0.3); color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold;}
 
     .task { display:flex; flex-direction:column; padding:12px 0; border-bottom:1px solid var(--border); gap:8px; }
     .task:last-child { border-bottom:none; padding-bottom: 0; }
@@ -60,7 +59,7 @@
     .task .txt { flex:1; font-size:16px; font-weight:500; transition: color 0.3s; min-width: 100px;}
     .task.hecho .txt { text-decoration:line-through; color:var(--muted); }
     .task.omitido .txt { text-decoration:line-through; color: var(--muted); font-style: italic; opacity: 0.6;}
-    .task.prioridad { border-left: 3px solid var(--bad); padding-left: 8px; background: rgba(255,69,58,0.05); border-radius: 4px;}
+    .task.prioridad { border-left: 3px solid var(--bad); padding-left: 8px; background: rgba(255,69,58,0.08); border-radius: 4px;}
     
     .check { width:26px; height:26px; border-radius:50%; border:2px solid var(--muted); background:transparent; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition: all 0.2s; cursor:pointer; padding:0;}
     .check svg { width: 14px; height: 14px; fill: none; stroke: transparent; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s;}
@@ -74,8 +73,8 @@
     .nota-row { display: flex; gap: 8px; width: 100%; align-items: center; }
     .nota-input { flex: 1; background: var(--input-bg); border: 1px solid transparent; padding: 10px 12px; border-radius: 10px; font-size: 14px; color: var(--txt); }
 
-    /* BOTONES DE ACCIÓN (Más grandes y táctiles) */
-    .action-btns { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+    /* BOTONES DE ACCIÓN */
+    .action-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-top: 4px;}
     .btn-icon { background: var(--input-bg); border: none; color: var(--muted); padding: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; }
     .btn-icon svg { width: 18px; height: 18px; fill: currentColor; }
     .btn-icon:active { opacity: 0.7; }
@@ -83,21 +82,26 @@
     .btn-icon.priority-btn { color: var(--muted); }
     .task.prioridad .btn-icon.priority-btn { color: var(--bad); background: rgba(255,69,58,0.2); }
 
-    /* INPUT ROW CORREGIDO (Para que no se vea feo) */
-    .add-row { display: flex; gap: 8px; margin-top: 14px; background: var(--input-bg); padding: 6px; border-radius: 12px; }
-    .add-row input[type="text"] { background: transparent; padding: 8px; }
-    .add-row input[type="time"] { background: var(--bg); width: 85px; }
-    button.primary { background:var(--txt); color:var(--bg); border:none; padding:10px 14px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
-    button.primary svg { width: 18px; height: 18px; fill: currentColor; }
+    /* FORMULARIO DE COMPRAS ARREGLADO */
+    .add-row { display: flex; gap: 8px; margin-top: 14px; }
+    .add-row input[type="text"] { background: var(--input-bg); padding: 10px; border-radius: 10px; flex: 1;}
+    .add-row input[type="time"] { background: var(--input-bg); width: 85px; border-radius: 10px;}
+    button.primary { background:var(--txt); color:var(--bg); border:none; width: 44px; height: 44px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0;}
+    button.primary svg { width: 24px; height: 24px; fill: currentColor; }
+    
     button.secondary { background:transparent; border:1px dashed var(--muted); color:var(--muted); padding:10px; border-radius:10px; font-size:13px; width:100%; cursor:pointer; margin-top:12px;}
     button.secondary:active { background:var(--input-bg); }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: var(--glass-bg); backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); display: flex; justify-content: flex-start; align-items: center; overflow-x: auto; z-index: 100; scrollbar-width: none; padding: 0 10px;}
-    .bottom-nav::-webkit-scrollbar { display: none; }
-    .nav-btn { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 500; min-width: 70px; height: 60px; cursor: pointer; flex-shrink: 0; transition: color 0.2s;}
-    .nav-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;}
-    .nav-btn.active { color: var(--accent-nav, var(--txt)); }
-    .nav-btn.active svg { transform: translateY(-2px); fill: currentColor; stroke: currentColor; }
+    /* BARRA INFERIOR ARREGLADA */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+    .nav-btn { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 600; width: 64px; height: 60px; cursor: pointer; transition: color 0.2s;}
+    .nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s;}
+    .nav-btn.active { color: var(--txt); }
+    .nav-btn.active svg { transform: translateY(-2px); }
+    .nav-btn.active#btn-hoy { color: var(--ok); }
+    .nav-btn.active#btn-compras { color: var(--warn); }
+    .nav-btn.active#btn-notas { color: var(--c-custom); }
+    .nav-btn.active#btn-resumen { color: var(--txt); }
 
     .stat-box { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .stat-box:last-child { border-bottom: none; }
@@ -128,128 +132,155 @@
     <div class="racha-mini"><b id="rachaTop">0</b></div>
   </div>
 
-  <!-- PESTAÑA HOY -->
   <div id="tab-hoy" class="tab-content active">
     <div class="calendar-strip" id="calendarStrip"></div>
     <div id="alertaFechaPasada"></div>
     <div id="diarias"></div>
   </div>
 
-  <!-- PESTAÑA COMPRAS -->
   <div id="tab-compras" class="tab-content">
     <h2>Compras y Pendientes</h2>
-    <div class="card-separada" style="--accent-color: var(--warn)">
-      <div id="compras"></div>
-      <div class="add-row">
-        <input type="text" id="nuevaCompra" placeholder="Ej: comprar bombillo" />
-        <input type="time" id="horaCompra" />
-        <button class="primary" onclick="addCompra()"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
+    <div class="card-separada" style="--accent-color: var(--warn); --card-bg: var(--card);">
+      <div class="card-header"><h3>Pendientes</h3></div>
+      <div class="card-body">
+        <div id="compras"></div>
+        <div class="add-row">
+          <input type="text" id="nuevaCompra" placeholder="Ej: comprar bombillo" />
+          <input type="time" id="horaCompra" />
+          <button class="primary" onclick="addCompra()"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- PESTAÑA NOTAS -->
   <div id="tab-notas" class="tab-content">
-    <h2>Bandeja de Ideas / Notas</h2>
-    <div class="card-separada" style="--accent-color: var(--c-custom)">
-      <div id="notasLista"></div>
-      <div class="add-row">
-        <input type="text" id="nuevaNota" placeholder="Idea suelta..." />
-        <button class="primary" onclick="addNota()"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
+    <h2>Bandeja de Ideas</h2>
+    <div class="card-separada" style="--accent-color: var(--c-custom); --card-bg: var(--card);">
+      <div class="card-header"><h3>Notas rápidas</h3></div>
+      <div class="card-body">
+        <div id="notasLista"></div>
+        <div class="add-row">
+          <input type="text" id="nuevaNota" placeholder="Idea suelta..." />
+          <button class="primary" onclick="addNota()"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- PESTAÑA RESUMEN -->
   <div id="tab-resumen" class="tab-content">
     <h2>Progreso de Hoy</h2>
-    <div class="card-separada" style="padding: 16px; --accent-color: var(--ok)">
-      <div class="stat-box"><span class="stat-label">✅ Diarias hechas</span><span class="stat-value" id="resumenDiarias">0/0</span></div>
-      <div class="stat-box"><span class="stat-label">📋 Compras pendientes</span><span class="stat-value" id="resumenCompras">0</span></div>
-      <div class="stat-box"><span class="stat-label">🔥 Racha global</span><span class="stat-value" style="color: var(--ok);" id="resumenRacha">0 días</span></div>
-    </div>
-
-    <h2>Estadísticas (Últimos 7 días)</h2>
-    <div class="card-separada" style="padding: 16px; --accent-color: var(--ok)">
-      <div class="chart-container" id="chartContainer"></div>
-      <div class="chart-label" id="chartLabels"></div>
+    <div class="card-separada" style="--accent-color: var(--ok); --card-bg: var(--card);">
+      <div class="card-header"><h3>Estadísticas</h3></div>
+      <div class="card-body" style="padding: 16px;">
+        <div class="stat-box"><span class="stat-label">✅ Diarias hechas</span><span class="stat-value" id="resumenDiarias">0/0</span></div>
+        <div class="stat-box"><span class="stat-label">📋 Compras pendientes</span><span class="stat-value" id="resumenCompras">0</span></div>
+        <div class="stat-box"><span class="stat-label">🔥 Racha global</span><span class="stat-value" style="color: var(--ok);" id="resumenRacha">0 días</span></div>
+        <div class="chart-container" id="chartContainer" style="margin-top: 15px;"></div>
+        <div class="chart-label" id="chartLabels"></div>
+      </div>
     </div>
 
     <h2>Cierre del Día</h2>
-    <div class="card-separada" style="padding: 16px; --accent-color: var(--bad)">
-      <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Haz un balance de lo que faltó hoy y decide qué hacer con ello.</p>
-      <button class="primary" style="width: 100%; margin-bottom: 10px; background: var(--bad); color: #fff;" onclick="generarBalance()">Finalizar el día y ver balance</button>
-      <button class="secondary" style="margin-bottom: 15px;" onclick="copiarTareasDeAyer()">📋 Copiar tareas que hice ayer</button>
-      
-      <div id="resultadoBalance" style="display: none; margin-top: 15px;">
-        <h3 style="font-size: 14px; color: var(--warn); margin-bottom: 10px;">Lo que faltó por hacer hoy:</h3>
-        <div id="listaFaltantes"></div>
-        <button class="primary" style="width: 100%; margin-top: 15px;" onclick="pasarFaltantesAManana()">Pasar todo a pendientes de mañana</button>
+    <div class="card-separada" style="--accent-color: var(--bad); --card-bg: var(--card);">
+      <div class="card-header"><h3>Balance</h3></div>
+      <div class="card-body" style="padding: 16px;">
+        <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Haz un balance de lo que faltó hoy.</p>
+        <button class="primary" style="width: 100%; margin-bottom: 10px; background: var(--bad); color: #fff; height: auto; padding: 12px;" onclick="generarBalance()">Finalizar el día y ver balance</button>
+        <button class="secondary" style="margin-bottom: 15px;" onclick="copiarTareasDeAyer()">📋 Copiar tareas que hice ayer</button>
+        
+        <div id="resultadoBalance" style="display: none; margin-top: 15px;">
+          <h3 style="font-size: 14px; color: var(--warn); margin-bottom: 10px;">Lo que faltó por hacer hoy:</h3>
+          <div id="listaFaltantes"></div>
+          <button class="primary" style="width: 100%; margin-top: 15px; height: auto; padding: 12px;" onclick="pasarFaltantesAManana()">Pasar todo a pendientes de mañana</button>
+        </div>
       </div>
     </div>
 
     <h2>Ajustes y Pestañas</h2>
-    <div class="card-separada" style="padding: 16px; --accent-color: var(--muted)">
-      <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Añade nuevas áreas a tu app:</p>
-      <div class="add-row" style="margin-bottom: 15px;">
-        <input type="text" id="nuevoPilarNombre" placeholder="Ej: Proyecto, Gym..." />
-        <button class="primary" onclick="crearPilar()">+</button>
-      </div>
-      
-      <div class="theme-selector" style="margin-bottom: 14px;">
-        <div class="theme-opt" id="opt-dark" onclick="setTheme('dark')">Oscuro</div>
-        <div class="theme-opt" id="opt-light" onclick="setTheme('light')">Claro</div>
-        <div class="theme-opt" id="opt-system" onclick="setTheme('system')">Sistema</div>
+    <div class="card-separada" style="--accent-color: var(--muted); --card-bg: var(--card);">
+      <div class="card-header"><h3>Configuración</h3></div>
+      <div class="card-body" style="padding: 16px;">
+        <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Añade nuevas tarjetas a tu app:</p>
+        <div class="add-row" style="margin-bottom: 15px;">
+          <input type="text" id="nuevoPilarNombre" placeholder="Ej: Gimnasio, Proyecto..." />
+          <button class="primary" onclick="crearPilar()"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
+        </div>
+        
+        <div class="theme-selector" style="margin-bottom: 14px;">
+          <div class="theme-opt" id="opt-dark" onclick="setTheme('dark')">Oscuro</div>
+          <div class="theme-opt" id="opt-light" onclick="setTheme('light')">Claro</div>
+          <div class="theme-opt" id="opt-system" onclick="setTheme('system')">Sistema</div>
+        </div>
       </div>
     </div>
 
-    <h2>Configuración de Notificaciones</h2>
-    <div class="card-separada" style="padding: 16px; --accent-color: var(--muted)">
-      <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Pega tu REST API Key.</p>
-      <input type="password" id="apiKeyInput" placeholder="os_v2_..." style="width: 100%; margin-bottom: 10px;" />
-      <button class="primary" style="width: 100%; margin-bottom: 10px;" onclick="guardarApiKey()">Guardar Llave</button>
-      <p id="apiKeyStatus" style="font-size: 12px; color: var(--ok); margin-bottom: 0; display: none;">✅ Llave guardada</p>
-      
-      <hr style="border-color: var(--border); margin: 16px 0;">
-      <h3 style="font-size: 14px; margin-bottom: 8px;">Diagnóstico</h3>
-      <div id="debugInfo" class="debug-box">Cargando datos...</div>
-      <button class="primary" style="width: 100%; margin-top: 10px; background: var(--warn); color: #000;" onclick="forzarID()">🔄 Actualizar ID</button>
+    <h2>Notificaciones</h2>
+    <div class="card-separada" style="--accent-color: var(--c-casa); --card-bg: var(--card);">
+      <div class="card-header"><h3>Push API</h3></div>
+      <div class="card-body" style="padding: 16px;">
+        <input type="password" id="apiKeyInput" placeholder="os_v2_..." style="width: 100%; margin-bottom: 10px;" />
+        <button class="primary" style="width: 100%; margin-bottom: 10px; height: auto; padding: 12px;" onclick="guardarApiKey()">Guardar Llave</button>
+        <div id="debugInfo" class="debug-box">Cargando datos...</div>
+        <button class="primary" style="width: 100%; margin-top: 10px; background: var(--warn); color: #000; height: auto; padding: 12px;" onclick="forzarID()">🔄 Actualizar ID</button>
+      </div>
     </div>
   </div>
 
-  <!-- BARRA INFERIOR DINÁMICA -->
-  <div class="bottom-nav" id="bottomNav">
-    <button class="nav-btn active" style="--accent-nav: var(--ok)" onclick="cambiarPestana('hoy', this, 'Hoy')"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg><span>Hoy</span></button>
-    <button class="nav-btn" style="--accent-nav: var(--warn)" onclick="cambiarPestana('compras', this, 'Compras')"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Compras</span></button>
-    <button class="nav-btn" style="--accent-nav: var(--c-custom)" onclick="cambiarPestana('notas', this, 'Notas')"><svg viewBox="0 0 24 24"><path d="M3 18h12v-2H3v2zM3 6v2h18V6H3zm0 7h18v-2H3v2z"/></svg><span>Notas</span></button>
-    <button class="nav-btn" style="--accent-nav: var(--muted)" onclick="cambiarPestana('resumen', this, 'Resumen')"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>Resumen</span></button>
+  <!-- BARRA INFERIOR ARREGLADA -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" id="btn-hoy" onclick="cambiarPestana('hoy', this, 'Hoy')">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      <span>Hoy</span>
+    </button>
+    <button class="nav-btn" id="btn-compras" onclick="cambiarPestana('compras', this, 'Compras')">
+      <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      <span>Compras</span>
+    </button>
+    <button class="nav-btn" id="btn-notas" onclick="cambiarPestana('notas', this, 'Notas')">
+      <svg viewBox="0 0 24 24"><path d="M3 18h12v-2H3v2zM3 6v2h18V6H3zm0 7h18v-2H3v2z"/></svg>
+      <span>Notas</span>
+    </button>
+    <button class="nav-btn" id="btn-resumen" onclick="cambiarPestana('resumen', this, 'Resumen')">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+      <span>Resumen</span>
+    </button>
   </div>
 
   <script>
     const ONESIGNAL_APP_ID = "268752c5-8abb-427c-8200-18f4efd54381";
     
-    // Lista base de pilares. Se pueden añadir más desde la app.
-    let PILARES = [
-      { id: "yt", texto: "YouTube", color: "var(--c-yt)" },
-      { id: "fin", texto: "Finanzas", color: "var(--c-fin)" },
-      { id: "hija", texto: "Hija", color: "var(--c-hija)" },
-      { id: "casa", texto: "Casa / Trámites", color: "var(--c-casa)" },
-      { id: "social", texto: "Social", color: "var(--c-social)" },
-      { id: "carro", texto: "Carro", color: "var(--c-carro)" }
+    // Paleta de colores para las tarjetas
+    const COLORES = [
+      "#ff453a", "#30d158", "#ff2d55", "#0a84ff", "#bf5af2", "#ff9f0a", "#64d2ff", "#ffd60a", "#32ade6"
     ];
 
-    const KEY = "miorden_v6"; 
+    let PILARES = [
+      { id: "yt", texto: "YouTube", color: "#ff453a" },
+      { id: "fin", texto: "Finanzas", color: "#30d158" },
+      { id: "hija", texto: "Hija", color: "#ff2d55" },
+      { id: "casa", texto: "Casa / Trámites", color: "#0a84ff" },
+      { id: "social", texto: "Social", color: "#bf5af2" },
+      { id: "carro", texto: "Carro", color: "#ff9f0a" }
+    ];
+
+    const KEY = "miorden_v7"; 
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
     let pomodoroInterval = null;
 
     const frasesExito = ["¡Bien hecho!", "¡Un paso menos!", "¡Sigue así!", "¡Eres un crack!", "¡Vas por buen camino!", "¡Tarea completada!"];
 
+    function hexToRgba(hex, alpha) {
+      let r = parseInt(hex.slice(1, 3), 16),
+          g = parseInt(hex.slice(3, 5), 16),
+          b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
     function load() {
       const raw = localStorage.getItem(KEY);
       if (raw) {
         let s = JSON.parse(raw);
-        // Restaurar pilares guardados si existen
         if(s.customPilares) PILARES = s.customPilares;
         if(!s.rachasPilar) s.rachasPilar = {};
         if(!s.historial) s.historial = {};
@@ -371,25 +402,36 @@
       if(id === 'resumen') { renderResumenYHistorial(); actualizarDebug(); document.getElementById("resultadoBalance").style.display = "none"; }
     }
 
-    // --- CREAR NUEVO PILAR / PESTAÑA ---
+    // --- CREAR / ELIMINAR PILAR ---
     function crearPilar() {
       const nombre = document.getElementById("nuevoPilarNombre").value.trim();
       if (!nombre) return;
       const id = "custom_" + Date.now();
-      const nuevoPilar = { id: id, texto: nombre, color: "var(--c-custom)" };
+      const colorElegido = COLORES[Math.floor(Math.random() * COLORES.length)];
+      const nuevoPilar = { id: id, texto: nombre, color: colorElegido };
       
       PILARES.push(nuevoPilar);
-      state.customPilares = PILARES; // Guardamos la lista actualizada
+      state.customPilares = PILARES;
       state.tareasHoy[id] = [{ id: Date.now() + Math.random(), texto: nombre, hora: "", nota: "", hecho: false, omitido: false, prioridad: false }];
       state.rachasPilar[id] = 0;
       
       save();
       document.getElementById("nuevoPilarNombre").value = "";
       renderDiarias();
-      alert("¡Nueva pestaña '" + nombre + "' añadida con éxito!");
+      alert("¡Nueva tarjeta '" + nombre + "' añadida!");
     }
 
-    // --- TARJETAS Y VERDE AL COMPLETAR ---
+    function eliminarPilar(id) {
+      if (!confirm("¿Estás seguro de que quieres eliminar esta tarjeta y todas sus tareas?")) return;
+      PILARES = PILARES.filter(p => p.id !== id);
+      state.customPilares = PILARES;
+      delete state.tareasHoy[id];
+      delete state.rachasPilar[id];
+      save();
+      renderDiarias();
+    }
+
+    // --- TARJETAS ---
     function renderDiarias() {
       const cont = document.getElementById("diarias");
       cont.innerHTML = "";
@@ -402,23 +444,36 @@
       PILARES.forEach(pilar => {
         const card = document.createElement("div");
         card.className = "card-separada";
-        card.style.setProperty('--accent-color', pilar.color); // Color dinámico
+        
+        // Asignar colores a la tarjeta completa
+        const bgCard = hexToRgba(pilar.color, 0.08); // Fondo suave para el cuerpo
+        card.style.setProperty('--accent-color', pilar.color);
+        card.style.setProperty('--card-bg', document.body.classList.contains('light-theme') ? `linear-gradient(180deg, ${hexToRgba(pilar.color, 0.1)} 0%, #ffffff 100%)` : `linear-gradient(180deg, ${hexToRgba(pilar.color, 0.15)} 0%, var(--card) 100%)`);
         
         const tareasDelPilar = state.tareasHoy[pilar.id] || [];
         const todasFinalizadas = tareasDelPilar.length > 0 && tareasDelPilar.every(t => t.hecho || t.omitido);
 
-        if (todasFinalizadas && esHoy) card.classList.add("card-completada");
-
-        const cardHeader = document.createElement("h3");
         const rachaP = state.rachasPilar[pilar.id] || 0;
-        cardHeader.innerHTML = `
-          <div style="display:flex; flex-direction:column; gap:2px;">
-            <span>${pilar.texto}</span>
-            ${rachaP > 0 ? `<span class="racha-pilar">🔥 Racha: ${rachaP} días</span>` : ''}
+        let deleteBtnHtml = '';
+        if (pilar.id.startsWith("custom_") && esHoy) {
+            deleteBtnHtml = `<button onclick="eliminarPilar('${pilar.id}')" style="background:transparent; border:none; color:#fff; opacity:0.8; cursor:pointer;"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>`;
+        }
+
+        card.innerHTML = `
+          <div class="card-header">
+            <h3>
+              <span>${pilar.texto}</span>
+              ${rachaP > 0 ? `<span class="racha-pilar">🔥 Racha: ${rachaP} días</span>` : ''}
+            </h3>
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${todasFinalizadas && esHoy ? '<span class="badge-completado">COMPLETADO</span>' : ''}
+              ${deleteBtnHtml}
+            </div>
           </div>
-          ${todasFinalizadas && esHoy ? '<span class="badge-completado">COMPLETADO</span>' : ''}
+          <div class="card-body"></div>
         `;
-        card.appendChild(cardHeader);
+
+        const body = card.querySelector(".card-body");
 
         tareasDelPilar.forEach((t, index) => {
           const el = document.createElement("div");
@@ -449,15 +504,15 @@
               <button class="btn-icon danger" onclick="eliminarTareaCompleta('${pilar.id}', ${index})" title="Eliminar"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
             </div>` : ''}
           `;
-          card.appendChild(el);
+          body.appendChild(el);
         });
 
         if (esHoy) {
           const btnAdd = document.createElement("button");
           btnAdd.className = "secondary";
-          btnAdd.innerHTML = `+ Añadir otra tarea a ${pilar.texto}`;
+          btnAdd.innerHTML = `+ Añadir tarea`;
           btnAdd.onclick = () => agregarTareaAlPilar(pilar.id);
-          card.appendChild(btnAdd);
+          body.appendChild(btnAdd);
         }
 
         cont.appendChild(card);
