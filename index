@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111111" />
+  <title>Mi Orden Diario</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icon-192.png" />
+  <style>
+    :root {
+      --bg: #111111; --card: #1c1c1e; --txt: #f2f2f7; --muted: #8e8e93;
+      --ok: #30d158; --warn: #ff9f0a; --bad: #ff453a; --input-bg: #2c2c2e; --border: #3a3a3c;
+      --glass-bg: rgba(28, 28, 30, 0.65); --glass-border: rgba(255, 255, 255, 0.08);
+    }
+    body.light-theme {
+      --bg: #f2f2f7; --card: #ffffff; --txt: #1c1c1e; --muted: #8e8e93;
+      --input-bg: #e5e5ea; --border: #d1d1d6;
+      --glass-bg: rgba(255, 255, 255, 0.7); --glass-border: rgba(0, 0, 0, 0.05);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { margin:0; font-family: -apple-system, system-ui, sans-serif; background:var(--bg); color:var(--txt); padding: 0; padding-top: 60px; padding-bottom: 95px; transition: background 0.3s, color 0.3s; }
+    
+    /* Barra superior */
+    .top-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; }
+    .top-bar h1 { font-size: 20px; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+    .racha-mini { font-size: 14px; color: var(--muted); font-weight: 600; background: var(--input-bg); padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 4px;}
+    .racha-mini b { color: var(--ok); }
+
+    .tab-content { display: none; padding: 16px 14px; animation: fadeIn 0.3s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    h2 { font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin:10px 0 8px; font-weight: 600; padding-left: 4px;}
+    
+    /* CALENDARIO HORIZONTAL */
+    .calendar-strip { display: flex; justify-content: space-between; margin-bottom: 16px; background: var(--card); padding: 10px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .cal-day { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 40px; padding: 8px 0; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+    .cal-day .name { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+    .cal-day .num { font-size: 15px; font-weight: 700; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+    .cal-day.active { background: var(--input-bg); }
+    .cal-day.active .num { background: var(--txt); color: var(--bg); }
+    .cal-day.past .name, .cal-day.past .num { opacity: 0.5; }
+    .cal-day.future { opacity: 0.3; cursor: default; }
+
+    .card { background:var(--card); border-radius:16px; padding:12px; margin-bottom:14px; transition: background 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .task { display:flex; flex-direction:column; padding:12px 0; border-bottom:1px solid var(--border); gap:8px; }
+    .task:last-child { border-bottom:none; padding-bottom: 0; }
+    .task:first-child { padding-top: 0; }
+    .task-top { display:flex; align-items:center; gap:10px; width:100%; }
+    .task .txt { flex:1; font-size:16px; font-weight:500; transition: color 0.3s; }
+    .task.hecho .txt { text-decoration:line-through; color:var(--muted); }
+    
+    .check { width:26px; height:26px; border-radius:50%; border:2px solid var(--muted); background:transparent; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition: all 0.2s; cursor:pointer; padding:0;}
+    .check svg { width: 14px; height: 14px; fill: none; stroke: transparent; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s;}
+    .task.hecho .check { background:var(--ok); border-color:var(--ok); }
+    .task.hecho .check svg { stroke: #000; }
+    
+    .badge { font-size:11px; padding:3px 8px; border-radius:6px; background:var(--input-bg); color:var(--muted); font-weight: 500;}
+    .badge.ayer { background:var(--warn); color:#000; font-weight:bold; }
+    
+    input[type="text"], input[type="time"] { background:var(--input-bg); border:none; color:var(--txt); padding:10px; border-radius:10px; font-size:15px; font-family:inherit; transition: background 0.3s, color 0.3s; outline: none;}
+    input[type="text"] { flex:1; width: 100%; }
+    input[type="time"] { width: 85px; padding: 8px 4px; font-size: 13px; text-align: center; }
+    
+    .nota-row { display: flex; gap: 8px; width: 100%; align-items: center; }
+    .nota-input { flex: 1; background: var(--input-bg); border: 1px solid transparent; padding: 10px 12px; border-radius: 10px; font-size: 14px; color: var(--txt); }
+    .nota-input::placeholder { color: var(--muted); font-style: italic; opacity: 0.7; }
+    
+    .btn-icon { background: transparent; border: none; color: var(--muted); padding: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%; transition: background 0.2s; }
+    .btn-icon svg { width: 20px; height: 20px; fill: currentColor; }
+    .btn-icon:active { background: var(--input-bg); color: var(--txt); }
+    .btn-icon.danger:active { color: var(--bad); }
+
+    .add-row { display:flex; gap:8px; margin-top:14px; }
+    button.primary { background:var(--txt); color:var(--bg); border:none; padding:10px 16px; border-radius:12px; font-weight:600; font-size:15px; cursor:pointer; display: flex; align-items: center; justify-content: center;}
+    button.primary:active { opacity: 0.8; }
+    button.primary svg { width: 18px; height: 18px; fill: currentColor; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+    .nav-btn { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 500; width: 64px; height: 60px; transition: all 0.2s; cursor: pointer; }
+    .nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; }
+    .nav-btn.active { color: var(--txt); }
+    .nav-btn.active svg { transform: translateY(-2px); fill: var(--txt); stroke: var(--txt); }
+    .nav-btn:active svg { transform: scale(0.9); }
+
+    .stat-box { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .stat-box:last-child { border-bottom: none; }
+    .stat-label { font-size: 15px; color: var(--txt); display: flex; align-items: center; gap: 8px;}
+    .stat-label svg { width: 18px; height: 18px; fill: var(--muted); }
+    .stat-value { font-size: 16px; font-weight: 700; }
+
+    .feedback-banner { padding: 16px; margin-bottom: 14px; border-radius: 16px; text-align: center; border: 1px solid var(--border); transition: all 0.3s; }
+    .feedback-banner h3 { margin: 0 0 8px 0; font-size: 18px; }
+    .feedback-banner p { margin: 0; font-size: 14px; line-height: 1.4; }
+    .fb-success { background: rgba(48, 209, 88, 0.1); border-color: rgba(48, 209, 88, 0.3); }
+    .fb-success h3 { color: var(--ok); }
+    .fb-warn { background: rgba(255, 159, 10, 0.1); border-color: rgba(255, 159, 10, 0.3); }
+    .fb-warn h3 { color: var(--warn); }
+    .fb-neutral { background: var(--card); }
+
+    .theme-selector { display: flex; background: var(--input-bg); border-radius: 12px; padding: 4px; gap: 4px; }
+    .theme-opt { flex: 1; text-align: center; padding: 8px 0; font-size: 14px; font-weight: 500; border-radius: 8px; cursor: pointer; color: var(--muted); transition: all 0.2s; }
+    .theme-opt.active { background: var(--card); color: var(--txt); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <h1 id="tituloPestana">Hoy</h1>
+    <div class="racha-mini">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--ok)" stroke="none"><path d="M12 2c0 0-4.5 5.5-4.5 10.5C7.5 16.5 9.5 22 12 22c2.5 0 4.5-5.5 4.5-9.5C16.5 7.5 12 2 12 2zm0 17c-1.4 0-2.5-2.2-2.5-5.5C9.5 11 11 8 12 6.5 13 8 14.5 11 14.5 13.5 14.5 16.8 13.4 19 12 19z"/></svg>
+      <b id="rachaTop">0</b>
+    </div>
+  </div>
+
+  <!-- PESTAÑA HOY -->
+  <div id="tab-hoy" class="tab-content active">
+    <!-- CALENDARIO -->
+    <div class="calendar-strip" id="calendarStrip"></div>
+    <div id="alertaFechaPasada"></div>
+    
+    <div id="bannerHoy"></div>
+    <h2 id="tituloTareasHoy">Obligatorias de Hoy</h2>
+    <div class="card" id="diarias"></div>
+  </div>
+
+  <!-- PESTAÑA COMPRAS -->
+  <div id="tab-compras" class="tab-content">
+    <h2>Compras y Pendientes</h2>
+    <div class="card">
+      <div id="compras"></div>
+      <div class="add-row">
+        <input type="text" id="nuevaCompra" placeholder="Ej: comprar bombillo" />
+        <input type="time" id="horaCompra" />
+        <button class="primary" onclick="addCompra()">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA CARRO -->
+  <div id="tab-carro" class="tab-content">
+    <h2>Mantenimiento Semanal</h2>
+    <div class="card" id="semanal"></div>
+  </div>
+
+  <!-- PESTAÑA NOTAS -->
+  <div id="tab-notas" class="tab-content">
+    <h2>Bandeja de Ideas / Notas</h2>
+    <div class="card">
+      <div id="notasLista"></div>
+      <div class="add-row">
+        <input type="text" id="nuevaNota" placeholder="Idea suelta, algo que recordar..." />
+        <button class="primary" onclick="addNota()">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA RESUMEN -->
+  <div id="tab-resumen" class="tab-content">
+    <div id="bannerResumen"></div>
+    
+    <h2>Progreso de Hoy</h2>
+    <div class="card" style="padding: 16px;">
+      <div class="stat-box">
+        <span class="stat-label"><svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> Diarias hechas</span>
+        <span class="stat-value" id="resumenDiarias">0/5</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg> Compras pendientes</span>
+        <span class="stat-value" id="resumenCompras">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg> Carro esta semana</span>
+        <span class="stat-value" id="resumenCarro">Pendiente</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label"><svg viewBox="0 0 24 24"><path d="M12 2c0 0-4.5 5.5-4.5 10.5C7.5 16.5 9.5 22 12 22c2.5 0 4.5-5.5 4.5-9.5C16.5 7.5 12 2 12 2zm0 17c-1.4 0-2.5-2.2-2.5-5.5C9.5 11 11 8 12 6.5 13 8 14.5 11 14.5 13.5 14.5 16.8 13.4 19 12 19z"/></svg> Racha actual</span>
+        <span class="stat-value" style="color: var(--ok);" id="resumenRacha">0 días</span>
+      </div>
+    </div>
+
+    <h2>Historial de Ayer</h2>
+    <div class="card" style="padding: 16px;">
+      <div id="historialAyer" style="font-size: 14px; line-height: 1.6; color: var(--muted);"></div>
+    </div>
+
+    <h2>Ajustes de Apariencia</h2>
+    <div class="theme-selector">
+      <div class="theme-opt" id="opt-dark" onclick="setTheme('dark')">Oscuro</div>
+      <div class="theme-opt" id="opt-light" onclick="setTheme('light')">Claro</div>
+      <div class="theme-opt" id="opt-system" onclick="setTheme('system')">Sistema</div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="cambiarPestana('hoy', this, 'Hoy')"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg><span>Hoy</span></button>
+    <button class="nav-btn" onclick="cambiarPestana('compras', this, 'Compras')"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Compras</span></button>
+    <button class="nav-btn" onclick="cambiarPestana('carro', this, 'Carro')"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg><span>Carro</span></button>
+    <button class="nav-btn" onclick="cambiarPestana('notas', this, 'Notas')"><svg viewBox="0 0 24 24"><path d="M3 18h12v-2H3v2zM3 6v2h18V6H3zm0 7h18v-2H3v2z"/></svg><span>Notas</span></button>
+    <button class="nav-btn" onclick="cambiarPestana('resumen', this, 'Resumen')"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>Resumen</span></button>
+  </div>
+
+  <script>
+    const DIAS_CARRO = 1; 
+    const TAREAS_DIARIAS = [
+      { id: "yt", texto: "YouTube", hora: "09:00" },
+      { id: "fin", texto: "Finanzas", hora: "19:00" },
+      { id: "hija", texto: "Hija", hora: "17:00" },
+      { id: "casa", texto: "Casa / Trámites", hora: "" },
+      { id: "social", texto: "Social", hora: "20:00" }
+    ];
+    const TAREA_CARRO = { id:"carro", texto:"Carro (Mantenimiento)", hora:"11:00" };
+
+    const KEY = "miorden_v1";
+    let state = load();
+    let fechaSeleccionada = obtenerFechaStr(new Date()); // Por defecto hoy
+
+    function load() {
+      const raw = localStorage.getItem(KEY);
+      if (raw) return JSON.parse(raw);
+      return { diarias:{}, compras:[], carro:{}, notas:[], racha:0, ultimoDia:null, ultimaNota:{}, theme: 'system' };
+    }
+    function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+
+    // Funciones de fecha
+    function obtenerFechaStr(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    function hoyStr() { return obtenerFechaStr(new Date()); }
+
+    // ====== CALENDARIO ======
+    function renderCalendario() {
+      const cont = document.getElementById("calendarStrip");
+      cont.innerHTML = "";
+      
+      const hoy = new Date();
+      const diaSemana = hoy.getDay(); // 0 es domingo
+      const inicioSemana = new Date(hoy);
+      inicioSemana.setDate(hoy.getDate() - diaSemana); // Retroceder al domingo de esta semana
+
+      const nombresDias = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"];
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(inicioSemana);
+        d.setDate(inicioSemana.getDate() + i);
+        const fechaStr = obtenerFechaStr(d);
+        
+        const el = document.createElement("div");
+        el.className = "cal-day";
+        
+        const esHoy = fechaStr === hoyStr();
+        const esPasado = d < new Date(hoyStr()) && !esHoy;
+        const esFuturo = d > new Date(hoyStr()) && !esHoy;
+        const estaSeleccionado = fechaStr === fechaSeleccionada;
+
+        if (esHoy) el.classList.add("active");
+        if (esPasado) el.classList.add("past");
+        if (esFuturo) el.classList.add("future");
+        
+        // Si está seleccionado pero no es hoy, le damos un borde o estilo extra
+        if (estaSeleccionado && !esHoy) {
+           el.style.backgroundColor = "var(--border)";
+        }
+
+        el.innerHTML = `
+          <span class="name">${nombresDias[d.getDay()]}</span>
+          <span class="num">${d.getDate()}</span>
+        `;
+
+        if (!esFuturo) {
+          el.onclick = () => {
+            fechaSeleccionada = fechaStr;
+            renderCalendario();
+            renderDiarias();
+          };
+        }
+
+        cont.appendChild(el);
+      }
+    }
+
+    // ====== TEMA ======
+    function aplicarTema() {
+      const pref = state.theme || 'system';
+      let usarClaro = (pref === 'light') || (pref === 'system' && window.matchMedia('(prefers-color-scheme: light)').matches);
+      
+      if (usarClaro) document.body.classList.add('light-theme');
+      else document.body.classList.remove('light-theme');
+
+      document.querySelectorAll('.theme-opt').forEach(el => el.classList.remove('active'));
+      const btn = document.getElementById('opt-' + pref);
+      if(btn) btn.classList.add('active');
+    }
+    function setTheme(pref) { state.theme = pref; save(); aplicarTema(); }
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (state.theme === 'system') aplicarTema(); });
+
+    // ====== NAVEGACIÓN ======
+    function cambiarPestana(id, btn, titulo) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      btn.classList.add('active');
+      document.getElementById('tituloPestana').textContent = titulo;
+      if(id === 'resumen') renderResumenYHistorial();
+    }
+
+    // ====== FEEDBACK ======
+    function actualizarBanner(idBanner, esHistorial = false) {
+      const cont = document.getElementById(idBanner);
+      if(!cont) return;
+      
+      const fechaConsulta = esHistorial ? fechaSeleccionada : hoyStr();
+      const tareasHechas = TAREAS_DIARIAS.filter(t => state.diarias[fechaConsulta+"_"+t.id]?.hecho).length;
+      const total = TAREAS_DIARIAS.length;
+
+      if (esHistorial) {
+        cont.innerHTML = ""; // No mostrar banner de feedback en historial
+        return;
+      }
+
+      if (tareasHechas === 0) {
+        cont.innerHTML = `<div class="feedback-banner fb-neutral"><h3>¡A darle!</h3><p>Aún no has completado nada hoy. Empieza por la primera tarea.</p></div>`;
+      } else if (tareasHechas === total) {
+        cont.innerHTML = `<div class="feedback-banner fb-success"><h3>¡Día Perfecto! 🏆</h3><p>Has completado todas tus obligatorias de hoy. Racha: <b>${state.racha} días</b>.</p></div>`;
+      } else if (tareasHechas >= total / 2) {
+        cont.innerHTML = `<div class="feedback-banner fb-warn"><h3>¡Vas muy bien! 💪</h3><p>Llevas ${tareasHechas} de ${total}. Te falta poco para cerrar el día con éxito.</p></div>`;
+      } else {
+        cont.innerHTML = `<div class="feedback-banner fb-neutral"><h3>En marcha</h3><p>Llevas ${tareasHechas} de ${total}. Sigue así y no pierdas el ritmo.</p></div>`;
+      }
+    }
+
+    // ====== TAREAS DIARIAS (CON SOPORTE DE HISTORIAL) ======
+    function renderDiarias() {
+      const cont = document.getElementById("diarias");
+      cont.innerHTML = "";
+      
+      const esHoy = fechaSeleccionada === hoyStr();
+      document.getElementById("tituloTareasHoy").textContent = esHoy ? "Obligatorias de Hoy" : "Tareas del " + fechaSeleccionada;
+      
+      // Alerta si estamos viendo el pasado
+      const alerta = document.getElementById("alertaFechaPasada");
+      if (!esHoy) {
+        alerta.innerHTML = `<div style="background:rgba(255,159,10,0.1); color:var(--warn); padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px; text-align:center;">Estás viendo el pasado. Toca el día de hoy en el calendario para volver.</div>`;
+      } else {
+        alerta.innerHTML = "";
+      }
+
+      TAREAS_DIARIAS.forEach(t => {
+        const key = fechaSeleccionada + "_" + t.id;
+        const hecho = state.diarias[key]?.hecho || false;
+        const hora = state.diarias[key]?.hora || t.hora || "";
+        const nota = state.diarias[key]?.nota ?? (esHoy ? (state.ultimaNota?.[t.id] || "") : "");
+        
+        const el = document.createElement("div");
+        el.className = "task " + (hecho?"hecho":"");
+        
+        // Deshabilitar botones si no es hoy
+        const disabledAttr = esHoy ? "" : "disabled";
+        const styleDisabled = esHoy ? "" : "opacity: 0.6; pointer-events: none;";
+
+        el.innerHTML = `
+          <div class="task-top" style="${styleDisabled}">
+            <button class="check" onclick="toggleDiaria('${t.id}')" ${disabledAttr}>
+              <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+            </button>
+            <div class="txt">${t.texto}</div>
+            ${esHoy ? `
+            <button class="btn-icon" onclick="posponerDiaria('${t.id}')" title="Pasar a mañana">
+              <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+            </button>` : ''}
+            <input type="time" value="${hora}" onchange="updateDiaria('${t.id}', 'hora', this.value)" ${disabledAttr} />
+          </div>
+          <div class="nota-row" style="${styleDisabled}">
+            <input type="text" class="nota-input" 
+                   placeholder="${esHoy ? 'Escribe qué harás exactamente aquí...' : 'Sin nota guardada'}" 
+                   value="${nota}" 
+                   onchange="updateDiaria('${t.id}', 'nota', this.value)" ${disabledAttr} />
+            ${esHoy ? `
+            <button class="btn-icon danger" onclick="borrarNotaDiaria('${t.id}')" title="Borrar texto">
+              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>` : ''}
+          </div>
+        `;
+        cont.appendChild(el);
+      });
+      
+      actualizarBanner('bannerHoy', !esHoy);
+      if (esHoy) actualizarRacha();
+    }
+
+    function toggleDiaria(id) {
+      if (fechaSeleccionada !== hoyStr()) return; // Seguridad
+      const key = fechaSeleccionada + "_" + id;
+      if (!state.diarias[key]) {
+        const notaGuardada = state.ultimaNota?.[id] || "";
+        state.diarias[key] = { hecho:false, hora:"", nota: notaGuardada };
+      }
+      
+      const eraHecho = state.diarias[key].hecho;
+      state.diarias[key].hecho = !state.diarias[key].hecho;
+      save(); 
+      
+      if (navigator.vibrate) navigator.vibrate(state.diarias[key].hecho ? 50 : 20);
+      renderDiarias(); 
+
+      const todas = TAREAS_DIARIAS.every(t => state.diarias[hoyStr()+"_"+t.id]?.hecho);
+      if (todas && !eraHecho) {
+        setTimeout(() => alert("¡Felicidades! Has completado todas tus tareas de hoy. Racha actual: " + state.racha + " días."), 300);
+      }
+    }
+
+    function updateDiaria(id, campo, valor) {
+      if (fechaSeleccionada !== hoyStr()) return;
+      const key = fechaSeleccionada + "_" + id;
+      if (!state.diarias[key]) state.diarias[key] = { hecho:false, hora:"", nota:"" };
+      state.diarias[key][campo] = valor;
+      if (campo === 'nota') {
+        if (!state.ultimaNota) state.ultimaNota = {};
+        state.ultimaNota[id] = valor;
+      }
+      save();
+    }
+
+    function posponerDiaria(id) {
+      if (fechaSeleccionada !== hoyStr()) return;
+      if (!confirm("¿Pasar esta tarea a la lista de pendientes para mañana?")) return;
+      const tareaObj = TAREAS_DIARIAS.find(t=>t.id===id);
+      const nota = state.diarias[hoyStr()+"_"+id]?.nota || state.ultimaNota?.[id] || "";
+      const hora = state.diarias[hoyStr()+"_"+id]?.hora || tareaObj.hora;
+      
+      // Fecha de ayer para que salga la etiqueta "de ayer" en la lista de compras
+      const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
+      const ayerStr = obtenerFechaStr(ayer);
+
+      state.compras.push({ id: Date.now(), texto: "⏭️ " + tareaObj.texto + (nota ? ": " + nota : ""), creado: ayerStr, hora: hora, hecho:false, arrastrado:true });
+      save();
+      renderCompras();
+    }
+
+    function borrarNotaDiaria(id) {
+      if (!confirm("¿Borrar esta nota?")) return;
+      const key = fechaSeleccionada + "_" + id;
+      if (state.diarias[key]) state.diarias[key].nota = "";
+      if (state.ultimaNota) state.ultimaNota[id] = "";
+      save(); renderDiarias();
+    }
+
+    // ====== COMPRAS ======
+    function addCompra() {
+      const txt = document.getElementById("nuevaCompra").value.trim();
+      const hora = document.getElementById("horaCompra").value;
+      if (!txt) return;
+      state.compras.push({ id: Date.now(), texto: txt, creado: hoyStr(), hora, hecho:false, arrastrado:false });
+      document.getElementById("nuevaCompra").value = "";
+      document.getElementById("horaCompra").value = "";
+      save(); renderCompras();
+    }
+
+    function renderCompras() {
+      const cont = document.getElementById("compras");
+      cont.innerHTML = "";
+      if (state.compras.length === 0) {
+        cont.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Nada pendiente. Bien ahí.</div>';
+        return;
+      }
+      state.compras.forEach(c => {
+        const deAyer = c.creado !== hoyStr() && !c.hecho;
+        const el = document.createElement("div");
+        el.className = "task " + (c.hecho?"hecho":"");
+        el.innerHTML = `
+          <div class="task-top">
+            <button class="check" onclick="toggleCompra(${c.id})">
+              <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+            </button>
+            <div class="txt" style="font-weight:400; font-size:15px;">${c.texto} ${deAyer?'<span class="badge ayer">de ayer</span>':''}</div>
+            <input type="time" value="${c.hora||''}" onchange="setHoraCompra(${c.id}, this.value)" />
+            <button class="btn-icon danger" onclick="borrarCompra(${c.id})">
+              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>
+          </div>
+        `;
+        cont.appendChild(el);
+      });
+    }
+    function toggleCompra(id) {
+      const c = state.compras.find(x=>x.id===id);
+      if (c) { c.hecho = !c.hecho; save(); renderCompras(); }
+    }
+    function setHoraCompra(id, hora) {
+      const c = state.compras.find(x=>x.id===id);
+      if (c) { c.hora = hora; save(); }
+    }
+    function borrarCompra(id) {
+      if (!confirm("¿Borrar este pendiente?")) return;
+      state.compras = state.compras.filter(x=>x.id!==id);
+      save(); renderCompras();
+    }
+
+    // ====== CARRO ======
+    function renderSemanal() {
+      const cont = document.getElementById("semanal");
+      cont.innerHTML = "";
+      const hoy = new Date().getDay();
+      const esDiaCarro = hoy === DIAS_CARRO;
+      const key = hoyStr()+"_carro";
+      const hecho = state.carro[key]?.hecho || false;
+      const hora = state.carro[key]?.hora || TAREA_CARRO.hora;
+      const nota = state.carro[key]?.nota ?? (state.ultimaNota?.["carro"] || "");
+      
+      if (!esDiaCarro && !state.carro[key]) {
+        cont.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Hoy no toca carro. Próximo: ' + ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][DIAS_CARRO] + '.</div>';
+        return;
+      }
+      
+      const el = document.createElement("div");
+      el.className = "task " + (hecho?"hecho":"");
+      el.innerHTML = `
+        <div class="task-top">
+          <button class="check" onclick="toggleCarro()">
+            <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
+          <div class="txt">${TAREA_CARRO.texto}</div>
+          <input type="time" value="${hora}" onchange="updateCarro('hora', this.value)" />
+        </div>
+        <div class="nota-row">
+          <input type="text" class="nota-input" 
+                 placeholder="¿Qué harás exactamente con el carro?" 
+                 value="${nota}" 
+                 onchange="updateCarro('nota', this.value)" />
+          <button class="btn-icon danger" onclick="borrarNotaCarro()" title="Borrar texto">
+            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+        </div>
+      `;
+      cont.appendChild(el);
+    }
+    
+    function toggleCarro() {
+      const key = hoyStr()+"_carro";
+      if (!state.carro[key]) {
+        const notaGuardada = state.ultimaNota?.["carro"] || "";
+        state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora, nota: notaGuardada };
+      }
+      state.carro[key].hecho = !state.carro[key].hecho;
+      save(); renderSemanal();
+    }
+    
+    function updateCarro(campo, valor) {
+      const key = hoyStr()+"_carro";
+      if (!state.carro[key]) state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora, nota:"" };
+      state.carro[key][campo] = valor;
+      if (campo === 'nota') {
+        if (!state.ultimaNota) state.ultimaNota = {};
+        state.ultimaNota["carro"] = valor;
+      }
+      save();
+    }
+
+    function borrarNotaCarro() {
+      if (!confirm("¿Borrar esta nota del carro?")) return;
+      const key = hoyStr()+"_carro";
+      if (state.carro[key]) state.carro[key].nota = "";
+      if (state.ultimaNota) state.ultimaNota["carro"] = "";
+      save(); renderSemanal();
+    }
+
+    // ====== NOTAS ======
+    function addNota() {
+      const txt = document.getElementById("nuevaNota").value.trim();
+      if (!txt) return;
+      state.notas.push({ id: Date.now(), texto: txt });
+      document.getElementById("nuevaNota").value = "";
+      save(); renderNotas();
+    }
+
+    function renderNotas() {
+      const cont = document.getElementById("notasLista");
+      cont.innerHTML = "";
+      if (state.notas.length === 0) {
+        cont.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Tu mente está despejada. No hay notas pendientes.</div>';
+        return;
+      }
+      state.notas.forEach(n => {
+        const el = document.createElement("div");
+        el.className = "task";
+        el.innerHTML = `
+          <div class="task-top">
+            <div class="txt" style="font-weight:400; font-size:15px;">${n.texto}</div>
+            <button class="btn-icon danger" onclick="borrarNota(${n.id})">
+              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>
+          </div>
+        `;
+        cont.appendChild(el);
+      });
+    }
+    function borrarNota(id) {
+      if (!confirm("¿Borrar esta nota?")) return;
+      state.notas = state.notas.filter(x=>x.id!==id);
+      save(); renderNotas();
+    }
+
+    // ====== RACHA Y RESUMEN ======
+    function actualizarRacha() {
+      const hoy = hoyStr();
+      const todasHechas = TAREAS_DIARIAS.every(t => state.diarias[hoy+"_"+t.id]?.hecho);
+      if (todasHechas) {
+        if (state.ultimoDia !== hoy) {
+          const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
+          const ayerStrFormat = obtenerFechaStr(ayer);
+          state.racha = (state.ultimoDia === ayerStrFormat) ? state.racha + 1 : 1;
+          state.ultimoDia = hoy;
+          save();
+        }
+      }
+      document.getElementById("rachaTop").textContent = state.racha;
+    }
+
+    function renderResumenYHistorial() {
+      const hechas = TAREAS_DIARIAS.filter(t => state.diarias[hoyStr()+"_"+t.id]?.hecho).length;
+      const comprasPend = state.compras.filter(c=>!c.hecho).length;
+      const carroHecho = state.carro[hoyStr()+"_carro"]?.hecho;
+
+      document.getElementById("resumenDiarias").textContent = `${hechas}/${TAREAS_DIARIAS.length}`;
+      document.getElementById("resumenCompras").textContent = comprasPend;
+      document.getElementById("resumenCarro").textContent = carroHecho ? "Hecho ✓" : "Pendiente";
+      document.getElementById("resumenCarro").style.color = carroHecho ? "var(--ok)" : "var(--warn)";
+      document.getElementById("resumenRacha").textContent = `${state.racha} días`;
+
+      actualizarBanner('bannerResumen');
+
+      // Historial de Ayer
+      const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
+      const ayerF = obtenerFechaStr(ayer);
+      
+      let htmlAyer = "";
+      let totalAyer = 0;
+      TAREAS_DIARIAS.forEach(t => {
+        const key = ayerF + "_" + t.id;
+        if (state.diarias[key]?.hecho) {
+          htmlAyer += `<div style="margin-bottom:6px; display:flex; align-items:flex-start; gap:6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--ok)" style="margin-top:2px; flex-shrink:0;"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            <div><b style="color:var(--txt);">${t.texto}</b>: <span style="font-size:13px;">${state.diarias[key].nota || 'Hecho'}</span></div>
+          </div>`;
+          totalAyer++;
+        }
+      });
+
+      if (totalAyer > 0) {
+        document.getElementById("historialAyer").innerHTML = `<div style="margin-bottom:10px; font-weight:600; color:var(--txt);">Ayer cumpliste ${totalAyer} de ${TAREAS_DIARIAS.length} tareas:</div>` + htmlAyer;
+      } else {
+        document.getElementById("historialAyer").innerHTML = `<div style="color:var(--muted); line-height:1.5;">Ayer no se registraron tareas completadas. No te castigues, hoy es un nuevo día para retomar el control.</div>`;
+      }
+    }
+
+    // Init
+    aplicarTema();
+    renderCalendario();
+    renderDiarias();
+    renderCompras();
+    renderSemanal();
+    renderNotas();
+    renderResumenYHistorial();
+  </script>
+</body>
+</html>
