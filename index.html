@@ -81,10 +81,10 @@
     .subtask-add-row input { padding: 6px; font-size: 13px; border-radius: 6px; }
     .subtask-add-row button { padding: 4px 10px; border-radius: 6px; background: var(--txt); color: var(--bg); font-weight: bold; border: none;}
 
-    /* BOTONES DE ACCIÓN */
-    .action-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-top: 4px;}
-    .btn-icon { background: var(--input-bg); border: none; color: var(--muted); padding: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; }
-    .btn-icon svg { width: 18px; height: 18px; fill: currentColor; }
+    /* BOTONES DE ACCIÓN (Más grandes y sin flechas) */
+    .action-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 6px;}
+    .btn-icon { background: var(--input-bg); border: none; color: var(--muted); padding: 10px 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; font-size: 16px;}
+    .btn-icon svg { width: 20px; height: 20px; fill: currentColor; }
     .btn-icon:active { opacity: 0.7; }
     .btn-icon.danger { color: var(--bad); }
     .btn-icon.priority-btn { color: var(--muted); }
@@ -304,7 +304,7 @@
       { id: "carro", texto: "Carro", color: "#ff9f0a" }
     ];
 
-    const KEY = "miorden_v9"; 
+    const KEY = "miorden_v10"; 
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
     
@@ -539,7 +539,6 @@
         card.innerHTML = `
           <div class="card-header">
             <h3>
-              <!-- TÍTULO EDITABLE -->
               <div class="editable-title" onclick="editarNombrePilar('${pilar.id}')">
                 <span>${pilar.texto}</span>
                 <span class="pencil-icon">✏️</span>
@@ -603,8 +602,6 @@
             ${esHoy ? `
             <div class="action-btns" style="${styleDisabled}">
               <button class="btn-icon" onclick="toggleSubtasksView('${t.id}')" title="Ver/Agregar Subtareas">☑️</button>
-              <button class="btn-icon" onclick="moverTarea('${pilar.id}', ${index}, -1)" title="Subir">⬆️</button>
-              <button class="btn-icon" onclick="moverTarea('${pilar.id}', ${index}, 1)" title="Bajar">⬇️</button>
               <button class="btn-icon priority-btn" onclick="togglePrioridad('${pilar.id}', ${index})" title="Prioridad"><svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></button>
               <button class="btn-icon" onclick="iniciarPomodoro('${t.texto}')" title="Enfoque"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></button>
               <button class="btn-icon" onclick="posponerTarea('${pilar.id}', ${index})" title="Pasar a mañana"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>
@@ -667,15 +664,6 @@
       t[campo] = valor;
       save();
       if (campo === 'hora' && valor) programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
-    }
-
-    function moverTarea(pilarId, index, dir) {
-      const arr = state.tareasHoy[pilarId];
-      if (index + dir < 0 || index + dir >= arr.length) return;
-      const temp = arr[index];
-      arr[index] = arr[index + dir];
-      arr[index + dir] = temp;
-      save(); renderDiarias();
     }
 
     function posponerTarea(pilarId, index) {
