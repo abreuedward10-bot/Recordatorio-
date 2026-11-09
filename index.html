@@ -143,6 +143,11 @@
     .focus-timer-text { font-size: 80px; font-weight: 900; color: var(--txt); margin: 20px 0; font-variant-numeric: tabular-nums;}
     .focus-task { font-size: 18px; color: var(--muted); margin-bottom: 40px; max-width: 80%;}
     .btn-abandonar { background: transparent; border: 2px solid var(--bad); color: var(--bad); padding: 12px 24px; border-radius: 20px; font-weight: bold; font-size: 16px; cursor: pointer;}
+
+    /* ESTILO DEL TÍTULO EDITABLE */
+    .editable-title { cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .editable-title:active { opacity: 0.6; }
+    .pencil-icon { font-size: 12px; opacity: 0.7; }
   </style>
 </head>
 <body>
@@ -303,7 +308,6 @@
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
     
-    // Variables del Pomodoro
     let pomodoroInterval = null;
     let pomodoroTiempo = 25 * 60;
 
@@ -343,7 +347,6 @@
     function hoyStr() { return obtenerFechaStr(new Date()); }
     function ayerStr() { return obtenerFechaStr(new Date(Date.now()-86400000)); }
 
-    // SONIDO DE RECOMPENSA
     function playDing() {
       try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -353,7 +356,7 @@
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime); // Nota La
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
         gain.gain.setValueAtTime(0.5, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
         osc.start();
@@ -460,7 +463,7 @@
       if(id === 'resumen') { renderResumenYHistorial(); actualizarDebug(); document.getElementById("resultadoBalance").style.display = "none"; }
     }
 
-    // --- SELECTOR DE COLOR Y CREAR PILAR ---
+    // --- CREAR / EDITAR / ELIMINAR PILAR ---
     function selectColor(el, color) {
       document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected'));
       el.classList.add('selected');
@@ -482,6 +485,19 @@
       document.getElementById("nuevoPilarNombre").value = "";
       renderDiarias();
       alert("¡Nueva tarjeta '" + nombre + "' añadida!");
+    }
+
+    function editarNombrePilar(id) {
+      const pilar = PILARES.find(p => p.id === id);
+      if (!pilar) return;
+      
+      const nuevoNombre = prompt("Escribe el nuevo nombre para esta tarjeta:", pilar.texto);
+      if (nuevoNombre && nuevoNombre.trim() !== "") {
+        pilar.texto = nuevoNombre.trim();
+        state.customPilares = PILARES;
+        save();
+        renderDiarias();
+      }
     }
 
     function eliminarPilar(id) {
@@ -523,7 +539,11 @@
         card.innerHTML = `
           <div class="card-header">
             <h3>
-              <span>${pilar.texto}</span>
+              <!-- TÍTULO EDITABLE -->
+              <div class="editable-title" onclick="editarNombrePilar('${pilar.id}')">
+                <span>${pilar.texto}</span>
+                <span class="pencil-icon">✏️</span>
+              </div>
               ${rachaP > 0 ? `<span class="racha-pilar">🔥 Racha: ${rachaP} días</span>` : ''}
             </h3>
             <div style="display:flex; align-items:center; gap:8px;">
@@ -546,7 +566,6 @@
           const disabledAttr = esHoy ? "" : "disabled";
           const styleDisabled = esHoy ? "" : "opacity: 0.6; pointer-events: none;";
 
-          // Renderizar subtareas
           let subHtml = '';
           if (t.subtareas && t.subtareas.length > 0) {
              subHtml = `<div class="subtasks-container active" id="subs-${t.id}">
@@ -871,7 +890,6 @@
 
     // Init
     aplicarTema(); renderCalendario(); renderDiarias(); renderCompras(); renderNotas(); renderResumenYHistorial(); actualizarDebug();
-    // Seleccionar el primer color por defecto en el selector
     document.querySelector('.color-circle').classList.add('selected');
 
     setInterval(actualizarDebug, 3000);
