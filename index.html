@@ -41,7 +41,10 @@
     .cal-day.past .name, .cal-day.past .num { opacity: 0.5; }
     .cal-day.future { opacity: 0.3; cursor: default; }
 
-    .card { background:var(--card); border-radius:16px; padding:12px; margin-bottom:14px; transition: background 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    /* TARJETAS SEPARADAS */
+    .card-separada { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+    .card-separada h3 { font-size: 16px; margin: 0 0 12px 0; color: var(--txt); border-bottom: 1px solid var(--border); padding-bottom: 8px;}
+
     .task { display:flex; flex-direction:column; padding:12px 0; border-bottom:1px solid var(--border); gap:8px; }
     .task:last-child { border-bottom:none; padding-bottom: 0; }
     .task:first-child { padding-top: 0; }
@@ -63,39 +66,31 @@
     
     .btn-icon { background: transparent; border: none; color: var(--muted); padding: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%; }
     .btn-icon svg { width: 20px; height: 20px; fill: currentColor; }
+    .btn-icon.danger { color: var(--bad); opacity: 0.7; }
+    .btn-icon.danger:active { opacity: 1; background: rgba(255,69,58,0.1); }
 
     .add-row { display:flex; gap:8px; margin-top:14px; }
     button.primary { background:var(--txt); color:var(--bg); border:none; padding:10px 16px; border-radius:12px; font-weight:600; font-size:15px; cursor:pointer; display: flex; align-items: center; justify-content: center;}
     button.primary svg { width: 18px; height: 18px; fill: currentColor; }
-    button.secondary { background:transparent; border:1px dashed var(--muted); color:var(--muted); padding:8px; border-radius:10px; font-size:13px; width:100%; cursor:pointer; margin-top:8px;}
+    button.secondary { background:transparent; border:1px dashed var(--muted); color:var(--muted); padding:8px; border-radius:10px; font-size:13px; width:100%; cursor:pointer; margin-top:12px;}
     button.secondary:active { background:var(--input-bg); }
 
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: var(--glass-bg); backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
     .nav-btn { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 500; width: 64px; height: 60px; cursor: pointer; }
-    .nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;}
+    .nav-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;}
     .nav-btn.active { color: var(--txt); }
     .nav-btn.active svg { transform: translateY(-2px); fill: var(--txt); stroke: var(--txt); }
 
     .stat-box { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .stat-box:last-child { border-bottom: none; }
     .stat-label { font-size: 15px; color: var(--txt); display: flex; align-items: center; gap: 8px;}
-    .stat-label svg { width: 18px; height: 18px; fill: var(--muted); }
     .stat-value { font-size: 16px; font-weight: 700; }
-
-    .feedback-banner { padding: 16px; margin-bottom: 14px; border-radius: 16px; text-align: center; border: 1px solid var(--border); }
-    .feedback-banner h3 { margin: 0 0 8px 0; font-size: 18px; }
-    .feedback-banner p { margin: 0; font-size: 14px; line-height: 1.4; }
-    .fb-success { background: rgba(48, 209, 88, 0.1); border-color: rgba(48, 209, 88, 0.3); }
-    .fb-success h3 { color: var(--ok); }
-    .fb-warn { background: rgba(255, 159, 10, 0.1); border-color: rgba(255, 159, 10, 0.3); }
-    .fb-warn h3 { color: var(--warn); }
-    .fb-neutral { background: var(--card); }
 
     .theme-selector { display: flex; background: var(--input-bg); border-radius: 12px; padding: 4px; gap: 4px; }
     .theme-opt { flex: 1; text-align: center; padding: 8px 0; font-size: 14px; font-weight: 500; border-radius: 8px; cursor: pointer; color: var(--muted); }
     .theme-opt.active { background: var(--card); color: var(--txt); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     
-    .debug-box { background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; margin-top: 10px; overflow-x: auto; white-space: pre-wrap;}
+    .debug-box { background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; margin-top: 10px; white-space: pre-wrap;}
   </style>
 </head>
 <body>
@@ -108,14 +103,12 @@
   <div id="tab-hoy" class="tab-content active">
     <div class="calendar-strip" id="calendarStrip"></div>
     <div id="alertaFechaPasada"></div>
-    <div id="bannerHoy"></div>
-    <h2 id="tituloTareasHoy">Obligatorias de Hoy</h2>
-    <div class="card" id="diarias"></div>
+    <div id="diarias"></div>
   </div>
 
   <div id="tab-compras" class="tab-content">
     <h2>Compras y Pendientes</h2>
-    <div class="card">
+    <div class="card-separada">
       <div id="compras"></div>
       <div class="add-row">
         <input type="text" id="nuevaCompra" placeholder="Ej: comprar bombillo" />
@@ -127,12 +120,12 @@
 
   <div id="tab-carro" class="tab-content">
     <h2>Mantenimiento Semanal</h2>
-    <div class="card" id="semanal"></div>
+    <div class="card-separada" id="semanal"></div>
   </div>
 
   <div id="tab-notas" class="tab-content">
     <h2>Bandeja de Ideas / Notas</h2>
-    <div class="card">
+    <div class="card-separada">
       <div id="notasLista"></div>
       <div class="add-row">
         <input type="text" id="nuevaNota" placeholder="Idea suelta..." />
@@ -142,16 +135,12 @@
   </div>
 
   <div id="tab-resumen" class="tab-content">
-    <div id="bannerResumen"></div>
     <h2>Progreso de Hoy</h2>
-    <div class="card" style="padding: 16px;">
+    <div class="card-separada" style="padding: 16px;">
       <div class="stat-box"><span class="stat-label">✅ Diarias hechas</span><span class="stat-value" id="resumenDiarias">0/5</span></div>
       <div class="stat-box"><span class="stat-label">📋 Compras pendientes</span><span class="stat-value" id="resumenCompras">0</span></div>
       <div class="stat-box"><span class="stat-label">🔥 Racha actual</span><span class="stat-value" style="color: var(--ok);" id="resumenRacha">0 días</span></div>
     </div>
-
-    <h2>Historial de Ayer</h2>
-    <div class="card" style="padding: 16px;"><div id="historialAyer" style="font-size: 14px; color: var(--muted);"></div></div>
 
     <h2>Ajustes de Apariencia</h2>
     <div class="theme-selector" style="margin-bottom: 14px;">
@@ -161,7 +150,7 @@
     </div>
 
     <h2>Configuración de Notificaciones</h2>
-    <div class="card" style="padding: 16px;">
+    <div class="card-separada" style="padding: 16px;">
       <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Pega tu REST API Key.</p>
       <input type="password" id="apiKeyInput" placeholder="os_v2_..." style="width: 100%; margin-bottom: 10px;" />
       <button class="primary" style="width: 100%; margin-bottom: 10px;" onclick="guardarApiKey()">Guardar Llave</button>
@@ -185,8 +174,6 @@
   <script>
     const ONESIGNAL_APP_ID = "268752c5-8abb-427c-8200-18f4efd54381";
     const DIAS_CARRO = 1; 
-    
-    // Ahora las tareas son dinámicas. Estas son las bases.
     const PILARES = [
       { id: "yt", texto: "YouTube" },
       { id: "fin", texto: "Finanzas" },
@@ -194,33 +181,25 @@
       { id: "casa", texto: "Casa / Trámites" },
       { id: "social", texto: "Social" }
     ];
-    
     const TAREA_CARRO = { id:"carro", texto:"Carro (Mantenimiento)", hora:"11:00" };
 
-    const KEY = "miorden_v2"; // Cambiamos la versión para actualizar la estructura
+    const KEY = "miorden_v2";
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
 
     function load() {
       const raw = localStorage.getItem(KEY);
       if (raw) return JSON.parse(raw);
-      
-      // Estructura inicial si es la primera vez
       const estadoInicial = { tareasHoy: {}, compras:[], carro:{}, notas:[], racha:0, ultimoDia:null, theme: 'system' };
-      
-      // Creamos la tarea principal por defecto para cada pilar
       PILARES.forEach(p => {
         estadoInicial.tareasHoy[p.id] = [{ id: Date.now() + Math.random(), texto: p.texto, hora: "", nota: "", hecho: false }];
       });
-
       return estadoInicial;
     }
     function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
 
     function obtenerFechaStr(d) {
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
+      const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     }
     function hoyStr() { return obtenerFechaStr(new Date()); }
@@ -238,7 +217,7 @@
       if (window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
         const id = OneSignal.User.PushSubscription.id;
         if (id) { localStorage.setItem("onesignal_player_id", id); alert("ID guardado: " + id); }
-        else alert("OneSignal aún no tiene un ID. Revisa los permisos.");
+        else alert("OneSignal aún no tiene un ID.");
       } else alert("OneSignal aún no ha cargado.");
       actualizarDebug();
     }
@@ -281,8 +260,7 @@
     function renderCalendario() {
       const cont = document.getElementById("calendarStrip");
       cont.innerHTML = "";
-      const hoy = new Date();
-      const inicioSemana = new Date(hoy); inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+      const hoy = new Date(); const inicioSemana = new Date(hoy); inicioSemana.setDate(hoy.getDate() - hoy.getDay());
       const nombresDias = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"];
 
       for (let i = 0; i < 7; i++) {
@@ -290,19 +268,11 @@
         const fechaStr = obtenerFechaStr(d);
         const el = document.createElement("div");
         el.className = "cal-day";
-        const esHoy = fechaStr === hoyStr();
-        const esPasado = d < new Date(hoyStr()) && !esHoy;
-        const esFuturo = d > new Date(hoyStr()) && !esHoy;
-        
-        if (esHoy) el.classList.add("active");
-        if (esPasado) el.classList.add("past");
-        if (esFuturo) el.classList.add("future");
+        const esHoy = fechaStr === hoyStr(); const esPasado = d < new Date(hoyStr()) && !esHoy; const esFuturo = d > new Date(hoyStr()) && !esHoy;
+        if (esHoy) el.classList.add("active"); if (esPasado) el.classList.add("past"); if (esFuturo) el.classList.add("future");
         if (fechaStr === fechaSeleccionada && !esHoy) el.style.backgroundColor = "var(--border)";
-
         el.innerHTML = `<span class="name">${nombresDias[d.getDay()]}</span><span class="num">${d.getDate()}</span>`;
-        if (!esFuturo) {
-          el.onclick = () => { fechaSeleccionada = fechaStr; renderCalendario(); renderDiarias(); };
-        }
+        if (!esFuturo) el.onclick = () => { fechaSeleccionada = fechaStr; renderCalendario(); renderDiarias(); };
         cont.appendChild(el);
       }
     }
@@ -325,29 +295,24 @@
       if(id === 'resumen') { renderResumenYHistorial(); actualizarDebug(); }
     }
 
-    // --- RENDERIZADO DE TAREAS (AHORA CON MÚLTIPLES TAREAS POR PILAR) ---
+    // --- TARJETAS SEPARADAS ---
     function renderDiarias() {
       const cont = document.getElementById("diarias");
       cont.innerHTML = "";
       const esHoy = fechaSeleccionada === hoyStr();
-      document.getElementById("tituloTareasHoy").textContent = esHoy ? "Obligatorias de Hoy" : "Tareas del " + fechaSeleccionada;
       
       const alerta = document.getElementById("alertaFechaPasada");
       if (!esHoy) alerta.innerHTML = `<div style="background:rgba(255,159,10,0.1); color:var(--warn); padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px; text-align:center;">Estás viendo el pasado.</div>`;
       else alerta.innerHTML = "";
 
-      // Recorremos los pilares y sus tareas
+      // Creamos una tarjeta separada por cada Pilar
       PILARES.forEach(pilar => {
-        // Título del pilar
-        const titulo = document.createElement("h2");
-        titulo.textContent = pilar.texto;
-        titulo.style.marginTop = "16px";
-        titulo.style.marginBottom = "4px";
-        cont.appendChild(titulo);
-
-        const cardPilar = document.createElement("div");
-        cardPilar.className = "card";
-        cardPilar.style.marginBottom = "10px";
+        const card = document.createElement("div");
+        card.className = "card-separada";
+        
+        const cardHeader = document.createElement("h3");
+        cardHeader.textContent = pilar.texto;
+        card.appendChild(cardHeader);
 
         let tareasDelPilar = state.tareasHoy[pilar.id] || [];
 
@@ -363,38 +328,45 @@
                 <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
               </button>
               <div class="txt">${t.texto}</div>
-              ${esHoy ? `<button class="btn-icon" onclick="posponerTarea('${pilar.id}', ${index})" title="Pasar a mañana"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>` : ''}
+              ${esHoy ? `<button class="btn-icon danger" onclick="eliminarTareaCompleta('${pilar.id}', ${index})" title="Eliminar"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>` : ''}
               <input type="time" value="${t.hora || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'hora', this.value)" ${disabledAttr} />
             </div>
             <div class="nota-row" style="${styleDisabled}">
-              <input type="text" class="nota-input" placeholder="${esHoy ? 'Escribe qué harás exactamente aquí...' : 'Sin nota'}" value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'nota', this.value)" ${disabledAttr} />
-              ${esHoy ? `<button class="btn-icon danger" onclick="borrarNota('${pilar.id}', ${index})" title="Borrar texto"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>` : ''}
+              <input type="text" class="nota-input" placeholder="${esHoy ? 'Escribe qué harás aquí...' : 'Sin nota'}" value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'nota', this.value)" ${disabledAttr} />
             </div>
           `;
-          cardPilar.appendChild(el);
+          card.appendChild(el);
         });
 
-        // Botón para añadir más tareas a este pilar
         if (esHoy) {
           const btnAdd = document.createElement("button");
           btnAdd.className = "secondary";
           btnAdd.innerHTML = `+ Añadir otra tarea a ${pilar.texto}`;
           btnAdd.onclick = () => agregarTareaAlPilar(pilar.id);
-          cardPilar.appendChild(btnAdd);
+          card.appendChild(btnAdd);
         }
 
-        cont.appendChild(cardPilar);
+        cont.appendChild(card);
       });
 
       if (esHoy) actualizarRacha();
     }
 
-    // --- ACCIONES DE TAREAS ---
+    // --- ACCIONES ---
     function agregarTareaAlPilar(pilarId) {
-      const texto = prompt("¿Qué tarea quieres añadir a este pilar?");
+      const texto = prompt("¿Qué tarea quieres añadir?");
       if (!texto) return;
       if (!state.tareasHoy[pilarId]) state.tareasHoy[pilarId] = [];
       state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: texto, hora: "", nota: "", hecho: false });
+      save(); renderDiarias();
+    }
+
+    function eliminarTareaCompleta(pilarId, index) {
+      if (!confirm("¿Eliminar esta tarea de la lista de hoy?")) return;
+      state.tareasHoy[pilarId].splice(index, 1);
+      if (state.tareasHoy[pilarId].length === 0) {
+        state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: PILARES.find(p=>p.id===pilarId).texto, hora: "", nota: "", hecho: false });
+      }
       save(); renderDiarias();
     }
 
@@ -402,15 +374,11 @@
       if (fechaSeleccionada !== hoyStr()) return;
       const t = state.tareasHoy[pilarId][index];
       t.hecho = !t.hecho;
-      save(); 
-      if (navigator.vibrate) navigator.vibrate(t.hecho ? 50 : 20);
+      save(); if (navigator.vibrate) navigator.vibrate(t.hecho ? 50 : 20);
       renderDiarias();
       
-      // Comprobar si todo está hecho
       let todasHechas = true;
-      Object.keys(state.tareasHoy).forEach(pId => {
-        state.tareasHoy[pId].forEach(tarea => { if (!tarea.hecho) todasHechas = false; });
-      });
+      Object.keys(state.tareasHoy).forEach(pId => { state.tareasHoy[pId].forEach(tarea => { if (!tarea.hecho) todasHechas = false; }); });
       if (todasHechas) setTimeout(() => alert("¡Felicidades! Has completado todas tus tareas de hoy."), 300);
     }
 
@@ -422,58 +390,21 @@
       if (campo === 'hora' && valor) programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
     }
 
-    function posponerTarea(pilarId, index) {
-      const t = state.tareasHoy[pilarId][index];
-      if (!confirm("¿Pasar a pendientes para mañana?")) return;
-      
-      state.compras.push({ 
-        id: Date.now(), 
-        texto: "⏭️ " + t.texto + (t.nota ? ": " + t.nota : ""), 
-        creado: obtenerFechaStr(new Date(Date.now()-86400000)), 
-        hora: t.hora, 
-        hecho: false 
-      });
-      
-      state.tareasHoy[pilarId].splice(index, 1);
-      if (state.tareasHoy[pilarId].length === 0) {
-        state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: PILARES.find(p=>p.id===pilarId).texto, hora: "", nota: "", hecho: false });
-      }
-      
-      save(); renderDiarias(); renderCompras();
-    }
-
-    function borrarNota(pilarId, index) {
-      if (!confirm("¿Borrar nota?")) return;
-      state.tareasHoy[pilarId][index].nota = "";
-      save(); renderDiarias();
-    }
-
-    // --- RESTO DE LA APP (Compras, Carro, Notas, Racha) ---
+    // --- RESTO ---
     function addCompra() {
-      const txt = document.getElementById("nuevaCompra").value.trim();
-      const hora = document.getElementById("horaCompra").value;
+      const txt = document.getElementById("nuevaCompra").value.trim(); const hora = document.getElementById("horaCompra").value;
       if (!txt) return;
       state.compras.push({ id: Date.now(), texto: txt, creado: hoyStr(), hora, hecho:false });
       document.getElementById("nuevaCompra").value = ""; document.getElementById("horaCompra").value = "";
-      save(); renderCompras();
-      if (hora) programarNotificacion("Compra pendiente", txt, hora);
+      save(); renderCompras(); if (hora) programarNotificacion("Compra pendiente", txt, hora);
     }
-
     function renderCompras() {
       const cont = document.getElementById("compras");
       cont.innerHTML = state.compras.length === 0 ? '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Nada pendiente.</div>' : "";
       state.compras.forEach(c => {
         const deAyer = c.creado !== hoyStr() && !c.hecho;
-        const el = document.createElement("div");
-        el.className = "task " + (c.hecho?"hecho":"");
-        el.innerHTML = `
-          <div class="task-top">
-            <button class="check" onclick="toggleCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
-            <div class="txt" style="font-weight:400; font-size:15px;">${c.texto} ${deAyer?'<span style="font-size:10px;color:var(--warn)">(de ayer)</span>':''}</div>
-            <input type="time" value="${c.hora||''}" onchange="setHoraCompra(${c.id}, this.value)" />
-            <button class="btn-icon danger" onclick="borrarCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
-          </div>
-        `;
+        const el = document.createElement("div"); el.className = "task " + (c.hecho?"hecho":"");
+        el.innerHTML = `<div class="task-top"><button class="check" onclick="toggleCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button><div class="txt" style="font-weight:400; font-size:15px;">${c.texto} ${deAyer?'<span style="font-size:10px;color:var(--warn)">(de ayer)</span>':''}</div><input type="time" value="${c.hora||''}" onchange="setHoraCompra(${c.id}, this.value)" /><button class="btn-icon danger" onclick="borrarCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`;
         cont.appendChild(el);
       });
     }
@@ -482,48 +413,27 @@
     function borrarCompra(id) { if (!confirm("¿Borrar?")) return; state.compras = state.compras.filter(x=>x.id!==id); save(); renderCompras(); }
 
     function renderSemanal() {
-      const cont = document.getElementById("semanal");
-      cont.innerHTML = "";
+      const cont = document.getElementById("semanal"); cont.innerHTML = "";
       const esDiaCarro = new Date().getDay() === DIAS_CARRO;
-      const key = hoyStr()+"_carro";
-      const hecho = state.carro[key]?.hecho || false;
-      const hora = state.carro[key]?.hora || TAREA_CARRO.hora;
+      const key = hoyStr()+"_carro"; const hecho = state.carro[key]?.hecho || false; const hora = state.carro[key]?.hora || TAREA_CARRO.hora;
       if (!esDiaCarro && !state.carro[key]) { cont.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Hoy no toca carro.</div>'; return; }
-      const el = document.createElement("div");
-      el.className = "task " + (hecho?"hecho":"");
-      el.innerHTML = `
-        <div class="task-top">
-          <button class="check" onclick="toggleCarro()"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
-          <div class="txt">${TAREA_CARRO.texto}</div>
-          <input type="time" value="${hora}" onchange="updateCarro('hora', this.value)" />
-        </div>
-      `;
+      const el = document.createElement("div"); el.className = "task " + (hecho?"hecho":"");
+      el.innerHTML = `<div class="task-top"><button class="check" onclick="toggleCarro()"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button><div class="txt">${TAREA_CARRO.texto}</div><input type="time" value="${hora}" onchange="updateCarro('hora', this.value)" /></div>`;
       cont.appendChild(el);
     }
     function toggleCarro() { const key = hoyStr()+"_carro"; if (!state.carro[key]) state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora }; state.carro[key].hecho = !state.carro[key].hecho; save(); renderSemanal(); }
-    function updateCarro(campo, valor) {
-      const key = hoyStr()+"_carro"; if (!state.carro[key]) state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora };
-      state.carro[key][campo] = valor; save();
-      if (campo === 'hora' && valor) programarNotificacion("Carro", "Es hora de revisar el carro", valor);
-    }
+    function updateCarro(campo, valor) { const key = hoyStr()+"_carro"; if (!state.carro[key]) state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora }; state.carro[key][campo] = valor; save(); if (campo === 'hora' && valor) programarNotificacion("Carro", "Es hora del carro", valor); }
 
     function addNota() { const txt = document.getElementById("nuevaNota").value.trim(); if (!txt) return; state.notas.push({ id: Date.now(), texto: txt }); document.getElementById("nuevaNota").value = ""; save(); renderNotas(); }
     function renderNotas() {
-      const cont = document.getElementById("notasLista");
-      cont.innerHTML = state.notas.length === 0 ? '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Todo despejado.</div>' : "";
-      state.notas.forEach(n => {
-        const el = document.createElement("div"); el.className = "task";
-        el.innerHTML = `<div class="task-top"><div class="txt" style="font-weight:400; font-size:15px;">${n.texto}</div><button class="btn-icon danger" onclick="borrarNota(${n.id})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`;
-        cont.appendChild(el);
-      });
+      const cont = document.getElementById("notasLista"); cont.innerHTML = state.notas.length === 0 ? '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Todo despejado.</div>' : "";
+      state.notas.forEach(n => { const el = document.createElement("div"); el.className = "task"; el.innerHTML = `<div class="task-top"><div class="txt" style="font-weight:400; font-size:15px;">${n.texto}</div><button class="btn-icon danger" onclick="borrarNota(${n.id})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`; cont.appendChild(el); });
     }
     function borrarNota(id) { if (!confirm("¿Borrar?")) return; state.notas = state.notas.filter(x=>x.id!==id); save(); renderNotas(); }
 
     function actualizarRacha() {
       let todasHechas = true;
-      Object.keys(state.tareasHoy).forEach(pId => {
-        state.tareasHoy[pId].forEach(t => { if (!t.hecho) todasHechas = false; });
-      });
+      Object.keys(state.tareasHoy).forEach(pId => { state.tareasHoy[pId].forEach(t => { if (!t.hecho) todasHechas = false; }); });
       if (todasHechas) {
         if (state.ultimoDia !== hoyStr()) {
           const ayer = obtenerFechaStr(new Date(Date.now()-86400000));
@@ -536,9 +446,7 @@
 
     function renderResumenYHistorial() {
       let totalTareas = 0; let hechas = 0;
-      Object.keys(state.tareasHoy).forEach(pId => {
-        state.tareasHoy[pId].forEach(t => { totalTareas++; if (t.hecho) hechas++; });
-      });
+      Object.keys(state.tareasHoy).forEach(pId => { state.tareasHoy[pId].forEach(t => { totalTareas++; if (t.hecho) hechas++; }); });
       document.getElementById("resumenDiarias").textContent = `${hechas}/${totalTareas}`;
       document.getElementById("resumenCompras").textContent = state.compras.filter(c=>!c.hecho).length;
       document.getElementById("resumenRacha").textContent = `${state.racha} días`;
