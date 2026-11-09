@@ -8,24 +8,25 @@
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" href="/icon-192.png" />
   <style>
-    /* TEMA TRUE BLACK (OLED) */
     :root {
-      --bg: #000000;
-      --card: #1A1A1A;
-      --card-hover: #2A2A2A;
-      --txt: #FFFFFF;
-      --muted: #8E8E93;
-      --input-bg: #121212;
-      --border: #2C2C2E;
-      --glass-bg: rgba(10, 10, 10, 0.85);
-      
-      --ok: #30d158; --warn: #ff9f0a; --bad: #ff453a; 
+      --bg: #000000; --card: #1A1A1A; --card-hover: #2A2A2A; --txt: #FFFFFF; --muted: #8E8E93;
+      --input-bg: #121212; --border: #2C2C2E; --glass-bg: rgba(10, 10, 10, 0.85);
+      --ok: #30d158; --warn: #ff9f0a; --bad: #ff453a; --info: #0A84FF;
     }
-    
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background:var(--bg); color:var(--txt); padding: 0; padding-top: 60px; padding-bottom: 100px; }
+    body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--txt); padding: 0; padding-top: 60px; padding-bottom: 100px; }
     
-    .top-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid #111; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; }
+    /* OVERLAY DE BLOQUEO (PIN) */
+    #lock-screen { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: #000; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; }
+    #lock-screen.active { display: flex; }
+    .pin-dots { display: flex; gap: 15px; margin-bottom: 30px; }
+    .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted); }
+    .pin-dot.filled { background: var(--txt); border-color: var(--txt); }
+    .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .pin-btn { width: 70px; height: 70px; border-radius: 50%; background: var(--card); border: none; color: var(--txt); font-size: 24px; font-weight: bold; cursor: pointer; }
+    .pin-btn:active { background: var(--card-hover); }
+
+    .top-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid #111; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; }
     .top-bar h1 { font-size: 22px; margin: 0; font-weight: 800; letter-spacing: -0.5px; }
     .racha-mini { font-size: 14px; color: var(--txt); font-weight: 700; background: var(--card); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px; border: 1px solid var(--border);}
     .racha-mini b { color: var(--ok); }
@@ -34,9 +35,9 @@
     .tab-content.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    h2 { font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin:10px 0 8px; font-weight: 600; padding-left: 4px;}
+    h2 { font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin:20px 0 8px 0; font-weight: 600; padding-left: 4px;}
+    h2:first-child { margin-top: 10px; }
     
-    /* CALENDARIO */
     .calendar-strip { display: flex; justify-content: space-between; margin-bottom: 20px; background: var(--card); padding: 12px; border-radius: 20px; border: 1px solid var(--border); }
     .cal-day { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 40px; padding: 8px 0; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
     .cal-day .name { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
@@ -46,7 +47,6 @@
     .cal-day.past .name, .cal-day.past .num { opacity: 0.3; }
     .cal-day.future { opacity: 0.2; cursor: default; }
 
-    /* TARJETAS DE TAREAS */
     .card-separada { background: var(--card); border-radius: 24px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid var(--border); overflow: hidden; }
     .card-header { background: var(--card); padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
     .card-header h3 { font-size: 18px; margin: 0; color: var(--txt); font-weight: 700; display: flex; flex-direction: column; gap: 2px;}
@@ -58,168 +58,122 @@
     .task:last-child { border-bottom:none; padding-bottom: 0; }
     .task:first-child { padding-top: 0; }
     .task-top { display:flex; align-items:center; gap:10px; width:100%; flex-wrap: wrap; }
-    .task .txt { flex:1; font-size:16px; font-weight: 600; transition: color 0.3s; min-width: 100px;}
+    .task .txt { flex:1; font-size:16px; font-weight: 600; min-width: 100px;}
     .task.hecho .txt { text-decoration:line-through; color:var(--muted); }
     .task.prioridad { border-left: 3px solid var(--bad); padding-left: 10px; background: rgba(255,69,58,0.05); border-radius: 8px;}
     
-    .check { width:28px; height:28px; border-radius:50%; border:2px solid var(--muted); background:transparent; display:flex; align-items: center; justify-content: center; flex-shrink:0; transition: all 0.2s; cursor:pointer; padding:0;}
-    .check svg { width: 16px; height: 16px; fill: none; stroke: transparent; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s;}
+    .check { width:28px; height:28px; border-radius:50%; border:2px solid var(--muted); background:transparent; display:flex; align-items: center; justify-content: center; flex-shrink:0; cursor:pointer; padding:0;}
+    .check svg { width: 16px; height: 16px; fill: none; stroke: transparent; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;}
     .task.hecho .check { background:var(--ok); border-color:var(--ok); box-shadow: 0 0 12px rgba(48, 209, 88, 0.4); }
     .task.hecho .check svg { stroke: #000; }
     
-    input[type="text"], input[type="time"], input[type="number"] { background:var(--input-bg); border:1px solid var(--border); color:var(--txt); padding:12px; border-radius:14px; font-size:15px; font-family:inherit; outline: none; transition: border 0.3s; }
-    input:focus { border-color: var(--muted); }
+    input[type="text"], input[type="time"], input[type="number"], select { background:var(--input-bg); border:1px solid var(--border); color:var(--txt); padding:12px; border-radius:14px; font-size:15px; font-family:inherit; outline: none; }
     input[type="text"] { flex:1; width: 100%; }
-    input[type="time"] { width: 110px; min-width: 110px; padding: 10px 6px; font-size: 14px; text-align: center; font-weight: 600;}
+    input[type="time"] { width: 105px; min-width: 105px; padding: 10px 6px; font-size: 14px; text-align: center; font-weight: 600;}
+    select { padding: 10px; }
     
     .nota-row { display: flex; gap: 8px; width: 100%; align-items: center; }
-    .nota-input { flex: 1; background: var(--input-bg); border: 1px solid var(--border); padding: 12px 14px; border-radius: 14px; font-size: 14px; color: var(--txt); }
+    .nota-input { flex: 1; padding: 12px 14px; font-size: 14px; }
 
-    /* SUBTAREAS */
-    .subtasks-container { background: var(--input-bg); border-radius: 14px; padding: 12px 16px; margin-top: 6px; display: none; border: 1px solid var(--border); }
-    .subtasks-container.active { display: block; }
-    .subtask-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 14px;}
-    .subtask-item.done span { text-decoration: line-through; color: var(--muted);}
-    .subtask-item button { background:transparent; border:none; padding:2px; color:var(--muted); cursor:pointer; font-size:16px; line-height:1;}
-    .subtask-add-row { display: flex; gap: 8px; margin-top: 10px; }
-    .subtask-add-row input { padding: 10px; font-size: 14px; border-radius: 10px; }
-    .subtask-add-row button { padding: 6px 14px; border-radius: 10px; background: var(--txt); color: var(--bg); font-weight: bold; border: none;}
-
-    /* BOTONES DE ACCIÓN */
     .action-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 8px;}
-    .btn-icon { background: var(--card); border: 1px solid var(--border); color: var(--txt); padding: 10px 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 12px; font-size: 16px; transition: all 0.2s;}
+    .btn-icon { background: var(--card); border: 1px solid var(--border); color: var(--txt); padding: 10px 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 12px; font-size: 16px;}
     .btn-icon svg { width: 20px; height: 20px; fill: currentColor; }
-    .btn-icon:active { opacity: 0.7; transform: scale(0.95); }
     .btn-icon.danger { color: var(--bad); }
     .btn-icon.priority-btn { color: var(--muted); }
     .task.prioridad .btn-icon.priority-btn { color: var(--bad); background: rgba(255,69,58,0.15); border-color: rgba(255,69,58,0.3); }
 
-    /* FORMULARIOS */
-    .add-row { display: flex; gap: 8px; margin-top: 14px; }
-    .add-row input[type="text"] { background: var(--input-bg); padding: 12px; border-radius: 14px; flex: 1;}
-    button.primary { background:var(--txt); color:var(--bg); border:none; width: 48px; height: 48px; border-radius:14px; font-weight:600; font-size:15px; cursor:pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; transition: transform 0.2s;}
-    button.primary:active { transform: scale(0.9); }
-    button.primary svg { width: 24px; height: 24px; fill: currentColor; }
+    .add-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;}
+    button.primary { background:var(--txt); color:var(--bg); border:none; padding:14px 20px; border-radius:14px; font-weight:700; font-size:15px; cursor:pointer; display: flex; align-items: center; justify-content: center; }
+    button.primary svg { width: 20px; height: 20px; fill: currentColor; }
     button.secondary { background:transparent; border:1px dashed var(--muted); color:var(--muted); padding:14px; border-radius:14px; font-size:14px; width:100%; cursor:pointer; margin-top:12px; font-weight: 600;}
-    button.secondary:active { background:var(--input-bg); }
 
-    /* ====== BARRA INFERIOR PREMIUM CON BOTÓN CENTRAL ====== */
-    .bottom-nav { 
-      position: fixed; bottom: 0; left: 0; right: 0; height: 85px; 
-      background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
-      border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; 
-      z-index: 100; padding: 0 15px; padding-bottom: env(safe-area-inset-bottom);
-    }
-    
-    .nav-btn { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 600; width: 60px; height: 60px; cursor: pointer; transition: color 0.2s;}
-    .nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s;}
+    /* NAV INFERIOR */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: var(--glass-bg); backdrop-filter: blur(25px); border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; z-index: 100; padding: 0 15px; padding-bottom: env(safe-area-inset-bottom);}
+    .nav-btn { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 600; width: 60px; height: 60px; cursor: pointer;}
+    .nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;}
     .nav-btn.active { color: var(--txt); }
-    .nav-btn.active svg { transform: translateY(-2px); }
     .nav-btn.active#btn-hoy { color: var(--ok); filter: drop-shadow(0 0 8px rgba(48,209,88,0.5)); }
     .nav-btn.active#btn-compras { color: var(--warn); filter: drop-shadow(0 0 8px rgba(255,159,10,0.5)); }
     .nav-btn.active#btn-notas { color: #64d2ff; filter: drop-shadow(0 0 8px rgba(100,210,255,0.5)); }
-    .nav-btn.active#btn-resumen { color: var(--txt); }
 
-    /* BOTÓN CENTRAL (AHORROS) */
     .nav-center-wrapper { position: relative; width: 70px; height: 70px; display: flex; justify-content: center; }
-    .center-btn { 
-      position: absolute; top: -25px; 
-      width: 68px; height: 68px; border-radius: 50%; 
-      background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); 
-      border: 3px solid #333; color: #fff; 
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.1); 
-      cursor: pointer; transition: all 0.3s;
-    }
+    .center-btn { position: absolute; top: -25px; width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); border: 3px solid #333; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8); cursor: pointer; transition: all 0.3s;}
     .center-btn svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 2; }
-    .center-btn.active { 
-      border-color: var(--ok); color: var(--ok); 
-      box-shadow: 0 10px 25px rgba(48,209,88,0.3), inset 0 2px 5px rgba(48,209,88,0.2); 
-      transform: translateY(-5px);
-    }
+    .center-btn.active { border-color: var(--ok); color: var(--ok); box-shadow: 0 10px 25px rgba(48,209,88,0.3); transform: translateY(-5px);}
 
-    /* ====== PERFIL DEL USUARIO ====== */
-    .profile-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 10px; cursor: pointer; border-radius: 16px; transition: background 0.2s;}
-    .profile-header:active { background: var(--card); }
+    /* AHORROS Y PERFIL */
+    .profile-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 10px; cursor: pointer; }
     .avatar-container { position: relative; width: 60px; height: 60px; }
     .avatar-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); background: #333; }
     .avatar-edit-icon { position: absolute; bottom: 0; right: 0; background: var(--txt); color: var(--bg); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid var(--bg);}
     .profile-info h2 { margin: 0; font-size: 22px; font-weight: 800; }
     .profile-info p { margin: 2px 0 0 0; font-size: 13px; color: var(--muted); }
 
-    /* ====== TARJETA WALLET ====== */
-    .wallet-card {
-      background: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%);
-      border-radius: 24px; padding: 24px; color: #fff; margin-bottom: 20px;
-      border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
-      position: relative; overflow: hidden;
-    }
-    .wallet-card::before {
-      content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%;
-      background: linear-gradient(to bottom right, rgba(255,255,255,0.05) 0%, transparent 40%, transparent 100%);
-      transform: rotate(30deg); pointer-events: none;
-    }
+    .wallet-card { background: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%); border-radius: 24px; padding: 24px; color: #fff; margin-bottom: 20px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; overflow: hidden;}
     .wallet-header { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;}
-    .wallet-amount { font-size: 44px; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; }
+    .wallet-amount { font-size: 44px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+    
+    /* BARRA DE PROGRESO DE META */
+    .goal-container { margin-bottom: 20px; }
+    .goal-text { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px;}
+    .goal-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+    .goal-bar-fill { height: 100%; background: var(--ok); width: 0%; transition: width 0.3s; box-shadow: 0 0 10px rgba(48,209,88,0.5);}
+
     .wallet-actions { display: flex; gap: 12px; }
-    .wallet-btn { 
-      flex: 1; padding: 14px; border-radius: 16px; border: none; font-weight: 700; font-size: 15px; 
-      display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer; transition: transform 0.2s;
-    }
-    .wallet-btn:active { transform: scale(0.95); }
+    .wallet-btn { flex: 1; padding: 14px; border-radius: 16px; border: none; font-weight: 700; font-size: 15px; display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer;}
     .wallet-btn.add { background: #fff; color: #000; }
     .wallet-btn.sub { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
 
-    /* ====== HISTORIAL DE TRANSACCIONES ====== */
     .history-list { display: flex; flex-direction: column; gap: 12px; }
-    .history-item { 
-      display: flex; justify-content: space-between; align-items: center; 
-      background: var(--card); padding: 16px; border-radius: 20px; border: 1px solid var(--border);
-      cursor: pointer; transition: background 0.2s;
-    }
-    .history-item:active { background: var(--card-hover); }
+    .history-item { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 16px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer;}
     .history-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--input-bg); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 14px;}
     .history-info { flex: 1; }
     .history-title { font-size: 16px; font-weight: 600; color: var(--txt); margin-bottom: 4px;}
     .history-date { font-size: 13px; color: var(--muted); }
-    
     .history-right { display: flex; align-items: center; gap: 12px; }
     .history-amount { font-size: 16px; font-weight: 700; }
     .history-amount.ingreso { color: var(--ok); }
     .history-amount.egreso { color: var(--bad); }
-    .edit-icon { font-size: 16px; color: var(--muted); opacity: 0.5; }
+
+    /* NOTAS FIJADAS Y ETIQUETAS */
+    .note-card { display: flex; flex-direction: column; background: var(--card); border-radius: 20px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
+    .note-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .note-text { font-size: 15px; flex: 1; line-height: 1.4;}
+    .note-tag { font-size: 10px; background: var(--input-bg); padding: 2px 8px; border-radius: 10px; color: var(--info); font-weight: bold; display: inline-block; margin-top: 8px;}
+    .pin-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px; font-size: 18px;}
+    .pin-btn.pinned { color: var(--warn); }
+
+    /* AJUSTES (TOGGLES) */
+    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-label { font-size: 15px; color: var(--txt); font-weight: 500;}
+    .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--ok); }
+    input:checked + .slider:before { transform: translateX(22px); }
 
     /* MODALES */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; backdrop-filter: blur(5px); align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s;}
     .modal-overlay.active { display: flex; opacity: 1; }
-    .modal-content { background: var(--card); padding: 24px; border-radius: 24px; width: 90%; max-width: 340px; border: 1px solid var(--border); transform: translateY(20px); transition: transform 0.3s;}
-    .modal-overlay.active .modal-content { transform: translateY(0); }
+    .modal-content { background: var(--card); padding: 24px; border-radius: 24px; width: 90%; max-width: 340px; border: 1px solid var(--border); }
     .modal-title { font-size: 20px; font-weight: 700; margin: 0 0 10px 0; }
     .modal-input { width: 100%; font-size: 24px; padding: 16px; text-align: center; margin: 15px 0; font-weight: 700; }
     .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .modal-btn { flex: 1; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; border: none; min-width: 100px;}
     .modal-btn.cancel { background: var(--input-bg); color: var(--txt); }
     .modal-btn.confirm { background: var(--ok); color: #000; }
-    .modal-btn.delete { background: var(--bad); color: #fff; width: 100%; margin-top: 10px;}
-
-    /* RESTO DE ESTILOS */
-    .stat-box { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
-    .stat-box:last-child { border-bottom: none; }
-    .stat-label { font-size: 15px; color: var(--txt); display: flex; align-items: center; gap: 8px;}
-    .stat-value { font-size: 18px; font-weight: 800; }
-
-    .debug-box { background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 12px; border-radius: 14px; margin-top: 10px; white-space: pre-wrap; border: 1px solid #333;}
-    .balance-item { background: var(--card); padding: 14px; border-radius: 14px; margin-bottom: 10px; font-size: 14px; border-left: 4px solid var(--warn); border: 1px solid var(--border);}
 
     .chart-container { display: flex; justify-content: space-between; align-items: flex-end; height: 80px; padding-top: 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px;}
-    .chart-bar { width: 12%; background: var(--ok); border-radius: 4px 4px 0 0; transition: height 0.3s; box-shadow: 0 0 10px rgba(48,209,88,0.3);}
+    .chart-bar { width: 12%; background: var(--ok); border-radius: 4px 4px 0 0; box-shadow: 0 0 10px rgba(48,209,88,0.3);}
     .chart-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
 
     #toast { visibility: hidden; min-width: 250px; background: #fff; color: #000; text-align: center; border-radius: 30px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 100px; font-size: 16px; font-weight: 800; transform: translateX(-50%); box-shadow: 0 10px 25px rgba(255,255,255,0.2); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
     #toast.show { visibility: visible; opacity: 1; bottom: 120px; }
 
     .color-picker-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;}
-    .color-circle { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
+    .color-circle { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 3px solid transparent;}
     .color-circle.selected { border-color: #fff; transform: scale(1.15); }
 
     #focus-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 99999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
@@ -227,29 +181,77 @@
     .focus-timer-text { font-size: 90px; font-weight: 900; color: #fff; margin: 20px 0; font-variant-numeric: tabular-nums; }
     .focus-task { font-size: 20px; color: var(--muted); margin-bottom: 40px; max-width: 80%;}
     .btn-abandonar { background: transparent; border: 2px solid var(--bad); color: var(--bad); padding: 16px 32px; border-radius: 20px; font-weight: 800; font-size: 16px; cursor: pointer;}
-
+    
     .editable-title { cursor: pointer; display: flex; align-items: center; gap: 8px; }
-    .editable-title:active { opacity: 0.6; }
     .pencil-icon { font-size: 14px; opacity: 0.5; }
   </style>
 </head>
 <body>
 
+  <!-- PANTALLA DE BLOQUEO (PIN) -->
+  <div id="lock-screen">
+    <h2 style="font-size: 24px; margin-bottom: 30px;">Ingresa tu PIN</h2>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-btn" onclick="pressPin(1)">1</button>
+      <button class="pin-btn" onclick="pressPin(2)">2</button>
+      <button class="pin-btn" onclick="pressPin(3)">3</button>
+      <button class="pin-btn" onclick="pressPin(4)">4</button>
+      <button class="pin-btn" onclick="pressPin(5)">5</button>
+      <button class="pin-btn" onclick="pressPin(6)">6</button>
+      <button class="pin-btn" onclick="pressPin(7)">7</button>
+      <button class="pin-btn" onclick="pressPin(8)">8</button>
+      <button class="pin-btn" onclick="pressPin(9)">9</button>
+      <button class="pin-btn" style="visibility: hidden;"></button>
+      <button class="pin-btn" onclick="pressPin(0)">0</button>
+      <button class="pin-btn" onclick="pressPin('del')">⌫</button>
+    </div>
+  </div>
+
   <div id="toast">¡Bien hecho!</div>
   <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="subirFoto(event)">
+  <input type="file" id="restoreUpload" accept=".json" style="display: none;" onchange="restaurarBackup(event)">
 
-  <!-- MODAL PARA AÑADIR/RESTAR/EDITAR DINERO -->
+  <!-- MODAL AHORRO -->
   <div class="modal-overlay" id="modalAhorro">
     <div class="modal-content">
       <h3 class="modal-title" id="modalTitle">Añadir Dinero</h3>
-      <p style="font-size: 14px; color: var(--muted); margin: 0;">Ingresa el monto en dólares.</p>
+      <p style="font-size: 14px; color: var(--muted); margin: 0;">Monto en dólares.</p>
       <input type="number" id="inputMonto" class="modal-input" placeholder="0.00" inputmode="decimal" />
-      
+      <p style="font-size: 14px; color: var(--muted); margin: 0;">Categoría (Opcional):</p>
+      <select id="inputCategoria" style="width: 100%; margin-top: 10px; margin-bottom: 15px;">
+        <option value="General">General</option>
+        <option value="Trabajo">Trabajo</option>
+        <option value="Comida">Comida</option>
+        <option value="Transporte">Transporte</option>
+        <option value="Hija">Hija</option>
+        <option value="Hogar">Hogar</option>
+      </select>
       <div class="modal-actions">
         <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
         <button class="modal-btn confirm" id="btnConfirmarMonto" onclick="confirmarMonto()">Guardar</button>
       </div>
-      <button class="modal-btn delete" id="btnEliminarMovimiento" style="display: none;" onclick="eliminarTransaccion()">Eliminar Movimiento</button>
+      <button class="modal-btn" id="btnEliminarMovimiento" style="display: none; background: var(--bad); color: #fff; width: 100%; margin-top: 10px;" onclick="eliminarTransaccion()">Eliminar</button>
+    </div>
+  </div>
+
+  <!-- MODAL NOTA -->
+  <div class="modal-overlay" id="modalNota">
+    <div class="modal-content">
+      <h3 class="modal-title">Nueva Nota</h3>
+      <input type="text" id="nuevaNotaTexto" placeholder="Escribe tu idea..." style="width: 100%; margin-bottom: 10px;" />
+      <select id="nuevaNotaTag" style="width: 100%; margin-bottom: 15px;">
+        <option value="Idea">#Idea</option>
+        <option value="YouTube">#YouTube</option>
+        <option value="Personal">#Personal</option>
+        <option value="Compra">#Compra</option>
+      </select>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="document.getElementById('modalNota').classList.remove('active')">Cancelar</button>
+        <button class="modal-btn confirm" onclick="guardarNota()">Guardar</button>
+      </div>
     </div>
   </div>
 
@@ -289,28 +291,37 @@
 
   <!-- PESTAÑA AHORROS -->
   <div id="tab-ahorros" class="tab-content">
-    
-    <!-- PERFIL -->
     <div class="profile-header" onclick="editarPerfil()">
       <div class="avatar-container">
-        <img id="profilePic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238E8E93'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" class="avatar-img" />
+        <img id="profilePic" src="" class="avatar-img" />
         <div class="avatar-edit-icon">✏️</div>
       </div>
       <div class="profile-info">
-        <h2 id="profileName">Hola, Edward</h2>
-        <p>Toca para editar tu perfil</p>
+        <h2 id="profileName">Hola</h2>
+        <p>Toca para editar perfil</p>
       </div>
     </div>
 
     <h2>Mi Billetera de Ahorros</h2>
-    
-    <!-- Tarjeta Wallet -->
     <div class="wallet-card">
       <div class="wallet-header">
         <span>Ahorro Total</span>
         <span>•••• 4321</span>
       </div>
       <div class="wallet-amount" id="walletBalance">$0.00</div>
+      
+      <!-- META DE AHORRO -->
+      <div class="goal-container">
+        <div class="goal-text">
+          <span id="goalLabel">Meta: $0.00</span>
+          <span id="goalPercent">0%</span>
+        </div>
+        <div class="goal-bar-bg">
+          <div class="goal-bar-fill" id="goalFill"></div>
+        </div>
+        <button style="background:transparent; border:none; color:var(--info); font-size:12px; cursor:pointer; padding:0; margin-top:5px;" onclick="editarMeta()">Editar Meta</button>
+      </div>
+
       <div class="wallet-actions">
         <button class="wallet-btn add" onclick="abrirModal('add')">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Añadir
@@ -322,132 +333,120 @@
     </div>
 
     <h2>Historial de Movimientos</h2>
-    <div class="history-list" id="historyList">
-      <!-- Se llena con JS -->
-    </div>
+    <div class="history-list" id="historyList"></div>
   </div>
 
   <!-- PESTAÑA NOTAS -->
   <div id="tab-notas" class="tab-content">
     <h2>Bandeja de Ideas</h2>
-    <div class="card-separada">
-      <div class="card-body">
-        <div id="notasLista"></div>
-        <div class="add-row">
-          <input type="text" id="nuevaNota" placeholder="Idea suelta..." />
-          <button class="primary" onclick="addNota()"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
-        </div>
-      </div>
+    <div style="margin-bottom: 15px;">
+      <button class="primary" style="width: 100%;" onclick="document.getElementById('modalNota').classList.add('active')">+ Crear Nueva Nota</button>
     </div>
+    <div id="notasLista"></div>
   </div>
 
-  <!-- PESTAÑA RESUMEN -->
+  <!-- PESTAÑA RESUMEN Y AJUSTES -->
   <div id="tab-resumen" class="tab-content">
     <h2>Progreso de Hoy</h2>
     <div class="card-separada">
       <div class="card-body" style="padding: 16px;">
-        <div class="stat-box"><span class="stat-label">✅ Diarias hechas</span><span class="stat-value" id="resumenDiarias">0/0</span></div>
-        <div class="stat-box"><span class="stat-label">📋 Compras pendientes</span><span class="stat-value" id="resumenCompras">0</span></div>
-        <div class="stat-box"><span class="stat-label">🔥 Racha global</span><span class="stat-value" style="color: var(--ok);" id="resumenRacha">0</span></div>
+        <div class="stat-box" style="display:flex; justify-content:space-between; margin-bottom:10px;"><span class="stat-label">✅ Diarias hechas</span><span class="stat-value" id="resumenDiarias">0/0</span></div>
+        <div class="stat-box" style="display:flex; justify-content:space-between; margin-bottom:10px;"><span class="stat-label">📋 Compras pendientes</span><span class="stat-value" id="resumenCompras">0</span></div>
+        <div class="stat-box" style="display:flex; justify-content:space-between; margin-bottom:10px;"><span class="stat-label">🔥 Racha global</span><span class="stat-value" style="color: var(--ok);" id="resumenRacha">0</span></div>
         <div class="chart-container" id="chartContainer" style="margin-top: 15px;"></div>
         <div class="chart-label" id="chartLabels"></div>
       </div>
     </div>
 
-    <h2>Cierre del Día</h2>
+    <h2>Cierre del Día y Calendario</h2>
     <div class="card-separada">
       <div class="card-body" style="padding: 16px;">
-        <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Haz un balance de lo que faltó hoy.</p>
-        <button class="primary" style="width: 100%; margin-bottom: 10px; background: var(--bad); color: #fff; height: auto; padding: 14px;" onclick="generarBalance()">Finalizar el día y ver balance</button>
-        <button class="secondary" style="margin-bottom: 15px;" onclick="copiarTareasDeAyer()">📋 Copiar tareas que hice ayer</button>
+        <button class="primary" style="width: 100%; margin-bottom: 10px; background: var(--bad); color: #fff;" onclick="generarBalance()">Ver balance de hoy</button>
+        <button class="secondary" style="margin-bottom: 10px;" onclick="copiarTareasDeAyer()">📋 Copiar tareas de ayer</button>
+        <button class="secondary" style="color: var(--info); border-color: var(--info);" onclick="exportarICS()">📅 Exportar tareas al Calendario</button>
         
         <div id="resultadoBalance" style="display: none; margin-top: 15px;">
-          <h3 style="font-size: 14px; color: var(--warn); margin-bottom: 10px;">Lo que faltó por hacer hoy:</h3>
           <div id="listaFaltantes"></div>
-          <button class="primary" style="width: 100%; margin-top: 15px; height: auto; padding: 14px;" onclick="pasarFaltantesAManana()">Pasar todo a pendientes de mañana</button>
+          <button class="primary" style="width: 100%; margin-top: 15px;" onclick="pasarFaltantesAManana()">Pasar todo a mañana</button>
         </div>
       </div>
     </div>
 
-    <h2>Ajustes y Pestañas</h2>
+    <h2>Ajustes de la App</h2>
     <div class="card-separada">
       <div class="card-body" style="padding: 16px;">
-        <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Nueva tarjeta:</p>
-        <div class="color-picker-row" id="colorPicker">
-          <div class="color-circle" style="background:#ff453a" onclick="selectColor(this, '#ff453a')"></div>
-          <div class="color-circle" style="background:#30d158" onclick="selectColor(this, '#30d158')"></div>
-          <div class="color-circle" style="background:#ff2d55" onclick="selectColor(this, '#ff2d55')"></div>
-          <div class="color-circle" style="background:#0a84ff" onclick="selectColor(this, '#0a84ff')"></div>
-          <div class="color-circle" style="background:#bf5af2" onclick="selectColor(this, '#bf5af2')"></div>
-          <div class="color-circle" style="background:#ff9f0a" onclick="selectColor(this, '#ff9f0a')"></div>
+        
+        <div class="setting-row">
+          <span class="setting-label">Sonidos de Recompensa</span>
+          <label class="switch"><input type="checkbox" id="toggleSonido" onchange="toggleConfig('sounds', this.checked)"><span class="slider"></span></label>
         </div>
-        <div class="add-row" style="margin-bottom: 15px;">
-          <input type="text" id="nuevoPilarNombre" placeholder="Ej: Gimnasio..." />
-          <button class="primary" onclick="crearPilar()"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
+
+        <div class="setting-row">
+          <span class="setting-label">Modo Vacaciones (Protege racha)</span>
+          <label class="switch"><input type="checkbox" id="toggleVacaciones" onchange="toggleConfig('vacation', this.checked)"><span class="slider"></span></label>
         </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Bloqueo con PIN</span>
+          <button class="btn-icon" onclick="configurarPIN()" style="font-size:12px; padding:6px 10px;">Configurar</button>
+        </div>
+
+        <hr style="border-color: var(--border); margin: 15px 0;">
+        <p style="font-size: 13px; color: var(--muted); margin-bottom: 10px;">Copia de Seguridad (Evita perder tus datos):</p>
+        <button class="primary" style="width: 100%; margin-bottom: 10px; background: var(--info);" onclick="descargarBackup()">Descargar Mis Datos</button>
+        <button class="secondary" style="border-color: var(--info); color: var(--info);" onclick="document.getElementById('restoreUpload').click()">Restaurar desde Archivo</button>
+
       </div>
     </div>
 
-    <h2>Notificaciones</h2>
+    <h2>Notificaciones Push</h2>
     <div class="card-separada">
       <div class="card-body" style="padding: 16px;">
         <input type="password" id="apiKeyInput" placeholder="os_v2_..." style="width: 100%; margin-bottom: 10px;" />
-        <button class="primary" style="width: 100%; margin-bottom: 10px; height: auto; padding: 14px;" onclick="guardarApiKey()">Guardar Llave</button>
-        <div id="debugInfo" class="debug-box">Cargando datos...</div>
-        <button class="primary" style="width: 100%; margin-top: 10px; background: var(--warn); color: #000; height: auto; padding: 14px;" onclick="forzarID()">🔄 Actualizar ID</button>
+        <button class="primary" style="width: 100%; margin-bottom: 10px;" onclick="guardarApiKey()">Guardar Llave</button>
+        <div id="debugInfo" class="debug-box" style="background:#000; color:#0f0; font-family:monospace; font-size:11px; padding:10px; border-radius:10px;">Cargando...</div>
+        <button class="primary" style="width: 100%; margin-top: 10px; background: var(--warn); color: #000;" onclick="forzarID()">🔄 Actualizar ID</button>
       </div>
     </div>
   </div>
 
-  <!-- BARRA INFERIOR PREMIUM -->
   <div class="bottom-nav">
     <button class="nav-btn active" id="btn-hoy" onclick="cambiarPestana('hoy', this, 'Hoy')">
-      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-      <span>Hoy</span>
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg><span>Hoy</span>
     </button>
     <button class="nav-btn" id="btn-compras" onclick="cambiarPestana('compras', this, 'Compras')">
-      <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-      <span>Compras</span>
+      <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Compras</span>
     </button>
-    
-    <!-- BOTÓN CENTRAL FLOTANTE -->
     <div class="nav-center-wrapper">
       <button class="center-btn" id="btn-ahorros" onclick="cambiarPestana('ahorros', this, 'Ahorros')">
         <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
       </button>
     </div>
-
     <button class="nav-btn" id="btn-notas" onclick="cambiarPestana('notas', this, 'Notas')">
-      <svg viewBox="0 0 24 24"><path d="M3 18h12v-2H3v2zM3 6v2h18V6H3zm0 7h18v-2H3v2z"/></svg>
-      <span>Notas</span>
+      <svg viewBox="0 0 24 24"><path d="M3 18h12v-2H3v2zM3 6v2h18V6H3zm0 7h18v-2H3v2z"/></svg><span>Notas</span>
     </button>
     <button class="nav-btn" id="btn-resumen" onclick="cambiarPestana('resumen', this, 'Resumen')">
-      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-      <span>Resumen</span>
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>Resumen</span>
     </button>
   </div>
 
   <script>
     const ONESIGNAL_APP_ID = "268752c5-8abb-427c-8200-18f4efd54381";
     let colorSeleccionado = "#ff453a";
-
     let PILARES = [
-      { id: "yt", texto: "YouTube", color: "#ff453a" },
-      { id: "fin", texto: "Finanzas", color: "#30d158" },
-      { id: "hija", texto: "Hija", color: "#ff2d55" },
-      { id: "casa", texto: "Casa / Trámites", color: "#0a84ff" },
-      { id: "social", texto: "Social", color: "#bf5af2" },
-      { id: "carro", texto: "Carro", color: "#ff9f0a" }
+      { id: "yt", texto: "YouTube", color: "#ff453a" }, { id: "fin", texto: "Finanzas", color: "#30d158" },
+      { id: "hija", texto: "Hija", color: "#ff2d55" }, { id: "casa", texto: "Casa", color: "#0a84ff" },
+      { id: "social", texto: "Social", color: "#bf5af2" }, { id: "carro", texto: "Carro", color: "#ff9f0a" }
     ];
 
-    const KEY = "miorden_v13"; 
+    const KEY = "miorden_v14"; 
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
-    
     let pomodoroInterval = null;
     let pomodoroTiempo = 25 * 60;
     let accionAhorro = "add";
     let editandoTransaccionId = null;
+    let pinInput = "";
 
     const frasesExito = ["¡Bien hecho!", "¡Un paso menos!", "¡Sigue así!", "¡Eres un crack!", "¡Vas por buen camino!", "¡Tarea completada!"];
 
@@ -460,34 +459,29 @@
         if(!s.historial) s.historial = {};
         if(s.ahorros === undefined) s.ahorros = 0;
         if(!s.historialAhorros) s.historialAhorros = [];
-        if(!s.perfilNombre) s.perfilNombre = "Hola, Edward";
-        if(!s.perfilFoto) s.perfilFoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238E8E93'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+        if(!s.config) s.config = { sounds: true, vacation: false, pin: null };
+        if(s.ahorrosMeta === undefined) s.ahorrosMeta = 0;
         return s;
       }
-      const estadoInicial = { tareasHoy: {}, compras:[], notas:[], racha:0, ultimoDia:null, rachasPilar: {}, historial: {}, customPilares: PILARES, ahorros: 0, historialAhorros: [], perfilNombre: "Hola, Edward", perfilFoto: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238E8E93'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" };
+      const estadoInicial = { tareasHoy: {}, compras:[], notas:[], racha:0, ultimoDia:null, rachasPilar: {}, historial: {}, customPilares: PILARES, ahorros: 0, ahorrosMeta: 0, historialAhorros: [], perfilNombre: "Hola, Edward", perfilFoto: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238E8E93'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E", config: { sounds: true, vacation: false, pin: null } };
       PILARES.forEach(p => {
-        let textoDefecto = p.id === 'carro' ? "Revisar aceite/cauchos/luces" : p.texto;
-        let horaDefecto = p.id === 'carro' ? "11:00" : "";
-        estadoInicial.tareasHoy[p.id] = [{ id: Date.now() + Math.random(), texto: textoDefecto, hora: horaDefecto, nota: "", hecho: false, prioridad: false, subtareas: [] }];
+        estadoInicial.tareasHoy[p.id] = [{ id: Date.now() + Math.random(), texto: p.id === 'carro' ? "Revisar aceite" : p.texto, hora: p.id === 'carro' ? "11:00" : "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] }];
         estadoInicial.rachasPilar[p.id] = 0;
       });
       return estadoInicial;
     }
     function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
 
-    function obtenerFechaStr(d) {
-      const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
+    function obtenerFechaStr(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
     function hoyStr() { return obtenerFechaStr(new Date()); }
     function ayerStr() { return obtenerFechaStr(new Date(Date.now()-86400000)); }
 
     function playDing() {
+      if(state.config.sounds === false) return;
       try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const ctx = new AudioContext();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
         osc.connect(gain); gain.connect(ctx.destination);
         osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime);
         gain.gain.setValueAtTime(0.5, ctx.currentTime);
@@ -504,21 +498,134 @@
       setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
     }
 
+    // --- SEGURIDAD (PIN) ---
+    function verificarPIN() {
+      if (state.config.pin && state.config.pin.length === 4) {
+        document.getElementById("lock-screen").classList.add("active");
+      }
+    }
+
+    function pressPin(num) {
+      if (num === 'del') {
+        pinInput = pinInput.slice(0, -1);
+      } else if (pinInput.length < 4) {
+        pinInput += num;
+      }
+      
+      const dots = document.querySelectorAll(".pin-dot");
+      dots.forEach((dot, i) => { if(i < pinInput.length) dot.classList.add("filled"); else dot.classList.remove("filled"); });
+
+      if (pinInput.length === 4) {
+        if (pinInput === state.config.pin) {
+          document.getElementById("lock-screen").classList.remove("active");
+          pinInput = "";
+          setTimeout(() => document.querySelectorAll(".pin-dot").forEach(d => d.classList.remove("filled")), 300);
+        } else {
+          alert("PIN Incorrecto");
+          pinInput = "";
+          document.querySelectorAll(".pin-dot").forEach(d => d.classList.remove("filled"));
+        }
+      }
+    }
+
+    function configurarPIN() {
+      const nuevo = prompt("Ingresa un PIN de 4 dígitos (o deja vacío para quitarlo):");
+      if (nuevo === null) return;
+      if (nuevo === "") {
+        state.config.pin = null; save(); alert("Bloqueo desactivado.");
+      } else if (/^\d{4}$/.test(nuevo)) {
+        state.config.pin = nuevo; save(); alert("PIN guardado correctamente.");
+      } else {
+        alert("El PIN debe ser exactamente 4 números.");
+      }
+    }
+
+    // --- RESPALDO (BACKUP) ---
+    function descargarBackup() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+      const dlAnchorElem = document.createElement('a');
+      dlAnchorElem.setAttribute("href", dataStr);
+      dlAnchorElem.setAttribute("download", "mi_orden_backup.json");
+      dlAnchorElem.click();
+    }
+
+    function restaurarBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if(imported.tareasHoy) {
+            state = imported;
+            save();
+            alert("Datos restaurados con éxito. La app se reiniciará.");
+            location.reload();
+          } else {
+            alert("Archivo no válido.");
+          }
+        } catch (err) {
+          alert("Error al leer el archivo.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // --- CONFIGURACIONES ---
+    function toggleConfig(key, val) {
+      state.config[key] = val;
+      save();
+    }
+
+    // --- EXPORTAR CALENDARIO (.ICS) ---
+    function exportarICS() {
+      let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MiOrden//ES\n";
+      let count = 0;
+      
+      PILARES.forEach(pilar => {
+        (state.tareasHoy[pilar.id] || []).forEach(t => {
+          if (t.hora) {
+            count++;
+            const [hh, mm] = t.hora.split(":");
+            const startDate = new Date();
+            startDate.setHours(parseInt(hh), parseInt(mm), 0, 0);
+            const endDate = new Date(startDate.getTime() + (t.duracion || 30) * 60000); 
+            
+            const fmt = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            
+            ics += "BEGIN:VEVENT\n";
+            ics += `SUMMARY:${pilar.texto} - ${t.texto}\n`;
+            ics += `DESCRIPTION:${t.nota || 'Sin notas'}\n`;
+            ics += `DTSTART:${fmt(startDate)}\n`;
+            ics += `DTEND:${fmt(endDate)}\n`;
+            ics += "END:VEVENT\n";
+          }
+        });
+      });
+      ics += "END:VCALENDAR";
+
+      if (count === 0) { alert("No hay tareas con hora hoy para exportar."); return; }
+
+      const dataStr = "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
+      const dlAnchorElem = document.createElement('a');
+      dlAnchorElem.setAttribute("href", dataStr);
+      dlAnchorElem.setAttribute("download", "tareas_hoy.ics");
+      dlAnchorElem.click();
+    }
+
     // --- NOTIFICACIONES ---
     function actualizarDebug() {
       const pId = localStorage.getItem("onesignal_player_id");
       const aKey = localStorage.getItem("onesignal_api_key");
-      let html = `<strong>Player ID:</strong> ${pId ? pId.substring(0, 15) + '...' : '❌ NO DETECTADO'}\n`;
-      html += `<strong>API Key:</strong> ${aKey ? '✅ Guardada' : '❌ No guardada'}\n`;
-      document.getElementById("debugInfo").innerHTML = html;
+      document.getElementById("debugInfo").innerHTML = `<strong>ID:</strong> ${pId ? pId.substring(0, 12) + '...' : '❌'}\n<strong>Key:</strong> ${aKey ? '✅' : '❌'}`;
     }
 
     async function forzarID() {
       if (window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
         const id = OneSignal.User.PushSubscription.id;
         if (id) { localStorage.setItem("onesignal_player_id", id); alert("ID guardado: " + id); }
-        else alert("OneSignal aún no tiene un ID.");
-      } else alert("OneSignal aún no ha cargado.");
+        else alert("OneSignal no ha generado un ID.");
+      } else alert("OneSignal aún no carga.");
       actualizarDebug();
     }
 
@@ -526,20 +633,15 @@
       const apiKey = localStorage.getItem("onesignal_api_key");
       const playerId = localStorage.getItem("onesignal_player_id");
       if (!apiKey || !playerId || !horaStr) return;
-
       const [hh, mm] = horaStr.split(":");
       const ahora = new Date();
       let fechaEnvio = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), parseInt(hh), parseInt(mm), 0);
       if (fechaEnvio < ahora) fechaEnvio.setDate(fechaEnvio.getDate() + 1);
-
       try {
         await fetch("https://api.onesignal.com/notifications", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": "Key " + apiKey },
-          body: JSON.stringify({
-            app_id: ONESIGNAL_APP_ID, include_player_ids: [playerId],
-            headings: { en: titulo }, contents: { en: mensaje }, send_after: fechaEnvio.toISOString()
-          })
+          body: JSON.stringify({ app_id: ONESIGNAL_APP_ID, include_player_ids: [playerId], headings: { en: titulo }, contents: { en: mensaje }, send_after: fechaEnvio.toISOString() })
         });
       } catch (err) {}
     }
@@ -547,183 +649,174 @@
     function guardarApiKey() {
       const val = document.getElementById("apiKeyInput").value.trim();
       if (val.startsWith("os_v2_")) {
-        localStorage.setItem("onesignal_api_key", val);
-        document.getElementById("apiKeyStatus").style.display = "block";
-        actualizarDebug();
-      } else alert("La llave no es válida.");
+        localStorage.setItem("onesignal_api_key", val); actualizarDebug(); alert("Llave guardada.");
+      } else alert("La llave debe empezar con os_v2_");
     }
 
     // --- NAVEGACIÓN ---
     function cambiarPestana(id, btn, titulo) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-      
       document.getElementById('tab-' + id).classList.add('active');
       
-      if (id === 'ahorros') {
-        document.getElementById('btn-ahorros').classList.add('active');
-      } else {
-        document.getElementById('btn-ahorros').classList.remove('active');
-        btn.classList.add('active');
-      }
+      if (id === 'ahorros') document.getElementById('btn-ahorros').classList.add('active');
+      else { document.getElementById('btn-ahorros').classList.remove('active'); btn.classList.add('active'); }
       
       document.getElementById('tituloPestana').textContent = titulo;
-      if(id === 'resumen') { renderResumenYHistorial(); actualizarDebug(); document.getElementById("resultadoBalance").style.display = "none"; }
+      if(id === 'resumen') { renderResumenYHistorial(); actualizarDebug(); }
       if(id === 'ahorros') { renderAhorros(); }
+      if(id === 'notas') { renderNotas(); }
     }
 
-    // --- LÓGICA DE AHORROS Y PERFIL ---
-    function editarPerfil() {
-      document.getElementById("photoUpload").click();
-    }
-
+    // --- AHORROS ---
+    function editarPerfil() { document.getElementById("photoUpload").click(); }
     function subirFoto(event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-          state.perfilFoto = e.target.result;
-          save();
-          renderAhorros();
-        };
+        reader.onload = function(e) { state.perfilFoto = e.target.result; save(); renderAhorros(); };
         reader.readAsDataURL(file);
       }
     }
 
+    function editarMeta() {
+      const val = prompt("¿Cuál es tu meta de ahorro?", state.ahorrosMeta);
+      if (val !== null && !isNaN(parseFloat(val))) { state.ahorrosMeta = parseFloat(val); save(); renderAhorros(); }
+    }
+
     function abrirModal(tipo) {
-      accionAhorro = tipo;
-      editandoTransaccionId = null;
-      
+      accionAhorro = tipo; editandoTransaccionId = null;
       document.getElementById("modalTitle").textContent = tipo === 'add' ? "Añadir Dinero" : "Retirar Dinero";
       document.getElementById("inputMonto").value = "";
       document.getElementById("btnConfirmarMonto").style.background = tipo === 'add' ? 'var(--ok)' : 'var(--bad)';
       document.getElementById("btnConfirmarMonto").style.color = tipo === 'add' ? '#000' : '#fff';
       document.getElementById("btnEliminarMovimiento").style.display = "none";
-      
       document.getElementById("modalAhorro").classList.add("active");
     }
 
     function editarTransaccion(id) {
       const trans = state.historialAhorros.find(t => t.id === id);
       if (!trans) return;
-      
-      editandoTransaccionId = id;
-      accionAhorro = trans.tipo;
-      
+      editandoTransaccionId = id; accionAhorro = trans.tipo;
       document.getElementById("modalTitle").textContent = "Editar Movimiento";
       document.getElementById("inputMonto").value = trans.monto;
+      document.getElementById("inputCategoria").value = trans.categoria || "General";
       document.getElementById("btnConfirmarMonto").style.background = 'var(--txt)';
       document.getElementById("btnConfirmarMonto").style.color = 'var(--bg)';
       document.getElementById("btnEliminarMovimiento").style.display = "block";
-      
       document.getElementById("modalAhorro").classList.add("active");
     }
 
-    function cerrarModal() {
-      document.getElementById("modalAhorro").classList.remove("active");
-      editandoTransaccionId = null;
-    }
+    function cerrarModal() { document.getElementById("modalAhorro").classList.remove("active"); editandoTransaccionId = null; }
 
     function confirmarMonto() {
-      const valStr = document.getElementById("inputMonto").value;
-      const val = parseFloat(valStr);
-      
-      if (isNaN(val) || val <= 0) {
-        alert("Por favor, ingresa un monto válido mayor a 0.");
-        return;
-      }
+      const val = parseFloat(document.getElementById("inputMonto").value);
+      const cat = document.getElementById("inputCategoria").value;
+      if (isNaN(val) || val <= 0) { alert("Monto inválido."); return; }
 
       if (editandoTransaccionId) {
-        // Editando existente
         const trans = state.historialAhorros.find(t => t.id === editandoTransaccionId);
-        if (trans) {
-           trans.monto = val;
-        }
+        if (trans) { trans.monto = val; trans.categoria = cat; }
       } else {
-        // Creando nuevo
-        if (accionAhorro === 'sub' && val > state.ahorros) {
-          alert("No puedes retirar más de lo que tienes ahorrado.");
-          return;
-        }
-        
-        state.historialAhorros.unshift({ 
-            id: Date.now(), 
-            tipo: accionAhorro === 'add' ? 'ingreso' : 'egreso', 
-            monto: val, 
-            fecha: new Date().toLocaleString('es-ES', {day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit'}) 
-        });
+        if (accionAhorro === 'sub' && val > state.ahorros) { alert("No tienes suficiente saldo."); return; }
+        state.historialAhorros.unshift({ id: Date.now(), tipo: accionAhorro === 'add' ? 'ingreso' : 'egreso', monto: val, categoria: cat, fecha: new Date().toLocaleString('es-ES', {day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit'}) });
       }
-      
-      recalcularAhorros();
-      cerrarModal();
+      recalcularAhorros(); cerrarModal();
     }
 
     function eliminarTransaccion() {
-      if (!confirm("¿Seguro que quieres eliminar este movimiento?")) return;
+      if (!confirm("¿Eliminar este movimiento?")) return;
       state.historialAhorros = state.historialAhorros.filter(t => t.id !== editandoTransaccionId);
-      recalcularAhorros();
-      cerrarModal();
+      recalcularAhorros(); cerrarModal();
     }
 
     function recalcularAhorros() {
-      // Recalcula el total basado en el historial para evitar errores
-      state.ahorros = state.historialAhorros.reduce((total, t) => {
-        return total + (t.tipo === 'ingreso' ? t.monto : -t.monto);
-      }, 0);
-      
-      save();
-      renderAhorros();
-      if (state.ahorros >= 0) playDing();
+      state.ahorros = state.historialAhorros.reduce((total, t) => total + (t.tipo === 'ingreso' ? t.monto : -t.monto), 0);
+      save(); renderAhorros(); if (state.ahorros >= 0) playDing();
     }
 
     function renderAhorros() {
-      // Render perfil
       document.getElementById("profileName").textContent = state.perfilNombre;
       document.getElementById("profilePic").src = state.perfilFoto;
-
-      // Render saldo
       document.getElementById("walletBalance").textContent = "$" + (state.ahorros || 0).toFixed(2);
       
-      // Render historial
-      const cont = document.getElementById("historyList");
-      if (state.historialAhorros.length === 0) {
-        cont.innerHTML = '<div style="color:var(--muted);font-size:14px;text-align:center;padding:20px;">No hay movimientos aún.</div>';
-        return;
+      // Render Meta
+      if (state.ahorrosMeta > 0) {
+        document.getElementById("goalLabel").textContent = "Meta: $" + state.ahorrosMeta.toFixed(2);
+        let porc = (state.ahorros / state.ahorrosMeta) * 100;
+        if (porc > 100) porc = 100;
+        document.getElementById("goalPercent").textContent = Math.round(porc) + "%";
+        document.getElementById("goalFill").style.width = porc + "%";
+      } else {
+        document.getElementById("goalLabel").textContent = "Sin meta definida";
+        document.getElementById("goalPercent").textContent = "";
+        document.getElementById("goalFill").style.width = "0%";
       }
-      
-      cont.innerHTML = state.historialAhorros.map(h => {
-        const isIngreso = h.tipo === 'ingreso';
-        const icono = isIngreso ? '💰' : '🛒';
-        const signo = isIngreso ? '+' : '-';
-        const clase = isIngreso ? 'ingreso' : 'egreso';
-        return `
-          <div class="history-item" onclick="editarTransaccion(${h.id})">
-            <div class="history-icon">${icono}</div>
-            <div class="history-info">
-              <div class="history-title">${isIngreso ? 'Ahorro' : 'Retiro'}</div>
-              <div class="history-date">${h.fecha}</div>
-            </div>
-            <div class="history-right">
-              <div class="history-amount ${clase}">${signo}$${h.monto.toFixed(2)}</div>
-              <div class="edit-icon">✏️</div>
-            </div>
+
+      const cont = document.getElementById("historyList");
+      if (state.historialAhorros.length === 0) { cont.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">No hay movimientos.</div>'; return; }
+      cont.innerHTML = state.historialAhorros.map(h => `
+        <div class="history-item" onclick="editarTransaccion(${h.id})">
+          <div class="history-icon">${h.tipo === 'ingreso' ? '💰' : '🛒'}</div>
+          <div class="history-info">
+            <div class="history-title">${h.categoria || (h.tipo === 'ingreso' ? 'Ahorro' : 'Retiro')}</div>
+            <div class="history-date">${h.fecha}</div>
           </div>
-        `;
-      }).join('');
+          <div class="history-right">
+            <div class="history-amount ${h.tipo === 'ingreso' ? 'ingreso' : 'egreso'}">${h.tipo === 'ingreso' ? '+' : '-'}$${h.monto.toFixed(2)}</div>
+            <div class="edit-icon">✏️</div>
+          </div>
+        </div>
+      `).join('');
     }
 
-    // --- RESTO DE FUNCIONES (RENDERIZADO DE TAREAS Y APP) ---
+    // --- NOTAS (FIJAR Y ETIQUETAS) ---
+    function guardarNota() {
+      const txt = document.getElementById("nuevaNotaTexto").value.trim();
+      const tag = document.getElementById("nuevaNotaTag").value;
+      if (!txt) return;
+      state.notas.push({ id: Date.now(), texto: txt, tag: tag, pinned: false });
+      save(); renderNotas();
+      document.getElementById("nuevaNotaTexto").value = "";
+      document.getElementById("modalNota").classList.remove("active");
+    }
+
+    function renderNotas() {
+      const cont = document.getElementById("notasLista");
+      if (state.notas.length === 0) { cont.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">No hay notas.</div>'; return; }
+      
+      // Ordenar: Fijadas primero
+      const sortedNotas = [...state.notas].sort((a, b) => (b.pinned === true ? 1 : 0) - (a.pinned === true ? 1 : 0));
+
+      cont.innerHTML = sortedNotas.map(n => `
+        <div class="note-card">
+          <div class="note-top">
+            <div class="note-text">${n.texto}</div>
+            <button class="pin-btn ${n.pinned ? 'pinned' : ''}" onclick="togglePinNota(${n.id})">📌</button>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+             <div class="note-tag">#${n.tag || 'General'}</div>
+             <button class="btn-icon danger" style="padding:4px;" onclick="borrarNota(${n.id})"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function togglePinNota(id) {
+      const n = state.notas.find(x => x.id === id);
+      if (n) { n.pinned = !n.pinned; save(); renderNotas(); }
+    }
+
+    function borrarNota(id) { if (!confirm("¿Borrar?")) return; state.notas = state.notas.filter(x=>x.id!==id); save(); renderNotas(); }
+
+    // --- RESTO DE FUNCIONES BÁSICAS ---
     function renderCalendario() {
-      const cont = document.getElementById("calendarStrip");
-      cont.innerHTML = "";
+      const cont = document.getElementById("calendarStrip"); cont.innerHTML = "";
       const hoy = new Date(); const inicioSemana = new Date(hoy); inicioSemana.setDate(hoy.getDate() - hoy.getDay());
       const nombresDias = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"];
-
       for (let i = 0; i < 7; i++) {
         const d = new Date(inicioSemana); d.setDate(inicioSemana.getDate() + i);
-        const fechaStr = obtenerFechaStr(d);
-        const el = document.createElement("div");
-        el.className = "cal-day";
+        const fechaStr = obtenerFechaStr(d); const el = document.createElement("div"); el.className = "cal-day";
         const esHoy = fechaStr === hoyStr(); const esPasado = d < new Date(hoyStr()) && !esHoy; const esFuturo = d > new Date(hoyStr()) && !esHoy;
         if (esHoy) el.classList.add("active"); if (esPasado) el.classList.add("past"); if (esFuturo) el.classList.add("future");
         if (fechaStr === fechaSeleccionada && !esHoy) el.style.backgroundColor = "var(--border)";
@@ -734,120 +827,68 @@
     }
 
     function renderDiarias() {
-      const cont = document.getElementById("diarias");
-      cont.innerHTML = "";
+      const cont = document.getElementById("diarias"); cont.innerHTML = "";
       const esHoy = fechaSeleccionada === hoyStr();
-      
-      const alerta = document.getElementById("alertaFechaPasada");
-      if (!esHoy) alerta.innerHTML = `<div style="background:rgba(255,159,10,0.1); color:var(--warn); padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px; text-align:center;">Estás viendo el pasado.</div>`;
-      else alerta.innerHTML = "";
+      document.getElementById("alertaFechaPasada").innerHTML = !esHoy ? `<div style="background:rgba(255,159,10,0.1); color:var(--warn); padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px; text-align:center;">Viendo el pasado.</div>` : "";
 
       PILARES.forEach(pilar => {
-        const card = document.createElement("div");
-        card.className = "card-separada";
-        
+        const card = document.createElement("div"); card.className = "card-separada";
         const tareasDelPilar = state.tareasHoy[pilar.id] || [];
         const todasFinalizadas = tareasDelPilar.length > 0 && tareasDelPilar.every(t => t.hecho);
         const rachaP = state.rachasPilar[pilar.id] || 0;
         
-        let deleteBtnHtml = '';
-        if (pilar.id.startsWith("custom_") && esHoy) {
-            deleteBtnHtml = `<button onclick="eliminarPilar('${pilar.id}')" style="background:transparent; border:none; color:var(--bad); cursor:pointer;"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>`;
-        }
+        let deleteBtnHtml = (pilar.id.startsWith("custom_") && esHoy) ? `<button onclick="eliminarPilar('${pilar.id}')" style="background:transparent; border:none; color:var(--bad); cursor:pointer;"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>` : '';
 
         card.innerHTML = `
           <div class="card-header" style="border-top: 3px solid ${pilar.color}">
-            <h3>
-              <div class="editable-title" onclick="editarNombrePilar('${pilar.id}')">
-                <span>${pilar.texto}</span>
-                <span class="pencil-icon">✏️</span>
-              </div>
-              ${rachaP > 0 ? `<span class="racha-pilar" style="color:${pilar.color}">🔥 Racha: ${rachaP} días</span>` : ''}
-            </h3>
-            <div style="display:flex; align-items:center; gap:8px;">
-              ${todasFinalizadas && esHoy ? '<span class="badge-completado">HECHO</span>' : ''}
-              ${deleteBtnHtml}
-            </div>
+            <h3><div class="editable-title" onclick="editarNombrePilar('${pilar.id}')"><span>${pilar.texto}</span><span class="pencil-icon">✏️</span></div>
+            ${rachaP > 0 ? `<span class="racha-pilar" style="color:${pilar.color}">🔥 Racha: ${rachaP}</span>` : ''}</h3>
+            <div style="display:flex; gap:8px;">${todasFinalizadas && esHoy ? '<span class="badge-completado">HECHO</span>' : ''}${deleteBtnHtml}</div>
           </div>
-          <div class="card-body"></div>
-        `;
-
+          <div class="card-body"></div>`;
+        
         const body = card.querySelector(".card-body");
-
         tareasDelPilar.forEach((t, index) => {
           const el = document.createElement("div");
-          let clases = "task ";
-          if (t.hecho) clases += "hecho ";
-          if (t.prioridad) clases += "prioridad ";
-          el.className = clases;
-
-          const disabledAttr = esHoy ? "" : "disabled";
+          el.className = `task ${t.hecho ? 'hecho' : ''} ${t.prioridad ? 'prioridad' : ''}`;
           const styleDisabled = esHoy ? "" : "opacity: 0.6; pointer-events: none;";
 
-          let subHtml = '';
-          if (t.subtareas && t.subtareas.length > 0) {
-             subHtml = `<div class="subtasks-container active" id="subs-${t.id}">
-               ${t.subtareas.map((st, sIdx) => `
-                 <div class="subtask-item ${st.hecho ? 'done' : ''}">
-                   <button onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})">${st.hecho ? '✅' : '⬜'}</button>
-                   <span onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})" style="flex:1; cursor:pointer;">${st.texto}</span>
-                   <button onclick="eliminarSubtask('${pilar.id}', ${index}, ${sIdx})" style="color:var(--bad);">×</button>
-                 </div>
-               `).join('')}
-               <div class="subtask-add-row">
-                 <input type="text" placeholder="Nuevo paso..." id="input-sub-${t.id}" onkeypress="if(event.key==='Enter') addSubtask('${pilar.id}', ${index})" />
-                 <button onclick="addSubtask('${pilar.id}', ${index})">+</button>
-               </div>
-             </div>`;
-          } else {
-             subHtml = `<div class="subtasks-container" id="subs-${t.id}">
-               <div class="subtask-add-row">
-                 <input type="text" placeholder="Nuevo paso..." id="input-sub-${t.id}" onkeypress="if(event.key==='Enter') addSubtask('${pilar.id}', ${index})" />
-                 <button onclick="addSubtask('${pilar.id}', ${index})">+</button>
-               </div>
-             </div>`;
-          }
+          let subHtml = `<div class="subtasks-container" id="subs-${t.id}">${(t.subtareas||[]).map((st, sIdx) => `<div class="subtask-item ${st.hecho ? 'done' : ''}"><button onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})">${st.hecho ? '✅' : '⬜'}</button><span onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})" style="flex:1; cursor:pointer;">${st.texto}</span><button onclick="eliminarSubtask('${pilar.id}', ${index}, ${sIdx})" style="color:var(--bad);">×</button></div>`).join('')}<div class="subtask-add-row"><input type="text" placeholder="Nuevo paso..." id="input-sub-${t.id}" onkeypress="if(event.key==='Enter') addSubtask('${pilar.id}', ${index})" /><button onclick="addSubtask('${pilar.id}', ${index})">+</button></div></div>`;
+          if(t.subtareas && t.subtareas.length > 0) subHtml = subHtml.replace('class="subtasks-container"', 'class="subtasks-container active"');
 
           el.innerHTML = `
             <div class="task-top" style="${styleDisabled}">
-              <button class="check" onclick="toggleTarea('${pilar.id}', ${index})" ${disabledAttr}><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
+              <button class="check" onclick="toggleTarea('${pilar.id}', ${index})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
               <div class="txt" onclick="toggleSubtasksView('${t.id}')" style="cursor:pointer;">${t.texto}</div>
-              <input type="time" value="${t.hora || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'hora', this.value)" ${disabledAttr} />
+              <input type="time" value="${t.hora || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'hora', this.value)" />
             </div>
             <div class="nota-row" style="${styleDisabled}">
-              <input type="text" class="nota-input" placeholder="${esHoy ? 'Nota...' : 'Sin nota'}" value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'nota', this.value)" ${disabledAttr} />
+              <input type="text" class="nota-input" placeholder="Nota..." value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'nota', this.value)" />
+              <input type="number" placeholder="Min" style="width: 60px; padding: 10px; text-align:center;" value="${t.duracion || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'duracion', parseInt(this.value) || 0)" title="Duración en minutos" />
             </div>
             ${subHtml}
-            ${esHoy ? `
-            <div class="action-btns" style="${styleDisabled}">
+            ${esHoy ? `<div class="action-btns" style="${styleDisabled}">
               <button class="btn-icon" onclick="toggleSubtasksView('${t.id}')">☑️</button>
               <button class="btn-icon priority-btn" onclick="togglePrioridad('${pilar.id}', ${index})"><svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></button>
-              <button class="btn-icon" onclick="iniciarPomodoro('${t.texto}')"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></button>
+              <button class="btn-icon" onclick="seleccionarTiempoEnfoque('${t.texto}')"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></button>
               <button class="btn-icon" onclick="posponerTarea('${pilar.id}', ${index})"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>
               <button class="btn-icon danger" onclick="eliminarTareaCompleta('${pilar.id}', ${index})"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
-            </div>` : ''}
-          `;
+            </div>` : ''}`;
           body.appendChild(el);
         });
 
         if (esHoy) {
-          const btnAdd = document.createElement("button");
-          btnAdd.className = "secondary";
-          btnAdd.innerHTML = `+ Añadir tarea`;
-          btnAdd.onclick = () => agregarTareaAlPilar(pilar.id);
-          body.appendChild(btnAdd);
+          const btnAdd = document.createElement("button"); btnAdd.className = "secondary"; btnAdd.innerHTML = `+ Añadir tarea`;
+          btnAdd.onclick = () => agregarTareaAlPilar(pilar.id); body.appendChild(btnAdd);
         }
-
         cont.appendChild(card);
       });
       if (esHoy) actualizarRacha();
     }
 
     function agregarTareaAlPilar(pilarId) {
-      const texto = prompt("¿Qué tarea quieres añadir?");
-      if (!texto) return;
-      if (!state.tareasHoy[pilarId]) state.tareasHoy[pilarId] = [];
-      state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: texto, hora: "", nota: "", hecho: false, prioridad: false, subtareas: [] });
+      const texto = prompt("¿Qué tarea quieres añadir?"); if (!texto) return;
+      state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: texto, hora: "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] });
       save(); renderDiarias();
     }
 
@@ -855,32 +896,23 @@
       if (!confirm("¿Eliminar esta tarea?")) return;
       state.tareasHoy[pilarId].splice(index, 1);
       if (state.tareasHoy[pilarId].length === 0) {
-        const p = PILARES.find(p=>p.id===pilarId);
-        state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: p ? p.texto : "Nueva", hora: "", nota: "", hecho: false, prioridad: false, subtareas: [] });
+        state.tareasHoy[pilarId].push({ id: Date.now(), texto: PILARES.find(p=>p.id===pilarId).texto, hora: "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] });
       }
       save(); renderDiarias();
     }
 
     function toggleTarea(pilarId, index) {
       if (fechaSeleccionada !== hoyStr()) return;
-      const t = state.tareasHoy[pilarId][index];
-      t.hecho = !t.hecho;
-      save(); 
-      if (navigator.vibrate) navigator.vibrate(t.hecho ? 50 : 20);
-      if (t.hecho) mostrarToast();
-      renderDiarias();
+      const t = state.tareasHoy[pilarId][index]; t.hecho = !t.hecho;
+      save(); if (navigator.vibrate) navigator.vibrate(t.hecho ? 50 : 20);
+      if (t.hecho) mostrarToast(); renderDiarias();
     }
 
-    function togglePrioridad(pilarId, index) {
-      state.tareasHoy[pilarId][index].prioridad = !state.tareasHoy[pilarId][index].prioridad;
-      save(); renderDiarias();
-    }
+    function togglePrioridad(pilarId, index) { state.tareasHoy[pilarId][index].prioridad = !state.tareasHoy[pilarId][index].prioridad; save(); renderDiarias(); }
 
     function updateTarea(pilarId, index, campo, valor) {
       if (fechaSeleccionada !== hoyStr()) return;
-      const t = state.tareasHoy[pilarId][index];
-      t[campo] = valor;
-      save();
+      const t = state.tareasHoy[pilarId][index]; t[campo] = valor; save();
       if (campo === 'hora' && valor) programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
     }
 
@@ -888,43 +920,29 @@
       const t = state.tareasHoy[pilarId][index];
       if (!confirm("¿Pasar a pendientes de mañana?")) return;
       state.compras.push({ id: Date.now(), texto: "⏭️ " + t.texto + (t.nota ? ": " + t.nota : ""), creado: ayerStr(), hora: t.hora, hecho: false });
-      state.tareasHoy[pilarId].splice(index, 1);
-      save(); renderDiarias(); renderCompras();
+      state.tareasHoy[pilarId].splice(index, 1); save(); renderDiarias(); renderCompras();
     }
 
-    function toggleSubtasksView(taskId) {
-      const el = document.getElementById('subs-' + taskId);
-      if(el) el.classList.toggle('active');
-    }
-
+    function toggleSubtasksView(taskId) { const el = document.getElementById('subs-' + taskId); if(el) el.classList.toggle('active'); }
     function addSubtask(pilarId, index) {
-      const t = state.tareasHoy[pilarId][index];
-      const input = document.getElementById('input-sub-' + t.id);
+      const t = state.tareasHoy[pilarId][index]; const input = document.getElementById('input-sub-' + t.id);
       if(!input || !input.value.trim()) return;
-      if(!t.subtareas) t.subtareas = [];
-      t.subtareas.push({ id: Date.now(), texto: input.value.trim(), hecho: false });
-      input.value = "";
-      save(); renderDiarias();
+      t.subtareas.push({ id: Date.now(), texto: input.value.trim(), hecho: false }); input.value = ""; save(); renderDiarias();
+    }
+    function toggleSubtask(pilarId, index, subIndex) { const t = state.tareasHoy[pilarId][index]; t.subtareas[subIndex].hecho = !t.subtareas[subIndex].hecho; if(t.subtareas[subIndex].hecho) playDing(); save(); renderDiarias(); }
+    function eliminarSubtask(pilarId, index, subIndex) { const t = state.tareasHoy[pilarId][index]; t.subtareas.splice(subIndex, 1); save(); renderDiarias(); }
+
+    // --- ENFOQUE ---
+    function seleccionarTiempoEnfoque(nombreTarea) {
+      const tiempo = prompt("¿Cuántos minutos de enfoque? (15, 25, 45, 60)", "25");
+      if (tiempo && !isNaN(tiempo)) iniciarPomodoro(nombreTarea, parseInt(tiempo));
     }
 
-    function toggleSubtask(pilarId, index, subIndex) {
-      const t = state.tareasHoy[pilarId][index];
-      t.subtareas[subIndex].hecho = !t.subtareas[subIndex].hecho;
-      if(t.subtareas[subIndex].hecho) playDing();
-      save(); renderDiarias();
-    }
-
-    function eliminarSubtask(pilarId, index, subIndex) {
-      const t = state.tareasHoy[pilarId][index];
-      t.subtareas.splice(subIndex, 1);
-      save(); renderDiarias();
-    }
-
-    function iniciarPomodoro(nombreTarea) {
+    function iniciarPomodoro(nombreTarea, minutos) {
       if (pomodoroInterval) clearInterval(pomodoroInterval);
-      pomodoroTiempo = 25 * 60;
+      pomodoroTiempo = minutos * 60;
       document.getElementById("focus-task-name").textContent = nombreTarea;
-      document.getElementById("focus-timer-display").textContent = "25:00";
+      document.getElementById("focus-timer-display").textContent = minutos + ":00";
       document.getElementById("focus-overlay").classList.add("active");
 
       pomodoroInterval = setInterval(() => {
@@ -935,28 +953,42 @@
           clearInterval(pomodoroInterval); pomodoroInterval = null;
           document.getElementById("focus-overlay").classList.remove("active");
           if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]);
-          alert(`¡TIEMPO! ⏰\nHas completado 25 minutos de enfoque en: ${nombreTarea}`);
-          programarNotificacion("¡Enfoque terminado!", "Completaste 25 min en: " + nombreTarea, new Date().toTimeString().slice(0,5));
+          alert(`¡TIEMPO! ⏰\nHas completado ${minutos} minutos de enfoque.`);
+          programarNotificacion("¡Enfoque terminado!", `Completaste ${minutos} min en: ` + nombreTarea, new Date().toTimeString().slice(0,5));
         }
       }, 1000);
     }
+    function abandonarPomodoro() { if(!confirm("¿Abandonar enfoque?")) return; clearInterval(pomodoroInterval); pomodoroInterval = null; document.getElementById("focus-overlay").classList.remove("active"); }
 
-    function abandonarPomodoro() {
-      if(!confirm("¿Seguro que quieres abandonar el enfoque? El tiempo no contará.")) return;
-      if (pomodoroInterval) clearInterval(pomodoroInterval);
-      pomodoroInterval = null;
-      document.getElementById("focus-overlay").classList.remove("active");
+    // --- COMPRAS Y OTRAS FUNCIONES ---
+    function addCompra() {
+      const txt = document.getElementById("nuevaCompra").value.trim(); const hora = document.getElementById("horaCompra").value;
+      if (!txt) return;
+      state.compras.push({ id: Date.now(), texto: txt, creado: hoyStr(), hora, hecho:false });
+      document.getElementById("nuevaCompra").value = ""; document.getElementById("horaCompra").value = "";
+      save(); renderCompras(); if (hora) programarNotificacion("Compra pendiente", txt, hora);
     }
+    function renderCompras() {
+      const cont = document.getElementById("compras");
+      cont.innerHTML = state.compras.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:10px;">Nada pendiente.</div>' : "";
+      state.compras.forEach(c => {
+        const el = document.createElement("div"); el.className = "task " + (c.hecho?"hecho":"");
+        el.innerHTML = `<div class="task-top"><button class="check" onclick="toggleCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button><div class="txt" style="font-weight:400; font-size:15px;">${c.texto} ${c.creado !== hoyStr()?'<span style="font-size:10px;color:var(--warn)">(de ayer)</span>':''}</div><button class="btn-icon danger" onclick="borrarCompra(${c.id})"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`;
+        cont.appendChild(el);
+      });
+    }
+    function toggleCompra(id) { const c = state.compras.find(x=>x.id===id); if (c) { c.hecho = !c.hecho; save(); renderCompras(); if(c.hecho) mostrarToast(); } }
+    function borrarCompra(id) { if (!confirm("¿Borrar?")) return; state.compras = state.compras.filter(x=>x.id!==id); save(); renderCompras(); }
 
     function generarBalance() {
       const cont = document.getElementById("listaFaltantes"); cont.innerHTML = ""; let faltantes = 0;
       PILARES.forEach(pilar => {
         (state.tareasHoy[pilar.id] || []).forEach(t => {
-          if (!t.hecho) { faltantes++; cont.innerHTML += `<div class="balance-item"><strong>${pilar.texto}:</strong> ${t.texto} <br><span style="font-size:12px; color:var(--muted);">${t.nota || 'Sin nota'}</span></div>`; }
+          if (!t.hecho) { faltantes++; cont.innerHTML += `<div style="background:var(--input-bg); padding:10px; border-radius:10px; margin-bottom:8px; font-size:13px; border-left:3px solid var(--warn);"><strong>${pilar.texto}:</strong> ${t.texto}</div>`; }
         });
       });
       if (faltantes === 0) {
-        cont.innerHTML = `<div style="color:var(--ok); font-weight:bold; font-size:16px; text-align:center; padding:10px;">¡Día perfecto! No te faltó nada. 🏆</div>`;
+        cont.innerHTML = `<div style="color:var(--ok); font-weight:bold; text-align:center; padding:10px;">¡Día perfecto! 🏆</div>`;
         document.querySelector("#resultadoBalance button").style.display = "none";
       } else {
         cont.innerHTML = `<div style="margin-bottom:10px; font-size:13px;">Te faltaron <b>${faltantes}</b> tareas.</div>` + cont.innerHTML;
@@ -967,135 +999,83 @@
 
     function pasarFaltantesAManana() {
       if (!confirm("¿Pasar todas las tareas que faltaron a pendientes de mañana?")) return;
-      PILARES.forEach(pilar => {
-        (state.tareasHoy[pilar.id] || []).forEach(t => {
-          if (!t.hecho) state.compras.push({ id: Date.now() + Math.random(), texto: "⏭️ " + pilar.texto + ": " + t.texto, creado: hoyStr(), hora: t.hora || "", hecho: false });
-        });
-      });
-      save(); alert("Tareas pasadas a pendientes."); document.getElementById("resultadoBalance").style.display = "none"; renderCompras(); renderResumenYHistorial();
+      PILARES.forEach(pilar => { (state.tareasHoy[pilar.id] || []).forEach(t => { if (!t.hecho) state.compras.push({ id: Date.now() + Math.random(), texto: "⏭️ " + pilar.texto + ": " + t.texto, creado: hoyStr(), hora: t.hora || "", hecho: false }); }); });
+      save(); alert("Tareas pasadas."); document.getElementById("resultadoBalance").style.display = "none"; renderCompras();
     }
 
     function copiarTareasDeAyer() {
       const hist = state.historial[ayerStr()];
-      if (!hist) { alert("No hay historial guardado de ayer todavía."); return; }
-      if (!confirm("¿Restaurar las tareas que hiciste ayer para hoy?")) return;
+      if (!hist) { alert("No hay historial de ayer."); return; }
+      if (!confirm("¿Restaurar tareas de ayer?")) return;
       PILARES.forEach(pilar => {
-        if(hist.tareasHoy[pilar.id]) {
-          state.tareasHoy[pilar.id] = JSON.parse(JSON.stringify(hist.tareasHoy[pilar.id]));
-          state.tareasHoy[pilar.id].forEach(t => { t.hecho = false; });
-        }
+        if(hist.tareasHoy[pilar.id]) { state.tareasHoy[pilar.id] = JSON.parse(JSON.stringify(hist.tareasHoy[pilar.id])); state.tareasHoy[pilar.id].forEach(t => { t.hecho = false; }); }
       });
-      save(); renderDiarias(); alert("Tareas de ayer copiadas a hoy.");
+      save(); renderDiarias();
     }
-
-    function addCompra() {
-      const txt = document.getElementById("nuevaCompra").value.trim(); const hora = document.getElementById("horaCompra").value;
-      if (!txt) return;
-      state.compras.push({ id: Date.now(), texto: txt, creado: hoyStr(), hora, hecho:false });
-      document.getElementById("nuevaCompra").value = ""; document.getElementById("horaCompra").value = "";
-      save(); renderCompras(); if (hora) programarNotificacion("Compra pendiente", txt, hora);
-    }
-
-    function renderCompras() {
-      const cont = document.getElementById("compras");
-      cont.innerHTML = state.compras.length === 0 ? '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Nada pendiente.</div>' : "";
-      state.compras.forEach(c => {
-        const deAyer = c.creado !== hoyStr() && !c.hecho;
-        const el = document.createElement("div"); el.className = "task " + (c.hecho?"hecho":"");
-        el.innerHTML = `<div class="task-top"><button class="check" onclick="toggleCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button><div class="txt" style="font-weight:400; font-size:15px;">${c.texto} ${deAyer?'<span style="font-size:10px;color:var(--warn)">(de ayer)</span>':''}</div><input type="time" value="${c.hora||''}" onchange="setHoraCompra(${c.id}, this.value)" /><button class="btn-icon danger" onclick="borrarCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`;
-        cont.appendChild(el);
-      });
-    }
-    function toggleCompra(id) { const c = state.compras.find(x=>x.id===id); if (c) { c.hecho = !c.hecho; save(); renderCompras(); if(c.hecho) mostrarToast(); } }
-    function setHoraCompra(id, hora) { const c = state.compras.find(x=>x.id===id); if (c) { c.hora = hora; save(); if(hora) programarNotificacion("Compra pendiente", c.texto, hora); } }
-    function borrarCompra(id) { if (!confirm("¿Borrar?")) return; state.compras = state.compras.filter(x=>x.id!==id); save(); renderCompras(); }
-
-    function addNota() { const txt = document.getElementById("nuevaNota").value.trim(); if (!txt) return; state.notas.push({ id: Date.now(), texto: txt }); document.getElementById("nuevaNota").value = ""; save(); renderNotas(); }
-    function renderNotas() {
-      const cont = document.getElementById("notasLista"); cont.innerHTML = state.notas.length === 0 ? '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Todo despejado.</div>' : "";
-      state.notas.forEach(n => { const el = document.createElement("div"); el.className = "task"; el.innerHTML = `<div class="task-top"><div class="txt" style="font-weight:400; font-size:15px;">${n.texto}</div><button class="btn-icon danger" onclick="borrarNota(${n.id})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`; cont.appendChild(el); });
-    }
-    function borrarNota(id) { if (!confirm("¿Borrar?")) return; state.notas = state.notas.filter(x=>x.id!==id); save(); renderNotas(); }
 
     function actualizarRacha() {
       const hoy = hoyStr(); let todasHechasGlobal = true;
       PILARES.forEach(p => {
-        const tareas = state.tareasHoy[p.id] || [];
-        const finPilar = tareas.length > 0 && tareas.every(t => t.hecho);
+        const finPilar = (state.tareasHoy[p.id] || []).length > 0 && state.tareasHoy[p.id].every(t => t.hecho);
         if (finPilar) {
           const ultKey = "ultimoDia_" + p.id;
-          if (state[ultKey] !== hoy) {
-            state.rachasPilar[p.id] = (state[ultKey] === ayerStr()) ? (state.rachasPilar[p.id] || 0) + 1 : 1;
-            state[ultKey] = hoy; save();
-          }
+          if (state[ultKey] !== hoy) { state.rachasPilar[p.id] = (state[ultKey] === ayerStr()) ? (state.rachasPilar[p.id] || 0) + 1 : 1; state[ultKey] = hoy; save(); }
         }
         if (!finPilar) todasHechasGlobal = false;
       });
       if (todasHechasGlobal) {
-        if (state.ultimoDia !== hoy) {
-          state.racha = (state.ultimoDia === ayerStr()) ? state.racha + 1 : 1;
-          state.ultimoDia = hoy; save();
-        }
+        if (state.ultimoDia !== hoy) { state.racha = (state.ultimoDia === ayerStr()) ? state.racha + 1 : 1; state.ultimoDia = hoy; save(); }
       }
+      // MODO VACACIONES
+      if (state.config.vacation) state.ultimoDia = hoy; 
       document.getElementById("rachaTop").textContent = state.racha;
-      state.historial[hoy] = { tareasHoy: JSON.parse(JSON.stringify(state.tareasHoy)) };
-      save();
+      state.historial[hoy] = { tareasHoy: JSON.parse(JSON.stringify(state.tareasHoy)) }; save();
     }
 
     function renderResumenYHistorial() {
-      let totalTareas = 0; let hechas = 0;
-      Object.keys(state.tareasHoy).forEach(pId => { state.tareasHoy[pId].forEach(t => { if(t.hecho) hechas++; totalTareas++; }); });
-      document.getElementById("resumenDiarias").textContent = `${hechas}/${totalTareas}`;
+      let tot = 0; let hec = 0;
+      Object.keys(state.tareasHoy).forEach(pId => { state.tareasHoy[pId].forEach(t => { if(t.hecho) hec++; tot++; }); });
+      document.getElementById("resumenDiarias").textContent = `${hec}/${tot}`;
       document.getElementById("resumenCompras").textContent = state.compras.filter(c=>!c.hecho).length;
       document.getElementById("resumenRacha").textContent = `${state.racha}`;
+      
+      // Config switches
+      document.getElementById("toggleSonido").checked = state.config.sounds !== false;
+      document.getElementById("toggleVacaciones").checked = state.config.vacation === true;
 
       const chartCont = document.getElementById("chartContainer"); const labelsCont = document.getElementById("chartLabels");
       chartCont.innerHTML = ""; labelsCont.innerHTML = "";
       const diasSemana = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"];
-      
       for(let i=6; i>=0; i--) {
-        const d = new Date(); d.setDate(d.getDate() - i);
-        const str = obtenerFechaStr(d); const hist = state.historial[str];
+        const d = new Date(); d.setDate(d.getDate() - i); const str = obtenerFechaStr(d); const hist = state.historial[str];
         let porc = 0;
-        if(hist && hist.tareasHoy) {
-          let tot = 0, hec = 0;
-          Object.values(hist.tareasHoy).forEach(arr => arr.forEach(t => { tot++; if(t.hecho) hec++; }));
-          porc = tot > 0 ? (hec/tot)*100 : 0;
-        }
+        if(hist && hist.tareasHoy) { let t=0,h=0; Object.values(hist.tareasHoy).forEach(arr => arr.forEach(x => { t++; if(x.hecho) h++; })); porc = t>0 ? (h/t)*100 : 0; }
         chartCont.innerHTML += `<div class="chart-bar" style="height: ${porc}%;"></div>`;
         labelsCont.innerHTML += `<span>${diasSemana[d.getDay()]}</span>`;
       }
     }
 
-    function selectColor(el, color) {
-      document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected'); colorSeleccionado = color;
-    }
-
+    function selectColor(el, color) { document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); colorSeleccionado = color; }
     function crearPilar() {
       const nombre = document.getElementById("nuevoPilarNombre").value.trim(); if (!nombre) return;
       const id = "custom_" + Date.now();
-      PILARES.push({ id: id, texto: nombre, color: colorSeleccionado });
-      state.customPilares = PILARES;
-      state.tareasHoy[id] = [{ id: Date.now() + Math.random(), texto: nombre, hora: "", nota: "", hecho: false, prioridad: false, subtareas: [] }];
-      state.rachasPilar[id] = 0;
+      PILARES.push({ id: id, texto: nombre, color: colorSeleccionado }); state.customPilares = PILARES;
+      state.tareasHoy[id] = [{ id: Date.now(), texto: nombre, hora: "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] }]; state.rachasPilar[id] = 0;
       save(); document.getElementById("nuevoPilarNombre").value = ""; renderDiarias();
     }
-
     function editarNombrePilar(id) {
-      const pilar = PILARES.find(p => p.id === id); if (!pilar) return;
-      const nuevoNombre = prompt("Escribe el nuevo nombre:", pilar.texto);
-      if (nuevoNombre && nuevoNombre.trim() !== "") { pilar.texto = nuevoNombre.trim(); state.customPilares = PILARES; save(); renderDiarias(); }
+      const p = PILARES.find(x => x.id === id); if (!p) return;
+      const n = prompt("Nuevo nombre:", p.texto);
+      if (n && n.trim() !== "") { p.texto = n.trim(); state.customPilares = PILARES; save(); renderDiarias(); }
     }
-
     function eliminarPilar(id) {
-      if (!confirm("¿Eliminar esta tarjeta?")) return;
+      if (!confirm("¿Eliminar tarjeta?")) return;
       PILARES = PILARES.filter(p => p.id !== id); state.customPilares = PILARES;
-      delete state.tareasHoy[id]; delete state.rachasPilar[id];
-      save(); renderDiarias();
+      delete state.tareasHoy[id]; delete state.rachasPilar[id]; save(); renderDiarias();
     }
 
     // Init
+    verificarPIN();
     renderCalendario(); renderDiarias(); renderAhorros(); renderCompras(); renderNotas(); renderResumenYHistorial(); actualizarDebug();
     document.querySelector('.color-circle').classList.add('selected');
     setInterval(actualizarDebug, 3000);
