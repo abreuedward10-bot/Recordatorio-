@@ -41,8 +41,13 @@
     .cal-day.past .name, .cal-day.past .num { opacity: 0.5; }
     .cal-day.future { opacity: 0.3; cursor: default; }
 
-    .card-separada { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-    .card-separada h3 { font-size: 16px; margin: 0 0 12px 0; color: var(--txt); border-bottom: 1px solid var(--border); padding-bottom: 8px;}
+    .card-separada { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border); transition: all 0.4s ease; }
+    .card-separada h3 { font-size: 16px; margin: 0 0 12px 0; color: var(--txt); border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
+    
+    /* ESTILO PARA CUANDO LA TARJETA ESTÁ COMPLETADA */
+    .card-completada { background: rgba(48, 209, 88, 0.1); border-color: var(--ok); box-shadow: 0 0 15px rgba(48, 209, 88, 0.2); }
+    .card-completada h3 { color: var(--ok); border-bottom-color: rgba(48, 209, 88, 0.3); }
+    .badge-completado { font-size: 10px; background: var(--ok); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold;}
 
     .task { display:flex; flex-direction:column; padding:12px 0; border-bottom:1px solid var(--border); gap:8px; }
     .task:last-child { border-bottom:none; padding-bottom: 0; }
@@ -90,6 +95,8 @@
     .theme-opt.active { background: var(--card); color: var(--txt); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     
     .debug-box { background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; margin-top: 10px; white-space: pre-wrap;}
+    
+    .balance-item { background: var(--input-bg); padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; border-left: 3px solid var(--warn); }
   </style>
 </head>
 <body>
@@ -117,16 +124,6 @@
     </div>
   </div>
 
-  <!-- PESTAÑA CARRO REDISEÑADA CON TARJETA Y MÚLTIPLES TAREAS -->
-  <div id="tab-carro" class="tab-content">
-    <h2>Mantenimiento del Carro</h2>
-    <div class="card-separada">
-      <h3>Carro</h3>
-      <div id="semanal"></div>
-      <button class="secondary" onclick="agregarTareaCarro()">+ Añadir otro pendiente del carro</button>
-    </div>
-  </div>
-
   <div id="tab-notas" class="tab-content">
     <h2>Bandeja de Ideas / Notas</h2>
     <div class="card-separada">
@@ -144,6 +141,17 @@
       <div class="stat-box"><span class="stat-label">✅ Diarias hechas</span><span class="stat-value" id="resumenDiarias">0/5</span></div>
       <div class="stat-box"><span class="stat-label">📋 Compras pendientes</span><span class="stat-value" id="resumenCompras">0</span></div>
       <div class="stat-box"><span class="stat-label">🔥 Racha actual</span><span class="stat-value" style="color: var(--ok);" id="resumenRacha">0 días</span></div>
+    </div>
+
+    <h2>Cierre del Día</h2>
+    <div class="card-separada" style="padding: 16px;">
+      <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Haz un balance de lo que faltó hoy y decide qué hacer con ello.</p>
+      <button class="primary" style="width: 100%; margin-bottom: 10px; background: var(--bad); color: #fff;" onclick="generarBalance()">Finalizar el día y ver balance</button>
+      <div id="resultadoBalance" style="display: none; margin-top: 15px;">
+        <h3 style="font-size: 14px; color: var(--warn); margin-bottom: 10px;">Lo que faltó por hacer hoy:</h3>
+        <div id="listaFaltantes"></div>
+        <button class="primary" style="width: 100%; margin-top: 15px;" onclick="pasarFaltantesAManana()">Pasar todo a pendientes de mañana</button>
+      </div>
     </div>
 
     <h2>Ajustes de Apariencia</h2>
@@ -170,34 +178,36 @@
   <div class="bottom-nav">
     <button class="nav-btn active" onclick="cambiarPestana('hoy', this, 'Hoy')"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg><span>Hoy</span></button>
     <button class="nav-btn" onclick="cambiarPestana('compras', this, 'Compras')"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Compras</span></button>
-    <button class="nav-btn" onclick="cambiarPestana('carro', this, 'Carro')"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg><span>Carro</span></button>
     <button class="nav-btn" onclick="cambiarPestana('notas', this, 'Notas')"><svg viewBox="0 0 24 24"><path d="M3 18h12v-2H3v2zM3 6v2h18V6H3zm0 7h18v-2H3v2z"/></svg><span>Notas</span></button>
     <button class="nav-btn" onclick="cambiarPestana('resumen', this, 'Resumen')"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>Resumen</span></button>
   </div>
 
   <script>
     const ONESIGNAL_APP_ID = "268752c5-8abb-427c-8200-18f4efd54381";
+    
     const PILARES = [
       { id: "yt", texto: "YouTube" },
       { id: "fin", texto: "Finanzas" },
       { id: "hija", texto: "Hija" },
       { id: "casa", texto: "Casa / Trámites" },
-      { id: "social", texto: "Social" }
+      { id: "social", texto: "Social" },
+      { id: "carro", texto: "Carro / Mantenimiento" }
     ];
 
-    const KEY = "miorden_v3"; // Actualizamos versión
+    const KEY = "miorden_v4"; 
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
 
     function load() {
       const raw = localStorage.getItem(KEY);
       if (raw) return JSON.parse(raw);
-      const estadoInicial = { tareasHoy: {}, compras:[], carro:[], notas:[], racha:0, ultimoDia:null, theme: 'system' };
+      const estadoInicial = { tareasHoy: {}, compras:[], notas:[], racha:0, ultimoDia:null, theme: 'system' };
       PILARES.forEach(p => {
-        estadoInicial.tareasHoy[p.id] = [{ id: Date.now() + Math.random(), texto: p.texto, hora: "", nota: "", hecho: false }];
+        let textoDefecto = p.texto;
+        if(p.id === 'carro') textoDefecto = "Revisar aceite/cauchos/luces";
+        let horaDefecto = p.id === 'carro' ? "11:00" : "";
+        estadoInicial.tareasHoy[p.id] = [{ id: Date.now() + Math.random(), texto: textoDefecto, hora: horaDefecto, nota: "", hecho: false }];
       });
-      // Añadimos una tarea por defecto al carro
-      estadoInicial.carro = [{ id: Date.now() + Math.random(), texto: "Revisar aceite/cauchos/luces", hora: "11:00", nota: "", hecho: false }];
       return estadoInicial;
     }
     function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -296,10 +306,10 @@
       document.getElementById('tab-' + id).classList.add('active');
       btn.classList.add('active');
       document.getElementById('tituloPestana').textContent = titulo;
-      if(id === 'resumen') { renderResumenYHistorial(); actualizarDebug(); }
+      if(id === 'resumen') { renderResumenYHistorial(); actualizarDebug(); document.getElementById("resultadoBalance").style.display = "none"; }
     }
 
-    // --- TARJETAS SEPARADAS ---
+    // --- TARJETAS Y VERDE AL COMPLETAR ---
     function renderDiarias() {
       const cont = document.getElementById("diarias");
       cont.innerHTML = "";
@@ -312,11 +322,17 @@
       PILARES.forEach(pilar => {
         const card = document.createElement("div");
         card.className = "card-separada";
-        const cardHeader = document.createElement("h3");
-        cardHeader.textContent = pilar.texto;
-        card.appendChild(cardHeader);
+        
+        const tareasDelPilar = state.tareasHoy[pilar.id] || [];
+        const todasHechas = tareasDelPilar.length > 0 && tareasDelPilar.every(t => t.hecho);
 
-        let tareasDelPilar = state.tareasHoy[pilar.id] || [];
+        if (todasHechas && esHoy) {
+          card.classList.add("card-completada");
+        }
+
+        const cardHeader = document.createElement("h3");
+        cardHeader.innerHTML = `${pilar.texto} ${todasHechas && esHoy ? '<span class="badge-completado">COMPLETADO</span>' : ''}`;
+        card.appendChild(cardHeader);
 
         tareasDelPilar.forEach((t, index) => {
           const el = document.createElement("div");
@@ -375,9 +391,10 @@
       t.hecho = !t.hecho;
       save(); if (navigator.vibrate) navigator.vibrate(t.hecho ? 50 : 20);
       renderDiarias();
-      let todasHechas = true;
-      Object.keys(state.tareasHoy).forEach(pId => { state.tareasHoy[pId].forEach(tarea => { if (!tarea.hecho) todasHechas = false; }); });
-      if (todasHechas) setTimeout(() => alert("¡Felicidades! Has completado todas tus tareas de hoy."), 300);
+      
+      let todasHechasGlobal = true;
+      Object.keys(state.tareasHoy).forEach(pId => { state.tareasHoy[pId].forEach(tarea => { if (!tarea.hecho) todasHechasGlobal = false; }); });
+      if (todasHechasGlobal) setTimeout(() => alert("¡Felicidades! Has completado TODAS tus tareas de hoy."), 300);
     }
 
     function updateTarea(pilarId, index, campo, valor) {
@@ -388,57 +405,61 @@
       if (campo === 'hora' && valor) programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
     }
 
-    // --- CARRO ---
-    function renderSemanal() {
-      const cont = document.getElementById("semanal");
+    // --- BALANCE DEL DÍA ---
+    function generarBalance() {
+      const cont = document.getElementById("listaFaltantes");
       cont.innerHTML = "";
-      
-      let tareasCarro = state.carro || [];
+      let faltantes = 0;
 
-      tareasCarro.forEach((t, index) => {
-        const el = document.createElement("div");
-        el.className = "task " + (t.hecho ? "hecho" : "");
-        
-        el.innerHTML = `
-          <div class="task-top">
-            <button class="check" onclick="toggleCarro(${index})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
-            <div class="txt">${t.texto}</div>
-            <button class="btn-icon danger" onclick="eliminarTareaCarro(${index})" title="Eliminar"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
-            <input type="time" value="${t.hora || ''}" onchange="updateCarro(${index}, 'hora', this.value)" />
-          </div>
-          <div class="nota-row">
-            <input type="text" class="nota-input" placeholder="Observaciones (ej. cambiar aceite)..." value="${t.nota || ''}" onchange="updateCarro(${index}, 'nota', this.value)" />
-          </div>
-        `;
-        cont.appendChild(el);
+      PILARES.forEach(pilar => {
+        const tareasDelPilar = state.tareasHoy[pilar.id] || [];
+        tareasDelPilar.forEach(t => {
+          if (!t.hecho) {
+            faltantes++;
+            cont.innerHTML += `
+              <div class="balance-item">
+                <strong>${pilar.texto}:</strong> ${t.texto} <br>
+                <span style="font-size:12px; color:var(--muted);">${t.nota || 'Sin nota'}</span>
+              </div>
+            `;
+          }
+        });
       });
-    }
 
-    function agregarTareaCarro() {
-      const texto = prompt("¿Qué pendiente del carro quieres añadir? (ej. Revisar cauchos)");
-      if (!texto) return;
-      state.carro.push({ id: Date.now() + Math.random(), texto: texto, hora: "", nota: "", hecho: false });
-      save(); renderSemanal();
-    }
-
-    function eliminarTareaCarro(index) {
-      if (!confirm("¿Eliminar este pendiente del carro?")) return;
-      state.carro.splice(index, 1);
-      if (state.carro.length === 0) {
-        state.carro.push({ id: Date.now() + Math.random(), texto: "Revisar aceite/cauchos/luces", hora: "", nota: "", hecho: false });
+      if (faltantes === 0) {
+        cont.innerHTML = `<div style="color:var(--ok); font-weight:bold; font-size:16px; text-align:center; padding:10px;">¡Día perfecto! No te faltó nada. 🏆</div>`;
+        document.querySelector("#resultadoBalance button").style.display = "none";
+      } else {
+        cont.innerHTML = `<div style="margin-bottom:10px; font-size:13px;">Te faltaron <b>${faltantes}</b> tareas por hacer.</div>` + cont.innerHTML;
+        document.querySelector("#resultadoBalance button").style.display = "block";
       }
-      save(); renderSemanal();
+
+      document.getElementById("resultadoBalance").style.display = "block";
     }
 
-    function toggleCarro(index) {
-      state.carro[index].hecho = !state.carro[index].hecho;
-      save(); renderSemanal();
-    }
-
-    function updateCarro(index, campo, valor) {
-      state.carro[index][campo] = valor;
+    function pasarFaltantesAManana() {
+      if (!confirm("¿Pasar todas las tareas que faltaron a la lista de pendientes de mañana?")) return;
+      
+      PILARES.forEach(pilar => {
+        const tareasDelPilar = state.tareasHoy[pilar.id] || [];
+        tareasDelPilar.forEach(t => {
+          if (!t.hecho) {
+            state.compras.push({ 
+              id: Date.now() + Math.random(), 
+              texto: "⏭️ " + pilar.texto + ": " + t.texto, 
+              creado: hoyStr(), 
+              hora: t.hora || "", 
+              hecho: false 
+            });
+          }
+        });
+      });
+      
       save();
-      if (campo === 'hora' && valor) programarNotificacion("Carro: " + state.carro[index].texto, state.carro[index].nota || "Es hora del carro", valor);
+      alert("Tareas pasadas a pendientes de mañana. Puedes verlas en la pestaña 'Compras'.");
+      document.getElementById("resultadoBalance").style.display = "none";
+      renderCompras();
+      renderResumenYHistorial();
     }
 
     // --- COMPRAS Y NOTAS ---
@@ -492,7 +513,7 @@
     }
 
     // Init
-    aplicarTema(); renderCalendario(); renderDiarias(); renderCompras(); renderSemanal(); renderNotas(); renderResumenYHistorial(); actualizarDebug();
+    aplicarTema(); renderCalendario(); renderDiarias(); renderCompras(); renderNotas(); renderResumenYHistorial(); actualizarDebug();
     setInterval(actualizarDebug, 3000);
   </script>
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
