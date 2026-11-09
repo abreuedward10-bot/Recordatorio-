@@ -57,7 +57,7 @@
     .badge { font-size:11px; padding:3px 8px; border-radius:6px; background:var(--input-bg); color:var(--muted); font-weight: 500;}
     .badge.ayer { background:var(--warn); color:#000; font-weight:bold; }
     
-    input[type="text"], input[type="time"] { background:var(--input-bg); border:none; color:var(--txt); padding:10px; border-radius:10px; font-size:15px; font-family:inherit; transition: background 0.3s, color 0.3s; outline: none;}
+    input[type="text"], input[type="time"], input[type="password"] { background:var(--input-bg); border:none; color:var(--txt); padding:10px; border-radius:10px; font-size:15px; font-family:inherit; transition: background 0.3s, color 0.3s; outline: none;}
     input[type="text"] { flex:1; width: 100%; }
     input[type="time"] { width: 85px; padding: 8px 4px; font-size: 13px; text-align: center; }
     
@@ -180,10 +180,18 @@
     </div>
 
     <h2>Ajustes de Apariencia</h2>
-    <div class="theme-selector">
+    <div class="theme-selector" style="margin-bottom: 14px;">
       <div class="theme-opt" id="opt-dark" onclick="setTheme('dark')">Oscuro</div>
       <div class="theme-opt" id="opt-light" onclick="setTheme('light')">Claro</div>
       <div class="theme-opt" id="opt-system" onclick="setTheme('system')">Sistema</div>
+    </div>
+
+    <h2>Configuración de Notificaciones</h2>
+    <div class="card" style="padding: 16px;">
+      <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Pega aquí tu llave de OneSignal (REST API Key) para que los avisos se programen solos.</p>
+      <input type="password" id="apiKeyInput" placeholder="os_v2_..." style="width: 100%; margin-bottom: 10px;" />
+      <button class="primary" style="width: 100%;" onclick="guardarApiKey()">Guardar Llave</button>
+      <p id="apiKeyStatus" style="font-size: 12px; color: var(--ok); margin-bottom: 0; display: none;">✅ Llave guardada correctamente</p>
     </div>
   </div>
 
@@ -196,6 +204,8 @@
   </div>
 
   <script>
+    const ONESIGNAL_APP_ID = "268752c5-8abb-427c-8200-18f4efd54381";
+    
     const DIAS_CARRO = 1; 
     const TAREAS_DIARIAS = [
       { id: "yt", texto: "YouTube", hora: "09:00" },
@@ -224,6 +234,64 @@
       return `${year}-${month}-${day}`;
     }
     function hoyStr() { return obtenerFechaStr(new Date()); }
+
+    // --- LÓGICA DE NOTIFICACIONES PUSH (API) ---
+    async function programarNotificacion(titulo, mensaje, horaStr) {
+      const apiKey = localStorage.getItem("onesignal_api_key");
+      const playerId = localStorage.getItem("onesignal_player_id");
+      if (!apiKey || !playerId || !horaStr) return;
+
+      // Calculamos la fecha para hoy a la hora indicada
+      const [hh, mm] = horaStr.split(":");
+      const ahora = new Date();
+      let fechaEnvio = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), parseInt(hh), parseInt(mm), 0);
+
+      // Si la hora ya pasó hoy, lo programamos para mañana
+      if (fechaEnvio < ahora) {
+        fechaEnvio.setDate(fechaEnvio.getDate() + 1);
+      }
+      
+      // OneSignal requiere el formato UTC para send_after
+      const sendAfter = fechaEnvio.toISOString();
+
+      try {
+        const res = await fetch("https://api.onesignal.com/notifications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Key " + apiKey
+          },
+          body: JSON.stringify({
+            app_id: ONESIGNAL_APP_ID,
+            include_player_ids: [playerId],
+            headings: { en: titulo },
+            contents: { en: mensaje },
+            send_after: sendAfter
+          })
+        });
+        const data = await res.json();
+        if (data.id) {
+          console.log("✅ Aviso programado para", fechaEnvio.toLocaleString());
+        } else {
+          console.error("⚠️ OneSignal rechazó el aviso:", data);
+        }
+      } catch (err) {
+        console.error("Error de red al programar:", err);
+      }
+    }
+
+    function guardarApiKey() {
+      const val = document.getElementById("apiKeyInput").value.trim();
+      if (val.startsWith("os_v2_")) {
+        localStorage.setItem("onesignal_api_key", val);
+        document.getElementById("apiKeyStatus").style.display = "block";
+        setTimeout(() => document.getElementById("apiKeyStatus").style.display = "none", 3000);
+      } else {
+        alert("La llave no parece correcta. Debe empezar con 'os_v2_'");
+      }
+    }
+
+    // --- RESTO DE LA LÓGICA DE LA APP ---
 
     function renderCalendario() {
       const cont = document.getElementById("calendarStrip");
@@ -375,6 +443,14 @@
         state.ultimaNota[id] = valor;
       }
       save();
+
+      // Si cambió la hora, programamos el aviso
+      if (campo === 'hora' && valor) {
+        const tareaObj = TAREAS_DIARIAS.find(t=>t.id===id);
+        const notaActual = state.diarias[key].nota || "";
+        const mensaje = notaActual ? notaActual : "Es hora de tu tarea de " + tareaObj.texto;
+        programarNotificacion("Tarea: " + tareaObj.texto, mensaje, valor);
+      }
     }
 
     function posponerDiaria(id) {
@@ -406,6 +482,10 @@
       document.getElementById("nuevaCompra").value = "";
       document.getElementById("horaCompra").value = "";
       save(); renderCompras();
+
+      if (hora) {
+        programarNotificacion("Compra pendiente", txt, hora);
+      }
     }
 
     function renderCompras() {
@@ -436,7 +516,10 @@
     }
     function setHoraCompra(id, hora) {
       const c = state.compras.find(x=>x.id===id);
-      if (c) { c.hora = hora; save(); }
+      if (c) { 
+        c.hora = hora; save(); 
+        if (hora) programarNotificacion("Compra pendiente", c.texto, hora);
+      }
     }
     function borrarCompra(id) {
       if (!confirm("¿Borrar este pendiente?")) return;
@@ -494,6 +577,11 @@
         state.ultimaNota["carro"] = valor;
       }
       save();
+
+      if (campo === 'hora' && valor) {
+        const notaActual = state.carro[key].nota || "";
+        programarNotificacion("Carro", notaActual || "Es hora de revisar el carro", valor);
+      }
     }
 
     function borrarNotaCarro() {
@@ -596,9 +684,17 @@
     renderSemanal();
     renderNotas();
     renderResumenYHistorial();
+
+    // Verificar si la API Key ya está guardada
+    if (localStorage.getItem("onesignal_api_key")) {
+      document.getElementById("apiKeyInput").value = "••••••••••••••••••••••••••••••";
+      document.getElementById("apiKeyStatus").style.display = "block";
+      document.getElementById("apiKeyStatus").textContent = "✅ Llave ya configurada";
+    }
+
   </script>
 
-  <!-- ONESIGNAL (CONFIGURACIÓN FINAL) -->
+  <!-- ONESIGNAL SDK -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -609,6 +705,12 @@
         serviceWorkerParam: { scope: "/" },
         notifyButton: { enable: true }
       });
+
+      // Guardar el ID del teléfono para poder enviarle los avisos programados
+      const playerId = await OneSignal.getUserId();
+      if (playerId) {
+        localStorage.setItem("onesignal_player_id", playerId);
+      }
     });
   </script>
 </body>
