@@ -67,6 +67,8 @@
     .add-row { display:flex; gap:8px; margin-top:14px; }
     button.primary { background:var(--txt); color:var(--bg); border:none; padding:10px 16px; border-radius:12px; font-weight:600; font-size:15px; cursor:pointer; display: flex; align-items: center; justify-content: center;}
     button.primary svg { width: 18px; height: 18px; fill: currentColor; }
+    button.secondary { background:transparent; border:1px dashed var(--muted); color:var(--muted); padding:8px; border-radius:10px; font-size:13px; width:100%; cursor:pointer; margin-top:8px;}
+    button.secondary:active { background:var(--input-bg); }
 
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: var(--glass-bg); backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
     .nav-btn { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 500; width: 64px; height: 60px; cursor: pointer; }
@@ -167,7 +169,6 @@
       
       <hr style="border-color: var(--border); margin: 16px 0;">
       <h3 style="font-size: 14px; margin-bottom: 8px;">Diagnóstico del Dispositivo</h3>
-      <p style="font-size: 12px; color: var(--muted);">Si el ID dice "No detectado", la app no puede enviar avisos.</p>
       <div id="debugInfo" class="debug-box">Cargando datos...</div>
       <button class="primary" style="width: 100%; margin-top: 10px; background: var(--warn); color: #000;" onclick="forzarID()">🔄 Actualizar y Guardar ID</button>
     </div>
@@ -184,23 +185,35 @@
   <script>
     const ONESIGNAL_APP_ID = "268752c5-8abb-427c-8200-18f4efd54381";
     const DIAS_CARRO = 1; 
-    const TAREAS_DIARIAS = [
-      { id: "yt", texto: "YouTube", hora: "09:00" },
-      { id: "fin", texto: "Finanzas", hora: "19:00" },
-      { id: "hija", texto: "Hija", hora: "17:00" },
-      { id: "casa", texto: "Casa / Trámites", hora: "" },
-      { id: "social", texto: "Social", hora: "20:00" }
+    
+    // Ahora las tareas son dinámicas. Estas son las bases.
+    const PILARES = [
+      { id: "yt", texto: "YouTube" },
+      { id: "fin", texto: "Finanzas" },
+      { id: "hija", texto: "Hija" },
+      { id: "casa", texto: "Casa / Trámites" },
+      { id: "social", texto: "Social" }
     ];
+    
     const TAREA_CARRO = { id:"carro", texto:"Carro (Mantenimiento)", hora:"11:00" };
 
-    const KEY = "miorden_v1";
+    const KEY = "miorden_v2"; // Cambiamos la versión para actualizar la estructura
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
 
     function load() {
       const raw = localStorage.getItem(KEY);
       if (raw) return JSON.parse(raw);
-      return { diarias:{}, compras:[], carro:{}, notas:[], racha:0, ultimoDia:null, ultimaNota:{}, theme: 'system' };
+      
+      // Estructura inicial si es la primera vez
+      const estadoInicial = { tareasHoy: {}, compras:[], carro:{}, notas:[], racha:0, ultimoDia:null, theme: 'system' };
+      
+      // Creamos la tarea principal por defecto para cada pilar
+      PILARES.forEach(p => {
+        estadoInicial.tareasHoy[p.id] = [{ id: Date.now() + Math.random(), texto: p.texto, hora: "", nota: "", hecho: false }];
+      });
+
+      return estadoInicial;
     }
     function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
 
@@ -212,76 +225,47 @@
     }
     function hoyStr() { return obtenerFechaStr(new Date()); }
 
-    // --- LÓGICA DE DIAGNÓSTICO Y NOTIFICACIONES ---
+    // --- NOTIFICACIONES ---
     function actualizarDebug() {
       const pId = localStorage.getItem("onesignal_player_id");
       const aKey = localStorage.getItem("onesignal_api_key");
-      
       let html = `<strong>Player ID:</strong> ${pId ? pId.substring(0, 15) + '...' : '❌ NO DETECTADO'}\n`;
       html += `<strong>API Key:</strong> ${aKey ? '✅ Guardada' : '❌ No guardada'}\n`;
-      if(window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
-         html += `<strong>Estado Push:</strong> ${OneSignal.User.PushSubscription.optedIn ? '✅ Suscrito' : '❌ No suscrito'}`;
-      } else {
-         html += `<strong>Estado SDK:</strong> Cargando...`;
-      }
       document.getElementById("debugInfo").innerHTML = html;
     }
 
     async function forzarID() {
       if (window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
         const id = OneSignal.User.PushSubscription.id;
-        if (id) {
-          localStorage.setItem("onesignal_player_id", id);
-          alert("ID guardado correctamente:\n" + id);
-        } else {
-          alert("OneSignal aún no tiene un ID para este dispositivo. Revisa los permisos de notificación.");
-        }
-      } else {
-        alert("OneSignal aún no ha cargado. Espera unos segundos.");
-      }
+        if (id) { localStorage.setItem("onesignal_player_id", id); alert("ID guardado: " + id); }
+        else alert("OneSignal aún no tiene un ID. Revisa los permisos.");
+      } else alert("OneSignal aún no ha cargado.");
       actualizarDebug();
     }
 
     async function programarNotificacion(titulo, mensaje, horaStr) {
       const apiKey = localStorage.getItem("onesignal_api_key");
       const playerId = localStorage.getItem("onesignal_player_id");
-      
-      if (!apiKey || !playerId || !horaStr) {
-        alert("⚠️ Falta la API Key o el ID del teléfono. Ve a Resumen > Diagnóstico y pulsa 'Actualizar ID'.");
-        return;
-      }
+      if (!apiKey || !playerId || !horaStr) return;
 
       const [hh, mm] = horaStr.split(":");
       const ahora = new Date();
       let fechaEnvio = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), parseInt(hh), parseInt(mm), 0);
       if (fechaEnvio < ahora) fechaEnvio.setDate(fechaEnvio.getDate() + 1);
-      
-      const sendAfter = fechaEnvio.toISOString();
 
       try {
-        const res = await fetch("https://api.onesignal.com/notifications", {
+        await fetch("https://api.onesignal.com/notifications", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Key " + apiKey
-          },
+          headers: { "Content-Type": "application/json", "Authorization": "Key " + apiKey },
           body: JSON.stringify({
             app_id: ONESIGNAL_APP_ID,
             include_player_ids: [playerId],
             headings: { en: titulo },
             contents: { en: mensaje },
-            send_after: sendAfter
+            send_after: fechaEnvio.toISOString()
           })
         });
-        const data = await res.json();
-        if (data.id) {
-          alert("✅ Aviso programado para las " + horaStr);
-        } else {
-          alert("❌ Error de OneSignal:\n" + JSON.stringify(data));
-        }
-      } catch (err) {
-        alert("❌ Error de red: " + err.message);
-      }
+      } catch (err) { console.log(err); }
     }
 
     function guardarApiKey() {
@@ -290,34 +274,31 @@
         localStorage.setItem("onesignal_api_key", val);
         document.getElementById("apiKeyStatus").style.display = "block";
         actualizarDebug();
-      } else {
-        alert("La llave no parece correcta. Debe empezar con 'os_v2_'");
-      }
+      } else alert("La llave no es válida.");
     }
 
+    // --- RENDERIZADO ---
     function renderCalendario() {
       const cont = document.getElementById("calendarStrip");
       cont.innerHTML = "";
       const hoy = new Date();
-      const diaSemana = hoy.getDay();
-      const inicioSemana = new Date(hoy);
-      inicioSemana.setDate(hoy.getDate() - diaSemana);
+      const inicioSemana = new Date(hoy); inicioSemana.setDate(hoy.getDate() - hoy.getDay());
       const nombresDias = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"];
 
       for (let i = 0; i < 7; i++) {
-        const d = new Date(inicioSemana);
-        d.setDate(inicioSemana.getDate() + i);
+        const d = new Date(inicioSemana); d.setDate(inicioSemana.getDate() + i);
         const fechaStr = obtenerFechaStr(d);
         const el = document.createElement("div");
         el.className = "cal-day";
         const esHoy = fechaStr === hoyStr();
         const esPasado = d < new Date(hoyStr()) && !esHoy;
         const esFuturo = d > new Date(hoyStr()) && !esHoy;
-        const estaSeleccionado = fechaStr === fechaSeleccionada;
+        
         if (esHoy) el.classList.add("active");
         if (esPasado) el.classList.add("past");
         if (esFuturo) el.classList.add("future");
-        if (estaSeleccionado && !esHoy) el.style.backgroundColor = "var(--border)";
+        if (fechaStr === fechaSeleccionada && !esHoy) el.style.backgroundColor = "var(--border)";
+
         el.innerHTML = `<span class="name">${nombresDias[d.getDay()]}</span><span class="num">${d.getDate()}</span>`;
         if (!esFuturo) {
           el.onclick = () => { fechaSeleccionada = fechaStr; renderCalendario(); renderDiarias(); };
@@ -329,11 +310,9 @@
     function aplicarTema() {
       const pref = state.theme || 'system';
       let usarClaro = (pref === 'light') || (pref === 'system' && window.matchMedia('(prefers-color-scheme: light)').matches);
-      if (usarClaro) document.body.classList.add('light-theme');
-      else document.body.classList.remove('light-theme');
+      if (usarClaro) document.body.classList.add('light-theme'); else document.body.classList.remove('light-theme');
       document.querySelectorAll('.theme-opt').forEach(el => el.classList.remove('active'));
-      const btn = document.getElementById('opt-' + pref);
-      if(btn) btn.classList.add('active');
+      document.getElementById('opt-' + pref).classList.add('active');
     }
     function setTheme(pref) { state.theme = pref; save(); aplicarTema(); }
 
@@ -346,95 +325,130 @@
       if(id === 'resumen') { renderResumenYHistorial(); actualizarDebug(); }
     }
 
-    function actualizarBanner(idBanner, esHistorial = false) {
-      const cont = document.getElementById(idBanner);
-      if(!cont) return;
-      const fechaConsulta = esHistorial ? fechaSeleccionada : hoyStr();
-      const tareasHechas = TAREAS_DIARIAS.filter(t => state.diarias[fechaConsulta+"_"+t.id]?.hecho).length;
-      const total = TAREAS_DIARIAS.length;
-      if (esHistorial) { cont.innerHTML = ""; return; }
-      if (tareasHechas === 0) cont.innerHTML = `<div class="feedback-banner fb-neutral"><h3>¡A darle!</h3><p>Aún no has completado nada hoy.</p></div>`;
-      else if (tareasHechas === total) cont.innerHTML = `<div class="feedback-banner fb-success"><h3>¡Día Perfecto! 🏆</h3><p>Has completado todas tus obligatorias. Racha: <b>${state.racha} días</b>.</p></div>`;
-      else if (tareasHechas >= total / 2) cont.innerHTML = `<div class="feedback-banner fb-warn"><h3>¡Vas muy bien! 💪</h3><p>Llevas ${tareasHechas} de ${total}.</p></div>`;
-      else cont.innerHTML = `<div class="feedback-banner fb-neutral"><h3>En marcha</h3><p>Llevas ${tareasHechas} de ${total}.</p></div>`;
-    }
-
+    // --- RENDERIZADO DE TAREAS (AHORA CON MÚLTIPLES TAREAS POR PILAR) ---
     function renderDiarias() {
       const cont = document.getElementById("diarias");
       cont.innerHTML = "";
       const esHoy = fechaSeleccionada === hoyStr();
       document.getElementById("tituloTareasHoy").textContent = esHoy ? "Obligatorias de Hoy" : "Tareas del " + fechaSeleccionada;
-      document.getElementById("alertaFechaPasada").innerHTML = esHoy ? "" : `<div style="background:rgba(255,159,10,0.1); color:var(--warn); padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px; text-align:center;">Estás viendo el pasado.</div>`;
+      
+      const alerta = document.getElementById("alertaFechaPasada");
+      if (!esHoy) alerta.innerHTML = `<div style="background:rgba(255,159,10,0.1); color:var(--warn); padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px; text-align:center;">Estás viendo el pasado.</div>`;
+      else alerta.innerHTML = "";
 
-      TAREAS_DIARIAS.forEach(t => {
-        const key = fechaSeleccionada + "_" + t.id;
-        const hecho = state.diarias[key]?.hecho || false;
-        const hora = state.diarias[key]?.hora || t.hora || "";
-        const nota = state.diarias[key]?.nota ?? (esHoy ? (state.ultimaNota?.[t.id] || "") : "");
-        const el = document.createElement("div");
-        el.className = "task " + (hecho?"hecho":"");
-        const disabledAttr = esHoy ? "" : "disabled";
-        const styleDisabled = esHoy ? "" : "opacity: 0.6; pointer-events: none;";
-        el.innerHTML = `
-          <div class="task-top" style="${styleDisabled}">
-            <button class="check" onclick="toggleDiaria('${t.id}')" ${disabledAttr}><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
-            <div class="txt">${t.texto}</div>
-            ${esHoy ? `<button class="btn-icon" onclick="posponerDiaria('${t.id}')" title="Pasar a mañana"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>` : ''}
-            <input type="time" value="${hora}" onchange="updateDiaria('${t.id}', 'hora', this.value)" ${disabledAttr} />
-          </div>
-          <div class="nota-row" style="${styleDisabled}">
-            <input type="text" class="nota-input" placeholder="${esHoy ? '¿Qué harás exactamente?' : 'Sin nota'}" value="${nota}" onchange="updateDiaria('${t.id}', 'nota', this.value)" ${disabledAttr} />
-            ${esHoy ? `<button class="btn-icon danger" onclick="borrarNotaDiaria('${t.id}')"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>` : ''}
-          </div>
-        `;
-        cont.appendChild(el);
+      // Recorremos los pilares y sus tareas
+      PILARES.forEach(pilar => {
+        // Título del pilar
+        const titulo = document.createElement("h2");
+        titulo.textContent = pilar.texto;
+        titulo.style.marginTop = "16px";
+        titulo.style.marginBottom = "4px";
+        cont.appendChild(titulo);
+
+        const cardPilar = document.createElement("div");
+        cardPilar.className = "card";
+        cardPilar.style.marginBottom = "10px";
+
+        let tareasDelPilar = state.tareasHoy[pilar.id] || [];
+
+        tareasDelPilar.forEach((t, index) => {
+          const el = document.createElement("div");
+          el.className = "task " + (t.hecho ? "hecho" : "");
+          const disabledAttr = esHoy ? "" : "disabled";
+          const styleDisabled = esHoy ? "" : "opacity: 0.6; pointer-events: none;";
+
+          el.innerHTML = `
+            <div class="task-top" style="${styleDisabled}">
+              <button class="check" onclick="toggleTarea('${pilar.id}', ${index})" ${disabledAttr}>
+                <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+              </button>
+              <div class="txt">${t.texto}</div>
+              ${esHoy ? `<button class="btn-icon" onclick="posponerTarea('${pilar.id}', ${index})" title="Pasar a mañana"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>` : ''}
+              <input type="time" value="${t.hora || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'hora', this.value)" ${disabledAttr} />
+            </div>
+            <div class="nota-row" style="${styleDisabled}">
+              <input type="text" class="nota-input" placeholder="${esHoy ? 'Escribe qué harás exactamente aquí...' : 'Sin nota'}" value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'nota', this.value)" ${disabledAttr} />
+              ${esHoy ? `<button class="btn-icon danger" onclick="borrarNota('${pilar.id}', ${index})" title="Borrar texto"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>` : ''}
+            </div>
+          `;
+          cardPilar.appendChild(el);
+        });
+
+        // Botón para añadir más tareas a este pilar
+        if (esHoy) {
+          const btnAdd = document.createElement("button");
+          btnAdd.className = "secondary";
+          btnAdd.innerHTML = `+ Añadir otra tarea a ${pilar.texto}`;
+          btnAdd.onclick = () => agregarTareaAlPilar(pilar.id);
+          cardPilar.appendChild(btnAdd);
+        }
+
+        cont.appendChild(cardPilar);
       });
-      actualizarBanner('bannerHoy', !esHoy);
+
       if (esHoy) actualizarRacha();
     }
 
-    function toggleDiaria(id) {
-      if (fechaSeleccionada !== hoyStr()) return;
-      const key = fechaSeleccionada + "_" + id;
-      if (!state.diarias[key]) state.diarias[key] = { hecho:false, hora:"", nota: state.ultimaNota?.[id] || "" };
-      const eraHecho = state.diarias[key].hecho;
-      state.diarias[key].hecho = !state.diarias[key].hecho;
-      save(); if (navigator.vibrate) navigator.vibrate(state.diarias[key].hecho ? 50 : 20);
-      renderDiarias(); 
-      const todas = TAREAS_DIARIAS.every(t => state.diarias[hoyStr()+"_"+t.id]?.hecho);
-      if (todas && !eraHecho) setTimeout(() => alert("¡Felicidades! Has completado todo. Racha: " + state.racha), 300);
-    }
-
-    function updateDiaria(id, campo, valor) {
-      if (fechaSeleccionada !== hoyStr()) return;
-      const key = fechaSeleccionada + "_" + id;
-      if (!state.diarias[key]) state.diarias[key] = { hecho:false, hora:"", nota:"" };
-      state.diarias[key][campo] = valor;
-      if (campo === 'nota') { if (!state.ultimaNota) state.ultimaNota = {}; state.ultimaNota[id] = valor; }
-      save();
-      if (campo === 'hora' && valor) {
-        const tareaObj = TAREAS_DIARIAS.find(t=>t.id===id);
-        programarNotificacion("Tarea: " + tareaObj.texto, state.diarias[key].nota || "Es hora de tu tarea", valor);
-      }
-    }
-
-    function posponerDiaria(id) {
-      if (fechaSeleccionada !== hoyStr() || !confirm("¿Pasar a mañana?")) return;
-      const tareaObj = TAREAS_DIARIAS.find(t=>t.id===id);
-      const nota = state.diarias[hoyStr()+"_"+id]?.nota || "";
-      const hora = state.diarias[hoyStr()+"_"+id]?.hora || tareaObj.hora;
-      state.compras.push({ id: Date.now(), texto: "⏭️ " + tareaObj.texto + (nota ? ": " + nota : ""), creado: obtenerFechaStr(new Date(Date.now()-86400000)), hora: hora, hecho:false });
-      save(); renderCompras();
-    }
-
-    function borrarNotaDiaria(id) {
-      if (!confirm("¿Borrar nota?")) return;
-      const key = fechaSeleccionada + "_" + id;
-      if (state.diarias[key]) state.diarias[key].nota = "";
-      if (state.ultimaNota) state.ultimaNota[id] = "";
+    // --- ACCIONES DE TAREAS ---
+    function agregarTareaAlPilar(pilarId) {
+      const texto = prompt("¿Qué tarea quieres añadir a este pilar?");
+      if (!texto) return;
+      if (!state.tareasHoy[pilarId]) state.tareasHoy[pilarId] = [];
+      state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: texto, hora: "", nota: "", hecho: false });
       save(); renderDiarias();
     }
 
+    function toggleTarea(pilarId, index) {
+      if (fechaSeleccionada !== hoyStr()) return;
+      const t = state.tareasHoy[pilarId][index];
+      t.hecho = !t.hecho;
+      save(); 
+      if (navigator.vibrate) navigator.vibrate(t.hecho ? 50 : 20);
+      renderDiarias();
+      
+      // Comprobar si todo está hecho
+      let todasHechas = true;
+      Object.keys(state.tareasHoy).forEach(pId => {
+        state.tareasHoy[pId].forEach(tarea => { if (!tarea.hecho) todasHechas = false; });
+      });
+      if (todasHechas) setTimeout(() => alert("¡Felicidades! Has completado todas tus tareas de hoy."), 300);
+    }
+
+    function updateTarea(pilarId, index, campo, valor) {
+      if (fechaSeleccionada !== hoyStr()) return;
+      const t = state.tareasHoy[pilarId][index];
+      t[campo] = valor;
+      save();
+      if (campo === 'hora' && valor) programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
+    }
+
+    function posponerTarea(pilarId, index) {
+      const t = state.tareasHoy[pilarId][index];
+      if (!confirm("¿Pasar a pendientes para mañana?")) return;
+      
+      state.compras.push({ 
+        id: Date.now(), 
+        texto: "⏭️ " + t.texto + (t.nota ? ": " + t.nota : ""), 
+        creado: obtenerFechaStr(new Date(Date.now()-86400000)), 
+        hora: t.hora, 
+        hecho: false 
+      });
+      
+      state.tareasHoy[pilarId].splice(index, 1);
+      if (state.tareasHoy[pilarId].length === 0) {
+        state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: PILARES.find(p=>p.id===pilarId).texto, hora: "", nota: "", hecho: false });
+      }
+      
+      save(); renderDiarias(); renderCompras();
+    }
+
+    function borrarNota(pilarId, index) {
+      if (!confirm("¿Borrar nota?")) return;
+      state.tareasHoy[pilarId][index].nota = "";
+      save(); renderDiarias();
+    }
+
+    // --- RESTO DE LA APP (Compras, Carro, Notas, Racha) ---
     function addCompra() {
       const txt = document.getElementById("nuevaCompra").value.trim();
       const hora = document.getElementById("horaCompra").value;
@@ -474,7 +488,6 @@
       const key = hoyStr()+"_carro";
       const hecho = state.carro[key]?.hecho || false;
       const hora = state.carro[key]?.hora || TAREA_CARRO.hora;
-      const nota = state.carro[key]?.nota ?? (state.ultimaNota?.["carro"] || "");
       if (!esDiaCarro && !state.carro[key]) { cont.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Hoy no toca carro.</div>'; return; }
       const el = document.createElement("div");
       el.className = "task " + (hecho?"hecho":"");
@@ -484,22 +497,15 @@
           <div class="txt">${TAREA_CARRO.texto}</div>
           <input type="time" value="${hora}" onchange="updateCarro('hora', this.value)" />
         </div>
-        <div class="nota-row">
-          <input type="text" class="nota-input" placeholder="¿Qué harás?" value="${nota}" onchange="updateCarro('nota', this.value)" />
-          <button class="btn-icon danger" onclick="borrarNotaCarro()"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
-        </div>
       `;
       cont.appendChild(el);
     }
-    function toggleCarro() { const key = hoyStr()+"_carro"; if (!state.carro[key]) state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora, nota: state.ultimaNota?.["carro"] || "" }; state.carro[key].hecho = !state.carro[key].hecho; save(); renderSemanal(); }
+    function toggleCarro() { const key = hoyStr()+"_carro"; if (!state.carro[key]) state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora }; state.carro[key].hecho = !state.carro[key].hecho; save(); renderSemanal(); }
     function updateCarro(campo, valor) {
-      const key = hoyStr()+"_carro"; if (!state.carro[key]) state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora, nota:"" };
-      state.carro[key][campo] = valor;
-      if (campo === 'nota') { if (!state.ultimaNota) state.ultimaNota = {}; state.ultimaNota["carro"] = valor; }
-      save();
-      if (campo === 'hora' && valor) programarNotificacion("Carro", state.carro[key].nota || "Es hora del carro", valor);
+      const key = hoyStr()+"_carro"; if (!state.carro[key]) state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora };
+      state.carro[key][campo] = valor; save();
+      if (campo === 'hora' && valor) programarNotificacion("Carro", "Es hora de revisar el carro", valor);
     }
-    function borrarNotaCarro() { if (!confirm("¿Borrar?")) return; state.carro[hoyStr()+"_carro"].nota = ""; if (state.ultimaNota) state.ultimaNota["carro"] = ""; save(); renderSemanal(); }
 
     function addNota() { const txt = document.getElementById("nuevaNota").value.trim(); if (!txt) return; state.notas.push({ id: Date.now(), texto: txt }); document.getElementById("nuevaNota").value = ""; save(); renderNotas(); }
     function renderNotas() {
@@ -514,50 +520,35 @@
     function borrarNota(id) { if (!confirm("¿Borrar?")) return; state.notas = state.notas.filter(x=>x.id!==id); save(); renderNotas(); }
 
     function actualizarRacha() {
-      const hoy = hoyStr();
-      if (TAREAS_DIARIAS.every(t => state.diarias[hoy+"_"+t.id]?.hecho)) {
-        if (state.ultimoDia !== hoy) {
+      let todasHechas = true;
+      Object.keys(state.tareasHoy).forEach(pId => {
+        state.tareasHoy[pId].forEach(t => { if (!t.hecho) todasHechas = false; });
+      });
+      if (todasHechas) {
+        if (state.ultimoDia !== hoyStr()) {
           const ayer = obtenerFechaStr(new Date(Date.now()-86400000));
           state.racha = (state.ultimoDia === ayer) ? state.racha + 1 : 1;
-          state.ultimoDia = hoy; save();
+          state.ultimoDia = hoyStr(); save();
         }
       }
       document.getElementById("rachaTop").textContent = state.racha;
     }
 
     function renderResumenYHistorial() {
-      const hechas = TAREAS_DIARIAS.filter(t => state.diarias[hoyStr()+"_"+t.id]?.hecho).length;
-      document.getElementById("resumenDiarias").textContent = `${hechas}/${TAREAS_DIARIAS.length}`;
+      let totalTareas = 0; let hechas = 0;
+      Object.keys(state.tareasHoy).forEach(pId => {
+        state.tareasHoy[pId].forEach(t => { totalTareas++; if (t.hecho) hechas++; });
+      });
+      document.getElementById("resumenDiarias").textContent = `${hechas}/${totalTareas}`;
       document.getElementById("resumenCompras").textContent = state.compras.filter(c=>!c.hecho).length;
       document.getElementById("resumenRacha").textContent = `${state.racha} días`;
-      actualizarBanner('bannerResumen');
-
-      const ayerF = obtenerFechaStr(new Date(Date.now()-86400000));
-      let htmlAyer = "", totalAyer = 0;
-      TAREAS_DIARIAS.forEach(t => {
-        if (state.diarias[ayerF + "_" + t.id]?.hecho) {
-          htmlAyer += `<div style="margin-bottom:6px; display:flex; align-items:flex-start; gap:6px;"><span style="color:var(--ok)">✓</span><div><b>${t.texto}</b>: ${state.diarias[ayerF + "_" + t.id].nota || 'Hecho'}</div></div>`;
-          totalAyer++;
-        }
-      });
-      document.getElementById("historialAyer").innerHTML = totalAyer > 0 ? `<div style="margin-bottom:10px; font-weight:600; color:var(--txt);">Ayer cumpliste ${totalAyer}:</div>` + htmlAyer : `<div>No se registraron tareas ayer. Hoy es un nuevo día.</div>`;
+      document.getElementById("historialAyer").innerHTML = `<div>No hay historial guardado aún en esta versión.</div>`;
     }
 
     // Init
-    aplicarTema();
-    renderCalendario();
-    renderDiarias();
-    renderCompras();
-    renderSemanal();
-    renderNotas();
-    renderResumenYHistorial();
-    actualizarDebug();
-    
-    // OneSignal listener en el tiempo
+    aplicarTema(); renderCalendario(); renderDiarias(); renderCompras(); renderSemanal(); renderNotas(); renderResumenYHistorial(); actualizarDebug();
     setInterval(actualizarDebug, 3000);
-
   </script>
-
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -568,18 +559,9 @@
         serviceWorkerParam: { scope: "/" },
         notifyButton: { enable: true }
       });
-      
       OneSignal.User.PushSubscription.addEventListener("change", (event) => {
-        if (event.current.id) {
-          localStorage.setItem("onesignal_player_id", event.current.id);
-          actualizarDebug();
-        }
+        if (event.current.id) { localStorage.setItem("onesignal_player_id", event.current.id); actualizarDebug(); }
       });
-      const currentId = OneSignal.User.PushSubscription.id;
-      if (currentId) {
-        localStorage.setItem("onesignal_player_id", currentId);
-        actualizarDebug();
-      }
     });
   </script>
 </body>
