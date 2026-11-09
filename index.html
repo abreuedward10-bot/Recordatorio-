@@ -16,7 +16,7 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--txt); padding: 0; padding-top: 60px; padding-bottom: 100px; }
     
-    /* BLOQUEO PIN */
+    /* OVERLAY DE BLOQUEO (PIN) */
     #lock-screen { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: #000; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; }
     #lock-screen.active { display: flex; }
     .pin-dots { display: flex; gap: 15px; margin-bottom: 30px; }
@@ -75,17 +75,6 @@
     .nota-row { display: flex; gap: 8px; width: 100%; align-items: center; }
     .nota-input { flex: 1; padding: 12px 14px; font-size: 14px; }
 
-    /* SUBTAREAS ESTILO OSCURO */
-    .subtasks-container { background: var(--bg); border-radius: 14px; padding: 12px; margin-top: 8px; display: none; border: 1px solid var(--border); }
-    .subtasks-container.active { display: block; }
-    .subtask-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px;}
-    .subtask-item.done span { text-decoration: line-through; color: var(--muted);}
-    .subtask-item .btn-check-sub { background: transparent; border: none; color: var(--txt); cursor: pointer; font-size: 16px; padding: 0;}
-    .subtask-item .btn-del-sub { background: transparent; border: none; color: var(--bad); font-size: 18px; cursor: pointer; padding: 0;}
-    .subtask-add-row { display: flex; gap: 8px; margin-top: 12px; }
-    .subtask-add-row input { padding: 10px 12px; font-size: 13px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); color: var(--txt); flex: 1;}
-    .subtask-add-row button { background: var(--txt); color: var(--bg); border: none; width: 36px; height: 36px; border-radius: 10px; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;}
-
     .action-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 8px;}
     .btn-icon { background: var(--card); border: 1px solid var(--border); color: var(--txt); padding: 10px 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 12px; font-size: 16px;}
     .btn-icon svg { width: 20px; height: 20px; fill: currentColor; }
@@ -120,24 +109,20 @@
     .profile-info h2 { margin: 0; font-size: 22px; font-weight: 800; }
     .profile-info p { margin: 2px 0 0 0; font-size: 13px; color: var(--muted); }
 
-    /* TARJETA WALLET Y GRÁFICO CIRCULAR */
-    .wallet-card { background: var(--card); border-radius: 24px; padding: 24px; color: #fff; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; position: relative; }
-    .wallet-header { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;}
-    .wallet-amount { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; }
+    .wallet-card { background: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%); border-radius: 24px; padding: 24px; color: #fff; margin-bottom: 20px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; overflow: hidden;}
+    .wallet-header { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;}
+    .wallet-amount { font-size: 44px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
     
-    /* SVG DEL GRÁFICO CIRCULAR */
-    .chart-circle-container { position: relative; width: 160px; height: 160px; margin: 0 auto 20px auto; }
-    .chart-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
-    .chart-bg { fill: transparent; stroke: #2C2C2E; stroke-width: 12; }
-    .chart-fill { fill: transparent; stroke: var(--ok); stroke-width: 12; stroke-linecap: round; stroke-dasharray: 439.8; stroke-dashoffset: 439.8; transition: stroke-dashoffset 0.5s ease-in-out; }
-    .chart-text-center { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .chart-percent { font-size: 26px; font-weight: 800; color: #fff; }
-    .chart-label { font-size: 11px; color: var(--muted); margin-top: 2px;}
+    /* BARRA DE PROGRESO DE META */
+    .goal-container { margin-bottom: 20px; }
+    .goal-text { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px;}
+    .goal-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+    .goal-bar-fill { height: 100%; background: var(--ok); width: 0%; transition: width 0.3s; box-shadow: 0 0 10px rgba(48,209,88,0.5);}
 
-    .wallet-actions { display: flex; gap: 12px; margin-top: 20px;}
+    .wallet-actions { display: flex; gap: 12px; }
     .wallet-btn { flex: 1; padding: 14px; border-radius: 16px; border: none; font-weight: 700; font-size: 15px; display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer;}
-    .wallet-btn.add { background: var(--txt); color: var(--bg); }
-    .wallet-btn.sub { background: rgba(255,255,255,0.1); color: var(--txt); border: 1px solid var(--border); }
+    .wallet-btn.add { background: #fff; color: #000; }
+    .wallet-btn.sub { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
 
     .history-list { display: flex; flex-direction: column; gap: 12px; }
     .history-item { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 16px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer;}
@@ -153,13 +138,10 @@
     /* NOTAS */
     .note-card { display: flex; flex-direction: column; background: var(--card); border-radius: 20px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
     .note-top { display: flex; justify-content: space-between; align-items: flex-start; }
-    .note-text { font-size: 15px; flex: 1; line-height: 1.4; margin-right: 10px;}
-    .note-tag { font-size: 11px; background: rgba(10, 132, 255, 0.15); padding: 4px 8px; border-radius: 8px; color: var(--info); font-weight: bold; display: inline-block; margin-top: 10px;}
-    .note-actions { display: flex; gap: 8px; }
-    .note-btn { background: transparent; border: none; cursor: pointer; font-size: 18px; padding: 0;}
-    .note-btn.pin { color: var(--warn); }
-    .note-btn.edit { color: var(--muted); }
-    .note-btn.delete { color: var(--bad); }
+    .note-text { font-size: 15px; flex: 1; line-height: 1.4;}
+    .note-tag { font-size: 10px; background: var(--input-bg); padding: 2px 8px; border-radius: 10px; color: var(--info); font-weight: bold; display: inline-block; margin-top: 8px;}
+    .pin-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px; font-size: 18px;}
+    .pin-btn.pinned { color: var(--warn); }
 
     .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .setting-row:last-child { border-bottom: none; }
@@ -181,9 +163,9 @@
     .modal-btn.cancel { background: var(--input-bg); color: var(--txt); }
     .modal-btn.confirm { background: var(--ok); color: #000; }
 
-    .chart-bar-container { display: flex; justify-content: space-between; align-items: flex-end; height: 80px; padding-top: 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px;}
+    .chart-container { display: flex; justify-content: space-between; align-items: flex-end; height: 80px; padding-top: 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px;}
     .chart-bar { width: 12%; background: var(--ok); border-radius: 4px 4px 0 0; box-shadow: 0 0 10px rgba(48,209,88,0.3);}
-    .chart-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
+    .chart-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
 
     #toast { visibility: hidden; min-width: 250px; background: #fff; color: #000; text-align: center; border-radius: 30px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 100px; font-size: 16px; font-weight: 800; transform: translateX(-50%); box-shadow: 0 10px 25px rgba(255,255,255,0.2); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
     #toast.show { visibility: visible; opacity: 1; bottom: 120px; }
@@ -204,9 +186,12 @@
 </head>
 <body>
 
+  <!-- PANTALLA DE BLOQUEO (PIN) -->
   <div id="lock-screen">
     <h2 style="font-size: 24px; margin-bottom: 30px;">Ingresa tu PIN</h2>
-    <div class="pin-dots" id="pinDots"><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div></div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
     <div class="pin-keypad">
       <button class="pin-btn" onclick="pressPin(1)">1</button><button class="pin-btn" onclick="pressPin(2)">2</button><button class="pin-btn" onclick="pressPin(3)">3</button>
       <button class="pin-btn" onclick="pressPin(4)">4</button><button class="pin-btn" onclick="pressPin(5)">5</button><button class="pin-btn" onclick="pressPin(6)">6</button>
@@ -234,21 +219,21 @@
         <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
         <button class="modal-btn confirm" id="btnConfirmarMonto" onclick="confirmarMonto()">Guardar</button>
       </div>
-      <button class="modal-btn" id="btnEliminarMovimiento" style="display: none; background: var(--bad); color: #fff; width: 100%; margin-top: 10px;" onclick="eliminarTransaccion()">Eliminar Movimiento</button>
+      <button class="modal-btn" id="btnEliminarMovimiento" style="display: none; background: var(--bad); color: #fff; width: 100%; margin-top: 10px;" onclick="eliminarTransaccion()">Eliminar</button>
     </div>
   </div>
 
-  <!-- MODAL NOTA (CREAR / EDITAR) -->
+  <!-- MODAL NOTA -->
   <div class="modal-overlay" id="modalNota">
     <div class="modal-content">
-      <h3 class="modal-title" id="modalNotaTitle">Nueva Nota</h3>
+      <h3 class="modal-title">Nueva Nota</h3>
       <input type="text" id="nuevaNotaTexto" placeholder="Escribe tu idea..." style="width: 100%; margin-bottom: 10px;" />
       <select id="nuevaNotaTag" style="width: 100%; margin-bottom: 15px;">
         <option value="Idea">#Idea</option><option value="YouTube">#YouTube</option>
         <option value="Personal">#Personal</option><option value="Compra">#Compra</option>
       </select>
       <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="cerrarModalNota()">Cancelar</button>
+        <button class="modal-btn cancel" onclick="document.getElementById('modalNota').classList.remove('active')">Cancelar</button>
         <button class="modal-btn confirm" onclick="guardarNota()">Guardar</button>
       </div>
     </div>
@@ -300,18 +285,12 @@
       <div class="wallet-header"><span>Ahorro Total</span><span>•••• 4321</span></div>
       <div class="wallet-amount" id="walletBalance">$0.00</div>
       
-      <!-- GRÁFICO CIRCULAR DE META -->
-      <div class="chart-circle-container">
-        <svg class="chart-svg" viewBox="0 0 160 160">
-          <circle class="chart-bg" cx="80" cy="80" r="70"></circle>
-          <circle class="chart-fill" id="goalCircle" cx="80" cy="80" r="70"></circle>
-        </svg>
-        <div class="chart-text-center">
-          <span class="chart-percent" id="goalPercentText">0%</span>
-          <span class="chart-label" id="goalLabelText">Sin meta</span>
-        </div>
+      <!-- BARRA DE META -->
+      <div class="goal-container">
+        <div class="goal-text"><span id="goalLabel">Meta: $0.00</span><span id="goalPercent">0%</span></div>
+        <div class="goal-bar-bg"><div class="goal-bar-fill" id="goalFill"></div></div>
+        <button style="background:transparent; border:none; color:var(--info); font-size:12px; cursor:pointer; padding:0; margin-top:5px;" onclick="editarMeta()">Editar Meta</button>
       </div>
-      <button style="background:transparent; border:none; color:var(--info); font-size:13px; cursor:pointer; margin-bottom: 15px;" onclick="editarMeta()">Establecer Meta de Ahorro</button>
 
       <div class="wallet-actions">
         <button class="wallet-btn add" onclick="abrirModal('add')"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Añadir</button>
@@ -327,7 +306,7 @@
   <div id="tab-notas" class="tab-content">
     <h2>Bandeja de Ideas</h2>
     <div style="margin-bottom: 15px;">
-      <button class="primary" style="width: 100%;" onclick="abrirModalNota()">+ Crear Nueva Nota</button>
+      <button class="primary" style="width: 100%;" onclick="document.getElementById('modalNota').classList.add('active')">+ Crear Nueva Nota</button>
     </div>
     <div id="notasLista"></div>
   </div>
@@ -340,8 +319,8 @@
         <div class="stat-box" style="display:flex; justify-content:space-between; margin-bottom:10px;"><span class="stat-label">✅ Diarias hechas</span><span class="stat-value" id="resumenDiarias">0/0</span></div>
         <div class="stat-box" style="display:flex; justify-content:space-between; margin-bottom:10px;"><span class="stat-label">📋 Compras pendientes</span><span class="stat-value" id="resumenCompras">0</span></div>
         <div class="stat-box" style="display:flex; justify-content:space-between; margin-bottom:10px;"><span class="stat-label">🔥 Racha global</span><span class="stat-value" style="color: var(--ok);" id="resumenRacha">0</span></div>
-        <div class="chart-bar-container" id="chartContainer" style="margin-top: 15px;"></div>
-        <div class="chart-labels" id="chartLabels"></div>
+        <div class="chart-container" id="chartContainer" style="margin-top: 15px;"></div>
+        <div class="chart-label" id="chartLabels"></div>
       </div>
     </div>
 
@@ -362,13 +341,27 @@
     <h2>Ajustes de la App</h2>
     <div class="card-separada">
       <div class="card-body" style="padding: 16px;">
-        <div class="setting-row"><span class="setting-label">Sonidos de Recompensa</span><label class="switch"><input type="checkbox" id="toggleSonido" onchange="toggleConfig('sounds', this.checked)"><span class="slider"></span></label></div>
-        <div class="setting-row"><span class="setting-label">Modo Vacaciones</span><label class="switch"><input type="checkbox" id="toggleVacaciones" onchange="toggleConfig('vacation', this.checked)"><span class="slider"></span></label></div>
-        <div class="setting-row"><span class="setting-label">Bloqueo con PIN</span><button class="btn-icon" onclick="configurarPIN()" style="font-size:12px; padding:6px 10px;">Configurar</button></div>
+        
+        <div class="setting-row">
+          <span class="setting-label">Sonidos de Recompensa</span>
+          <label class="switch"><input type="checkbox" id="toggleSonido" onchange="toggleConfig('sounds', this.checked)"><span class="slider"></span></label>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Modo Vacaciones (Protege racha)</span>
+          <label class="switch"><input type="checkbox" id="toggleVacaciones" onchange="toggleConfig('vacation', this.checked)"><span class="slider"></span></label>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Bloqueo con PIN</span>
+          <button class="btn-icon" onclick="configurarPIN()" style="font-size:12px; padding:6px 10px;">Configurar</button>
+        </div>
+
         <hr style="border-color: var(--border); margin: 15px 0;">
         <p style="font-size: 13px; color: var(--muted); margin-bottom: 10px;">Copia de Seguridad (Evita perder tus datos):</p>
         <button class="primary" style="width: 100%; margin-bottom: 10px; background: var(--info);" onclick="descargarBackup()">Descargar Mis Datos</button>
         <button class="secondary" style="border-color: var(--info); color: var(--info);" onclick="document.getElementById('restoreUpload').click()">Restaurar desde Archivo</button>
+
       </div>
     </div>
 
@@ -377,7 +370,7 @@
       <div class="card-body" style="padding: 16px;">
         <input type="password" id="apiKeyInput" placeholder="os_v2_..." style="width: 100%; margin-bottom: 10px;" />
         <button class="primary" style="width: 100%; margin-bottom: 10px;" onclick="guardarApiKey()">Guardar Llave</button>
-        <div id="debugInfo" style="background:#000; color:#0f0; font-family:monospace; font-size:11px; padding:10px; border-radius:10px;">Cargando...</div>
+        <div id="debugInfo" class="debug-box" style="background:#000; color:#0f0; font-family:monospace; font-size:11px; padding:10px; border-radius:10px;">Cargando...</div>
         <button class="primary" style="width: 100%; margin-top: 10px; background: var(--warn); color: #000;" onclick="forzarID()">🔄 Actualizar ID</button>
       </div>
     </div>
@@ -402,14 +395,13 @@
       { id: "social", texto: "Social", color: "#bf5af2" }, { id: "carro", texto: "Carro", color: "#ff9f0a" }
     ];
 
-    const KEY = "miorden_v15"; 
+    const KEY = "miorden_v14"; 
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
     let pomodoroInterval = null;
     let pomodoroTiempo = 25 * 60;
     let accionAhorro = "add";
     let editandoTransaccionId = null;
-    let editandoNotaId = null;
     let pinInput = "";
 
     const frasesExito = ["¡Bien hecho!", "¡Un paso menos!", "¡Sigue así!", "¡Eres un crack!", "¡Vas por buen camino!", "¡Tarea completada!"];
@@ -429,7 +421,7 @@
       }
       const estadoInicial = { tareasHoy: {}, compras:[], notas:[], racha:0, ultimoDia:null, rachasPilar: {}, historial: {}, customPilares: PILARES, ahorros: 0, ahorrosMeta: 0, historialAhorros: [], perfilNombre: "Hola, Edward", perfilFoto: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238E8E93'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E", config: { sounds: true, vacation: false, pin: null } };
       PILARES.forEach(p => {
-        estadoInicial.tareasHoy[p.id] = [{ id: Date.now() + Math.random(), texto: p.id === 'carro' ? "Revisar aceite" : p.texto, hora: p.id === 'carro' ? "11:00" : "", nota: "", hecho: false, prioridad: false, subtareas: [] }];
+        estadoInicial.tareasHoy[p.id] = [{ id: Date.now() + Math.random(), texto: p.id === 'carro' ? "Revisar aceite" : p.texto, hora: p.id === 'carro' ? "11:00" : "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] }];
         estadoInicial.rachasPilar[p.id] = 0;
       });
       return estadoInicial;
@@ -454,73 +446,127 @@
       } catch(e) {}
     }
 
-    function mostrarToast(msg) {
+    function mostrarToast() {
       const toast = document.getElementById("toast");
-      toast.textContent = msg || frasesExito[Math.floor(Math.random() * frasesExito.length)];
+      toast.textContent = frasesExito[Math.floor(Math.random() * frasesExito.length)];
       toast.className = "show";
       playDing();
       setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
     }
 
-    // --- PIN ---
-    function verificarPIN() { if (state.config.pin && state.config.pin.length === 4) document.getElementById("lock-screen").classList.add("active"); }
-    function pressPin(num) {
-      if (num === 'del') pinInput = pinInput.slice(0, -1);
-      else if (pinInput.length < 4) pinInput += num;
-      
-      document.querySelectorAll(".pin-dot").forEach((dot, i) => { if(i < pinInput.length) dot.classList.add("filled"); else dot.classList.remove("filled"); });
-      if (pinInput.length === 4) {
-        if (pinInput === state.config.pin) {
-          document.getElementById("lock-screen").classList.remove("active"); pinInput = "";
-          setTimeout(() => document.querySelectorAll(".pin-dot").forEach(d => d.classList.remove("filled")), 300);
-        } else { alert("PIN Incorrecto"); pinInput = ""; document.querySelectorAll(".pin-dot").forEach(d => d.classList.remove("filled")); }
+    // --- SEGURIDAD (PIN) ---
+    function verificarPIN() {
+      if (state.config.pin && state.config.pin.length === 4) {
+        document.getElementById("lock-screen").classList.add("active");
       }
     }
-    function configurarPIN() {
-      const nuevo = prompt("Ingresa un PIN de 4 dígitos (o vacío para quitarlo):");
-      if (nuevo === null) return;
-      if (nuevo === "") { state.config.pin = null; save(); alert("Bloqueo desactivado."); }
-      else if (/^\d{4}$/.test(nuevo)) { state.config.pin = nuevo; save(); alert("PIN guardado."); }
-      else alert("Debe ser de 4 números.");
+
+    function pressPin(num) {
+      if (num === 'del') {
+        pinInput = pinInput.slice(0, -1);
+      } else if (pinInput.length < 4) {
+        pinInput += num;
+      }
+      
+      const dots = document.querySelectorAll(".pin-dot");
+      dots.forEach((dot, i) => { if(i < pinInput.length) dot.classList.add("filled"); else dot.classList.remove("filled"); });
+
+      if (pinInput.length === 4) {
+        if (pinInput === state.config.pin) {
+          document.getElementById("lock-screen").classList.remove("active");
+          pinInput = "";
+          setTimeout(() => document.querySelectorAll(".pin-dot").forEach(d => d.classList.remove("filled")), 300);
+        } else {
+          alert("PIN Incorrecto");
+          pinInput = "";
+          document.querySelectorAll(".pin-dot").forEach(d => d.classList.remove("filled"));
+        }
+      }
     }
 
-    // --- BACKUP ---
+    function configurarPIN() {
+      const nuevo = prompt("Ingresa un PIN de 4 dígitos (o deja vacío para quitarlo):");
+      if (nuevo === null) return;
+      if (nuevo === "") {
+        state.config.pin = null; save(); alert("Bloqueo desactivado.");
+      } else if (/^\d{4}$/.test(nuevo)) {
+        state.config.pin = nuevo; save(); alert("PIN guardado correctamente.");
+      } else {
+        alert("El PIN debe ser exactamente 4 números.");
+      }
+    }
+
+    // --- RESPALDO (BACKUP) ---
     function descargarBackup() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
-      const dlAnchorElem = document.createElement('a'); dlAnchorElem.setAttribute("href", dataStr); dlAnchorElem.setAttribute("download", "mi_orden_backup.json"); dlAnchorElem.click();
+      const dlAnchorElem = document.createElement('a');
+      dlAnchorElem.setAttribute("href", dataStr);
+      dlAnchorElem.setAttribute("download", "mi_orden_backup.json");
+      dlAnchorElem.click();
     }
+
     function restaurarBackup(event) {
-      const file = event.target.files[0]; if (!file) return;
+      const file = event.target.files[0];
+      if (!file) return;
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           const imported = JSON.parse(e.target.result);
-          if(imported.tareasHoy) { state = imported; save(); alert("Datos restaurados."); location.reload(); }
-          else alert("Archivo no válido.");
-        } catch (err) { alert("Error al leer archivo."); }
+          if(imported.tareasHoy) {
+            state = imported;
+            save();
+            alert("Datos restaurados con éxito. La app se reiniciará.");
+            location.reload();
+          } else {
+            alert("Archivo no válido.");
+          }
+        } catch (err) {
+          alert("Error al leer el archivo.");
+        }
       };
       reader.readAsText(file);
     }
-    function toggleConfig(key, val) { state.config[key] = val; save(); }
 
-    // --- CALENDARIO ---
+    // --- CONFIGURACIONES ---
+    function toggleConfig(key, val) {
+      state.config[key] = val;
+      save();
+    }
+
+    // --- EXPORTAR CALENDARIO (.ICS) ---
     function exportarICS() {
       let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MiOrden//ES\n";
+      let count = 0;
+      
       PILARES.forEach(pilar => {
         (state.tareasHoy[pilar.id] || []).forEach(t => {
           if (t.hora) {
+            count++;
             const [hh, mm] = t.hora.split(":");
-            const startDate = new Date(); startDate.setHours(parseInt(hh), parseInt(mm), 0, 0);
-            const endDate = new Date(startDate.getTime() + 30 * 60000); 
+            const startDate = new Date();
+            startDate.setHours(parseInt(hh), parseInt(mm), 0, 0);
+            const endDate = new Date(startDate.getTime() + (t.duracion || 30) * 60000); 
+            
             const fmt = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-            ics += "BEGIN:VEVENT\n"; ics += `SUMMARY:${pilar.texto} - ${t.texto}\n`; ics += `DESCRIPTION:${t.nota || ''}\n`;
-            ics += `DTSTART:${fmt(startDate)}\n`; ics += `DTEND:${fmt(endDate)}\n`; ics += "END:VEVENT\n";
+            
+            ics += "BEGIN:VEVENT\n";
+            ics += `SUMMARY:${pilar.texto} - ${t.texto}\n`;
+            ics += `DESCRIPTION:${t.nota || 'Sin notas'}\n`;
+            ics += `DTSTART:${fmt(startDate)}\n`;
+            ics += `DTEND:${fmt(endDate)}\n`;
+            ics += "END:VEVENT\n";
           }
         });
       });
       ics += "END:VCALENDAR";
+
+      if (count === 0) { alert("No hay tareas con hora hoy para exportar."); return; }
+
       const dataStr = "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
-      const dlAnchorElem = document.createElement('a'); dlAnchorElem.setAttribute("href", dataStr); dlAnchorElem.setAttribute("download", "tareas_hoy.ics"); dlAnchorElem.click();
+      const dlAnchorElem = document.createElement('a');
+      dlAnchorElem.setAttribute("href", dataStr);
+      dlAnchorElem.setAttribute("download", "tareas_hoy.ics");
+      dlAnchorElem.click();
     }
 
     // --- NOTIFICACIONES ---
@@ -529,13 +575,16 @@
       const aKey = localStorage.getItem("onesignal_api_key");
       document.getElementById("debugInfo").innerHTML = `<strong>ID:</strong> ${pId ? pId.substring(0, 12) + '...' : '❌'}\n<strong>Key:</strong> ${aKey ? '✅' : '❌'}`;
     }
+
     async function forzarID() {
       if (window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
         const id = OneSignal.User.PushSubscription.id;
-        if (id) { localStorage.setItem("onesignal_player_id", id); alert("ID guardado."); } else alert("No hay ID.");
-      } else alert("OneSignal no ha cargado.");
+        if (id) { localStorage.setItem("onesignal_player_id", id); alert("ID guardado: " + id); }
+        else alert("OneSignal no ha generado un ID.");
+      } else alert("OneSignal aún no carga.");
       actualizarDebug();
     }
+
     async function programarNotificacion(titulo, mensaje, horaStr) {
       const apiKey = localStorage.getItem("onesignal_api_key");
       const playerId = localStorage.getItem("onesignal_player_id");
@@ -546,15 +595,18 @@
       if (fechaEnvio < ahora) fechaEnvio.setDate(fechaEnvio.getDate() + 1);
       try {
         await fetch("https://api.onesignal.com/notifications", {
-          method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Key " + apiKey },
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Key " + apiKey },
           body: JSON.stringify({ app_id: ONESIGNAL_APP_ID, include_player_ids: [playerId], headings: { en: titulo }, contents: { en: mensaje }, send_after: fechaEnvio.toISOString() })
         });
       } catch (err) {}
     }
+
     function guardarApiKey() {
       const val = document.getElementById("apiKeyInput").value.trim();
-      if (val.startsWith("os_v2_")) { localStorage.setItem("onesignal_api_key", val); actualizarDebug(); alert("Llave guardada."); }
-      else alert("La llave debe empezar con os_v2_");
+      if (val.startsWith("os_v2_")) {
+        localStorage.setItem("onesignal_api_key", val); actualizarDebug(); alert("Llave guardada.");
+      } else alert("La llave debe empezar con os_v2_");
     }
 
     // --- NAVEGACIÓN ---
@@ -576,12 +628,18 @@
     function editarPerfil() { document.getElementById("photoUpload").click(); }
     function subirFoto(event) {
       const file = event.target.files[0];
-      if (file) { const reader = new FileReader(); reader.onload = function(e) { state.perfilFoto = e.target.result; save(); renderAhorros(); }; reader.readAsDataURL(file); }
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) { state.perfilFoto = e.target.result; save(); renderAhorros(); };
+        reader.readAsDataURL(file);
+      }
     }
+
     function editarMeta() {
-      const val = prompt("¿Cuál es tu meta de ahorro total?", state.ahorrosMeta);
+      const val = prompt("¿Cuál es tu meta de ahorro?", state.ahorrosMeta);
       if (val !== null && !isNaN(parseFloat(val))) { state.ahorrosMeta = parseFloat(val); save(); renderAhorros(); }
     }
+
     function abrirModal(tipo) {
       accionAhorro = tipo; editandoTransaccionId = null;
       document.getElementById("modalTitle").textContent = tipo === 'add' ? "Añadir Dinero" : "Retirar Dinero";
@@ -591,8 +649,10 @@
       document.getElementById("btnEliminarMovimiento").style.display = "none";
       document.getElementById("modalAhorro").classList.add("active");
     }
+
     function editarTransaccion(id) {
-      const trans = state.historialAhorros.find(t => t.id === id); if (!trans) return;
+      const trans = state.historialAhorros.find(t => t.id === id);
+      if (!trans) return;
       editandoTransaccionId = id; accionAhorro = trans.tipo;
       document.getElementById("modalTitle").textContent = "Editar Movimiento";
       document.getElementById("inputMonto").value = trans.monto;
@@ -602,11 +662,14 @@
       document.getElementById("btnEliminarMovimiento").style.display = "block";
       document.getElementById("modalAhorro").classList.add("active");
     }
+
     function cerrarModal() { document.getElementById("modalAhorro").classList.remove("active"); editandoTransaccionId = null; }
+
     function confirmarMonto() {
       const val = parseFloat(document.getElementById("inputMonto").value);
       const cat = document.getElementById("inputCategoria").value;
       if (isNaN(val) || val <= 0) { alert("Monto inválido."); return; }
+
       if (editandoTransaccionId) {
         const trans = state.historialAhorros.find(t => t.id === editandoTransaccionId);
         if (trans) { trans.monto = val; trans.categoria = cat; }
@@ -616,36 +679,33 @@
       }
       recalcularAhorros(); cerrarModal();
     }
+
     function eliminarTransaccion() {
       if (!confirm("¿Eliminar este movimiento?")) return;
       state.historialAhorros = state.historialAhorros.filter(t => t.id !== editandoTransaccionId);
       recalcularAhorros(); cerrarModal();
     }
+
     function recalcularAhorros() {
       state.ahorros = state.historialAhorros.reduce((total, t) => total + (t.tipo === 'ingreso' ? t.monto : -t.monto), 0);
       save(); renderAhorros(); if (state.ahorros >= 0) playDing();
     }
+
     function renderAhorros() {
       document.getElementById("profileName").textContent = state.perfilNombre;
       document.getElementById("profilePic").src = state.perfilFoto;
       document.getElementById("walletBalance").textContent = "$" + (state.ahorros || 0).toFixed(2);
       
-      // GRÁFICO CIRCULAR
-      const circle = document.getElementById("goalCircle");
-      const circumference = 2 * Math.PI * 70;
-      circle.style.strokeDasharray = `${circumference}`;
-      
       if (state.ahorrosMeta > 0) {
+        document.getElementById("goalLabel").textContent = "Meta: $" + state.ahorrosMeta.toFixed(2);
         let porc = (state.ahorros / state.ahorrosMeta) * 100;
         if (porc > 100) porc = 100;
-        const offset = circumference - (porc / 100) * circumference;
-        circle.style.strokeDashoffset = offset;
-        document.getElementById("goalPercentText").textContent = Math.round(porc) + "%";
-        document.getElementById("goalLabelText").textContent = "Meta: $" + state.ahorrosMeta.toFixed(0);
+        document.getElementById("goalPercent").textContent = Math.round(porc) + "%";
+        document.getElementById("goalFill").style.width = porc + "%";
       } else {
-        circle.style.strokeDashoffset = circumference;
-        document.getElementById("goalPercentText").textContent = "0%";
-        document.getElementById("goalLabelText").textContent = "Sin meta";
+        document.getElementById("goalLabel").textContent = "Sin meta definida";
+        document.getElementById("goalPercent").textContent = "";
+        document.getElementById("goalFill").style.width = "0%";
       }
 
       const cont = document.getElementById("historyList");
@@ -653,70 +713,56 @@
       cont.innerHTML = state.historialAhorros.map(h => `
         <div class="history-item" onclick="editarTransaccion(${h.id})">
           <div class="history-icon">${h.tipo === 'ingreso' ? '💰' : '🛒'}</div>
-          <div class="history-info"><div class="history-title">${h.categoria || (h.tipo === 'ingreso' ? 'Ahorro' : 'Retiro')}</div><div class="history-date">${h.fecha}</div></div>
-          <div class="history-right"><div class="history-amount ${h.tipo === 'ingreso' ? 'ingreso' : 'egreso'}">${h.tipo === 'ingreso' ? '+' : '-'}$${h.monto.toFixed(2)}</div><div style="font-size:16px; color:var(--muted);">✏️</div></div>
+          <div class="history-info">
+            <div class="history-title">${h.categoria || (h.tipo === 'ingreso' ? 'Ahorro' : 'Retiro')}</div>
+            <div class="history-date">${h.fecha}</div>
+          </div>
+          <div class="history-right">
+            <div class="history-amount ${h.tipo === 'ingreso' ? 'ingreso' : 'egreso'}">${h.tipo === 'ingreso' ? '+' : '-'}$${h.monto.toFixed(2)}</div>
+            <div class="edit-icon">✏️</div>
+          </div>
         </div>
       `).join('');
     }
 
-    // --- NOTAS (CREAR, EDITAR, PIN) ---
-    function abrirModalNota(id = null) {
-      editandoNotaId = id;
-      if (id) {
-        const n = state.notas.find(x => x.id === id);
-        document.getElementById("modalNotaTitle").textContent = "Editar Nota";
-        document.getElementById("nuevaNotaTexto").value = n.texto;
-        document.getElementById("nuevaNotaTag").value = n.tag || "Idea";
-      } else {
-        document.getElementById("modalNotaTitle").textContent = "Nueva Nota";
-        document.getElementById("nuevaNotaTexto").value = "";
-        document.getElementById("nuevaNotaTag").value = "Idea";
-      }
-      document.getElementById("modalNota").classList.add("active");
-    }
-    function cerrarModalNota() { document.getElementById("modalNota").classList.remove("active"); editandoNotaId = null; }
-    
+    // --- NOTAS ---
     function guardarNota() {
       const txt = document.getElementById("nuevaNotaTexto").value.trim();
       const tag = document.getElementById("nuevaNotaTag").value;
       if (!txt) return;
-      
-      if (editandoNotaId) {
-        const n = state.notas.find(x => x.id === editandoNotaId);
-        n.texto = txt; n.tag = tag;
-      } else {
-        state.notas.push({ id: Date.now(), texto: txt, tag: tag, pinned: false });
-      }
-      save(); renderNotas(); cerrarModalNota();
+      state.notas.push({ id: Date.now(), texto: txt, tag: tag, pinned: false });
+      save(); renderNotas();
+      document.getElementById("nuevaNotaTexto").value = "";
+      document.getElementById("modalNota").classList.remove("active");
     }
-    
-    function togglePinNota(id) {
-      const n = state.notas.find(x => x.id === id);
-      if (n) { n.pinned = !n.pinned; save(); renderNotas(); }
-    }
-    function borrarNota(id) { if (!confirm("¿Borrar nota?")) return; state.notas = state.notas.filter(x=>x.id!==id); save(); renderNotas(); }
-    
+
     function renderNotas() {
       const cont = document.getElementById("notasLista");
       if (state.notas.length === 0) { cont.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">No hay notas.</div>'; return; }
       
       const sortedNotas = [...state.notas].sort((a, b) => (b.pinned === true ? 1 : 0) - (a.pinned === true ? 1 : 0));
+
       cont.innerHTML = sortedNotas.map(n => `
         <div class="note-card">
           <div class="note-top">
             <div class="note-text">${n.texto}</div>
-            <div class="note-actions">
-              <button class="note-btn pin ${n.pinned ? 'pinned' : ''}" onclick="togglePinNota(${n.id})">📌</button>
-              <button class="note-btn edit" onclick="abrirModalNota(${n.id})">✏️</button>
-              <button class="note-btn delete" onclick="borrarNota(${n.id})">🗑</button>
-            </div>
+            <button class="pin-btn ${n.pinned ? 'pinned' : ''}" onclick="togglePinNota(${n.id})">📌</button>
           </div>
-          <div><div class="note-tag">#${n.tag || 'General'}</div></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+             <div class="note-tag">#${n.tag || 'General'}</div>
+             <button class="btn-icon danger" style="padding:4px;" onclick="borrarNota(${n.id})"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+          </div>
         </div>
       `).join('');
     }
 
-    // --- RENDERIZADO DE TAREAS ---
+    function togglePinNota(id) {
+      const n = state.notas.find(x => x.id === id);
+      if (n) { n.pinned = !n.pinned; save(); renderNotas(); }
+    }
+    function borrarNota(id) { if (!confirm("¿Borrar?")) return; state.notas = state.notas.filter(x=>x.id!==id); save(); renderNotas(); }
+
+    // --- RESTO DE FUNCIONES BÁSICAS ---
     function renderCalendario() {
       const cont = document.getElementById("calendarStrip"); cont.innerHTML = "";
       const hoy = new Date(); const inicioSemana = new Date(hoy); inicioSemana.setDate(hoy.getDate() - hoy.getDay());
@@ -760,18 +806,7 @@
           el.className = `task ${t.hecho ? 'hecho' : ''} ${t.prioridad ? 'prioridad' : ''}`;
           const styleDisabled = esHoy ? "" : "opacity: 0.6; pointer-events: none;";
 
-          let subHtml = `<div class="subtasks-container" id="subs-${t.id}">
-            ${(t.subtareas||[]).map((st, sIdx) => `
-              <div class="subtask-item ${st.hecho ? 'done' : ''}">
-                <button class="btn-check-sub" onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})">${st.hecho ? '✅' : '⬜'}</button>
-                <span onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})" style="flex:1; cursor:pointer;">${st.texto}</span>
-                <button class="btn-del-sub" onclick="eliminarSubtask('${pilar.id}', ${index}, ${sIdx})">×</button>
-              </div>`).join('')}
-            <div class="subtask-add-row">
-              <input type="text" placeholder="Nuevo paso..." id="input-sub-${t.id}" onkeypress="if(event.key==='Enter') addSubtask('${pilar.id}', ${index})" />
-              <button onclick="addSubtask('${pilar.id}', ${index})">+</button>
-            </div>
-          </div>`;
+          let subHtml = `<div class="subtasks-container" id="subs-${t.id}">${(t.subtareas||[]).map((st, sIdx) => `<div class="subtask-item ${st.hecho ? 'done' : ''}"><button onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})">${st.hecho ? '✅' : '⬜'}</button><span onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})" style="flex:1; cursor:pointer;">${st.texto}</span><button onclick="eliminarSubtask('${pilar.id}', ${index}, ${sIdx})" style="color:var(--bad);">×</button></div>`).join('')}<div class="subtask-add-row"><input type="text" placeholder="Nuevo paso..." id="input-sub-${t.id}" onkeypress="if(event.key==='Enter') addSubtask('${pilar.id}', ${index})" /><button onclick="addSubtask('${pilar.id}', ${index})">+</button></div></div>`;
           if(t.subtareas && t.subtareas.length > 0) subHtml = subHtml.replace('class="subtasks-container"', 'class="subtasks-container active"');
 
           el.innerHTML = `
@@ -782,6 +817,7 @@
             </div>
             <div class="nota-row" style="${styleDisabled}">
               <input type="text" class="nota-input" placeholder="Nota..." value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'nota', this.value)" />
+              <input type="number" placeholder="Min" style="width: 60px; padding: 10px; text-align:center;" value="${t.duracion || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'duracion', parseInt(this.value) || 0)" title="Duración en minutos" />
             </div>
             ${subHtml}
             ${esHoy ? `<div class="action-btns" style="${styleDisabled}">
@@ -805,7 +841,7 @@
 
     function agregarTareaAlPilar(pilarId) {
       const texto = prompt("¿Qué tarea quieres añadir?"); if (!texto) return;
-      state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: texto, hora: "", nota: "", hecho: false, prioridad: false, subtareas: [] });
+      state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: texto, hora: "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] });
       save(); renderDiarias();
     }
 
@@ -813,7 +849,7 @@
       if (!confirm("¿Eliminar esta tarea?")) return;
       state.tareasHoy[pilarId].splice(index, 1);
       if (state.tareasHoy[pilarId].length === 0) {
-        state.tareasHoy[pilarId].push({ id: Date.now(), texto: PILARES.find(p=>p.id===pilarId).texto, hora: "", nota: "", hecho: false, prioridad: false, subtareas: [] });
+        state.tareasHoy[pilarId].push({ id: Date.now(), texto: PILARES.find(p=>p.id===pilarId).texto, hora: "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] });
       }
       save(); renderDiarias();
     }
@@ -830,10 +866,7 @@
     function updateTarea(pilarId, index, campo, valor) {
       if (fechaSeleccionada !== hoyStr()) return;
       const t = state.tareasHoy[pilarId][index]; t[campo] = valor; save();
-      if (campo === 'hora' && valor) {
-        programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
-        mostrarToast("⏰ Alarma guardada para las " + valor);
-      }
+      if (campo === 'hora' && valor) programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
     }
 
     function posponerTarea(pilarId, index) {
@@ -852,6 +885,7 @@
     function toggleSubtask(pilarId, index, subIndex) { const t = state.tareasHoy[pilarId][index]; t.subtareas[subIndex].hecho = !t.subtareas[subIndex].hecho; if(t.subtareas[subIndex].hecho) playDing(); save(); renderDiarias(); }
     function eliminarSubtask(pilarId, index, subIndex) { const t = state.tareasHoy[pilarId][index]; t.subtareas.splice(subIndex, 1); save(); renderDiarias(); }
 
+    // --- ENFOQUE ---
     function seleccionarTiempoEnfoque(nombreTarea) {
       const tiempo = prompt("¿Cuántos minutos de enfoque? (15, 25, 45, 60)", "25");
       if (tiempo && !isNaN(tiempo)) iniciarPomodoro(nombreTarea, parseInt(tiempo));
@@ -879,18 +913,14 @@
     }
     function abandonarPomodoro() { if(!confirm("¿Abandonar enfoque?")) return; clearInterval(pomodoroInterval); pomodoroInterval = null; document.getElementById("focus-overlay").classList.remove("active"); }
 
+    // --- COMPRAS Y OTRAS FUNCIONES ---
     function addCompra() {
       const txt = document.getElementById("nuevaCompra").value.trim(); const hora = document.getElementById("horaCompra").value;
       if (!txt) return;
       state.compras.push({ id: Date.now(), texto: txt, creado: hoyStr(), hora, hecho:false });
       document.getElementById("nuevaCompra").value = ""; document.getElementById("horaCompra").value = "";
-      save(); renderCompras(); 
-      if (hora) {
-        programarNotificacion("Compra pendiente", txt, hora);
-        mostrarToast("⏰ Alarma guardada para las " + hora);
-      }
+      save(); renderCompras(); if (hora) programarNotificacion("Compra pendiente", txt, hora);
     }
-
     function renderCompras() {
       const cont = document.getElementById("compras");
       cont.innerHTML = state.compras.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:10px;">Nada pendiente.</div>' : "";
@@ -981,7 +1011,7 @@
       const nombre = document.getElementById("nuevoPilarNombre").value.trim(); if (!nombre) return;
       const id = "custom_" + Date.now();
       PILARES.push({ id: id, texto: nombre, color: colorSeleccionado }); state.customPilares = PILARES;
-      state.tareasHoy[id] = [{ id: Date.now(), texto: nombre, hora: "", nota: "", hecho: false, prioridad: false, subtareas: [] }]; state.rachasPilar[id] = 0;
+      state.tareasHoy[id] = [{ id: Date.now(), texto: nombre, hora: "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] }]; state.rachasPilar[id] = 0;
       save(); document.getElementById("nuevoPilarNombre").value = ""; renderDiarias();
     }
     function editarNombrePilar(id) {
