@@ -21,7 +21,6 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { margin:0; font-family: -apple-system, system-ui, sans-serif; background:var(--bg); color:var(--txt); padding: 0; padding-top: 60px; padding-bottom: 95px; transition: background 0.3s, color 0.3s; }
     
-    /* Barra superior */
     .top-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; }
     .top-bar h1 { font-size: 20px; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
     .racha-mini { font-size: 14px; color: var(--muted); font-weight: 600; background: var(--input-bg); padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 4px;}
@@ -33,7 +32,6 @@
 
     h2 { font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin:10px 0 8px; font-weight: 600; padding-left: 4px;}
     
-    /* CALENDARIO HORIZONTAL */
     .calendar-strip { display: flex; justify-content: space-between; margin-bottom: 16px; background: var(--card); padding: 10px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     .cal-day { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 40px; padding: 8px 0; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
     .cal-day .name { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
@@ -114,18 +112,14 @@
     </div>
   </div>
 
-  <!-- PESTAÑA HOY -->
   <div id="tab-hoy" class="tab-content active">
-    <!-- CALENDARIO -->
     <div class="calendar-strip" id="calendarStrip"></div>
     <div id="alertaFechaPasada"></div>
-    
     <div id="bannerHoy"></div>
     <h2 id="tituloTareasHoy">Obligatorias de Hoy</h2>
     <div class="card" id="diarias"></div>
   </div>
 
-  <!-- PESTAÑA COMPRAS -->
   <div id="tab-compras" class="tab-content">
     <h2>Compras y Pendientes</h2>
     <div class="card">
@@ -140,13 +134,11 @@
     </div>
   </div>
 
-  <!-- PESTAÑA CARRO -->
   <div id="tab-carro" class="tab-content">
     <h2>Mantenimiento Semanal</h2>
     <div class="card" id="semanal"></div>
   </div>
 
-  <!-- PESTAÑA NOTAS -->
   <div id="tab-notas" class="tab-content">
     <h2>Bandeja de Ideas / Notas</h2>
     <div class="card">
@@ -160,10 +152,8 @@
     </div>
   </div>
 
-  <!-- PESTAÑA RESUMEN -->
   <div id="tab-resumen" class="tab-content">
     <div id="bannerResumen"></div>
-    
     <h2>Progreso de Hoy</h2>
     <div class="card" style="padding: 16px;">
       <div class="stat-box">
@@ -218,7 +208,7 @@
 
     const KEY = "miorden_v1";
     let state = load();
-    let fechaSeleccionada = obtenerFechaStr(new Date()); // Por defecto hoy
+    let fechaSeleccionada = obtenerFechaStr(new Date());
 
     function load() {
       const raw = localStorage.getItem(KEY);
@@ -227,7 +217,6 @@
     }
     function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
 
-    // Funciones de fecha
     function obtenerFechaStr(d) {
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -236,23 +225,19 @@
     }
     function hoyStr() { return obtenerFechaStr(new Date()); }
 
-    // ====== CALENDARIO ======
     function renderCalendario() {
       const cont = document.getElementById("calendarStrip");
       cont.innerHTML = "";
-      
       const hoy = new Date();
-      const diaSemana = hoy.getDay(); // 0 es domingo
+      const diaSemana = hoy.getDay();
       const inicioSemana = new Date(hoy);
-      inicioSemana.setDate(hoy.getDate() - diaSemana); // Retroceder al domingo de esta semana
-
+      inicioSemana.setDate(hoy.getDate() - diaSemana);
       const nombresDias = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"];
 
       for (let i = 0; i < 7; i++) {
         const d = new Date(inicioSemana);
         d.setDate(inicioSemana.getDate() + i);
         const fechaStr = obtenerFechaStr(d);
-        
         const el = document.createElement("div");
         el.className = "cal-day";
         
@@ -264,17 +249,9 @@
         if (esHoy) el.classList.add("active");
         if (esPasado) el.classList.add("past");
         if (esFuturo) el.classList.add("future");
-        
-        // Si está seleccionado pero no es hoy, le damos un borde o estilo extra
-        if (estaSeleccionado && !esHoy) {
-           el.style.backgroundColor = "var(--border)";
-        }
+        if (estaSeleccionado && !esHoy) el.style.backgroundColor = "var(--border)";
 
-        el.innerHTML = `
-          <span class="name">${nombresDias[d.getDay()]}</span>
-          <span class="num">${d.getDate()}</span>
-        `;
-
+        el.innerHTML = `<span class="name">${nombresDias[d.getDay()]}</span><span class="num">${d.getDate()}</span>`;
         if (!esFuturo) {
           el.onclick = () => {
             fechaSeleccionada = fechaStr;
@@ -282,19 +259,15 @@
             renderDiarias();
           };
         }
-
         cont.appendChild(el);
       }
     }
 
-    // ====== TEMA ======
     function aplicarTema() {
       const pref = state.theme || 'system';
       let usarClaro = (pref === 'light') || (pref === 'system' && window.matchMedia('(prefers-color-scheme: light)').matches);
-      
       if (usarClaro) document.body.classList.add('light-theme');
       else document.body.classList.remove('light-theme');
-
       document.querySelectorAll('.theme-opt').forEach(el => el.classList.remove('active'));
       const btn = document.getElementById('opt-' + pref);
       if(btn) btn.classList.add('active');
@@ -302,7 +275,6 @@
     function setTheme(pref) { state.theme = pref; save(); aplicarTema(); }
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (state.theme === 'system') aplicarTema(); });
 
-    // ====== NAVEGACIÓN ======
     function cambiarPestana(id, btn, titulo) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
@@ -312,19 +284,13 @@
       if(id === 'resumen') renderResumenYHistorial();
     }
 
-    // ====== FEEDBACK ======
     function actualizarBanner(idBanner, esHistorial = false) {
       const cont = document.getElementById(idBanner);
       if(!cont) return;
-      
       const fechaConsulta = esHistorial ? fechaSeleccionada : hoyStr();
       const tareasHechas = TAREAS_DIARIAS.filter(t => state.diarias[fechaConsulta+"_"+t.id]?.hecho).length;
       const total = TAREAS_DIARIAS.length;
-
-      if (esHistorial) {
-        cont.innerHTML = ""; // No mostrar banner de feedback en historial
-        return;
-      }
+      if (esHistorial) { cont.innerHTML = ""; return; }
 
       if (tareasHechas === 0) {
         cont.innerHTML = `<div class="feedback-banner fb-neutral"><h3>¡A darle!</h3><p>Aún no has completado nada hoy. Empieza por la primera tarea.</p></div>`;
@@ -337,15 +303,12 @@
       }
     }
 
-    // ====== TAREAS DIARIAS (CON SOPORTE DE HISTORIAL) ======
     function renderDiarias() {
       const cont = document.getElementById("diarias");
       cont.innerHTML = "";
-      
       const esHoy = fechaSeleccionada === hoyStr();
       document.getElementById("tituloTareasHoy").textContent = esHoy ? "Obligatorias de Hoy" : "Tareas del " + fechaSeleccionada;
       
-      // Alerta si estamos viendo el pasado
       const alerta = document.getElementById("alertaFechaPasada");
       if (!esHoy) {
         alerta.innerHTML = `<div style="background:rgba(255,159,10,0.1); color:var(--warn); padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px; text-align:center;">Estás viendo el pasado. Toca el día de hoy en el calendario para volver.</div>`;
@@ -361,8 +324,6 @@
         
         const el = document.createElement("div");
         el.className = "task " + (hecho?"hecho":"");
-        
-        // Deshabilitar botones si no es hoy
         const disabledAttr = esHoy ? "" : "disabled";
         const styleDisabled = esHoy ? "" : "opacity: 0.6; pointer-events: none;";
 
@@ -372,45 +333,32 @@
               <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
             </button>
             <div class="txt">${t.texto}</div>
-            ${esHoy ? `
-            <button class="btn-icon" onclick="posponerDiaria('${t.id}')" title="Pasar a mañana">
-              <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
-            </button>` : ''}
+            ${esHoy ? `<button class="btn-icon" onclick="posponerDiaria('${t.id}')" title="Pasar a mañana"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>` : ''}
             <input type="time" value="${hora}" onchange="updateDiaria('${t.id}', 'hora', this.value)" ${disabledAttr} />
           </div>
           <div class="nota-row" style="${styleDisabled}">
-            <input type="text" class="nota-input" 
-                   placeholder="${esHoy ? 'Escribe qué harás exactamente aquí...' : 'Sin nota guardada'}" 
-                   value="${nota}" 
-                   onchange="updateDiaria('${t.id}', 'nota', this.value)" ${disabledAttr} />
-            ${esHoy ? `
-            <button class="btn-icon danger" onclick="borrarNotaDiaria('${t.id}')" title="Borrar texto">
-              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-            </button>` : ''}
+            <input type="text" class="nota-input" placeholder="${esHoy ? 'Escribe qué harás exactamente aquí...' : 'Sin nota guardada'}" value="${nota}" onchange="updateDiaria('${t.id}', 'nota', this.value)" ${disabledAttr} />
+            ${esHoy ? `<button class="btn-icon danger" onclick="borrarNotaDiaria('${t.id}')" title="Borrar texto"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>` : ''}
           </div>
         `;
         cont.appendChild(el);
       });
-      
       actualizarBanner('bannerHoy', !esHoy);
       if (esHoy) actualizarRacha();
     }
 
     function toggleDiaria(id) {
-      if (fechaSeleccionada !== hoyStr()) return; // Seguridad
+      if (fechaSeleccionada !== hoyStr()) return;
       const key = fechaSeleccionada + "_" + id;
       if (!state.diarias[key]) {
         const notaGuardada = state.ultimaNota?.[id] || "";
         state.diarias[key] = { hecho:false, hora:"", nota: notaGuardada };
       }
-      
       const eraHecho = state.diarias[key].hecho;
       state.diarias[key].hecho = !state.diarias[key].hecho;
       save(); 
-      
       if (navigator.vibrate) navigator.vibrate(state.diarias[key].hecho ? 50 : 20);
       renderDiarias(); 
-
       const todas = TAREAS_DIARIAS.every(t => state.diarias[hoyStr()+"_"+t.id]?.hecho);
       if (todas && !eraHecho) {
         setTimeout(() => alert("¡Felicidades! Has completado todas tus tareas de hoy. Racha actual: " + state.racha + " días."), 300);
@@ -435,11 +383,8 @@
       const tareaObj = TAREAS_DIARIAS.find(t=>t.id===id);
       const nota = state.diarias[hoyStr()+"_"+id]?.nota || state.ultimaNota?.[id] || "";
       const hora = state.diarias[hoyStr()+"_"+id]?.hora || tareaObj.hora;
-      
-      // Fecha de ayer para que salga la etiqueta "de ayer" en la lista de compras
       const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
       const ayerStr = obtenerFechaStr(ayer);
-
       state.compras.push({ id: Date.now(), texto: "⏭️ " + tareaObj.texto + (nota ? ": " + nota : ""), creado: ayerStr, hora: hora, hecho:false, arrastrado:true });
       save();
       renderCompras();
@@ -453,7 +398,6 @@
       save(); renderDiarias();
     }
 
-    // ====== COMPRAS ======
     function addCompra() {
       const txt = document.getElementById("nuevaCompra").value.trim();
       const hora = document.getElementById("horaCompra").value;
@@ -477,14 +421,10 @@
         el.className = "task " + (c.hecho?"hecho":"");
         el.innerHTML = `
           <div class="task-top">
-            <button class="check" onclick="toggleCompra(${c.id})">
-              <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
-            </button>
+            <button class="check" onclick="toggleCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
             <div class="txt" style="font-weight:400; font-size:15px;">${c.texto} ${deAyer?'<span class="badge ayer">de ayer</span>':''}</div>
             <input type="time" value="${c.hora||''}" onchange="setHoraCompra(${c.id}, this.value)" />
-            <button class="btn-icon danger" onclick="borrarCompra(${c.id})">
-              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-            </button>
+            <button class="btn-icon danger" onclick="borrarCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
           </div>
         `;
         cont.appendChild(el);
@@ -504,7 +444,6 @@
       save(); renderCompras();
     }
 
-    // ====== CARRO ======
     function renderSemanal() {
       const cont = document.getElementById("semanal");
       cont.innerHTML = "";
@@ -524,20 +463,13 @@
       el.className = "task " + (hecho?"hecho":"");
       el.innerHTML = `
         <div class="task-top">
-          <button class="check" onclick="toggleCarro()">
-            <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
-          </button>
+          <button class="check" onclick="toggleCarro()"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
           <div class="txt">${TAREA_CARRO.texto}</div>
           <input type="time" value="${hora}" onchange="updateCarro('hora', this.value)" />
         </div>
         <div class="nota-row">
-          <input type="text" class="nota-input" 
-                 placeholder="¿Qué harás exactamente con el carro?" 
-                 value="${nota}" 
-                 onchange="updateCarro('nota', this.value)" />
-          <button class="btn-icon danger" onclick="borrarNotaCarro()" title="Borrar texto">
-            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-          </button>
+          <input type="text" class="nota-input" placeholder="¿Qué harás exactamente con el carro?" value="${nota}" onchange="updateCarro('nota', this.value)" />
+          <button class="btn-icon danger" onclick="borrarNotaCarro()" title="Borrar texto"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
         </div>
       `;
       cont.appendChild(el);
@@ -572,7 +504,6 @@
       save(); renderSemanal();
     }
 
-    // ====== NOTAS ======
     function addNota() {
       const txt = document.getElementById("nuevaNota").value.trim();
       if (!txt) return;
@@ -594,9 +525,7 @@
         el.innerHTML = `
           <div class="task-top">
             <div class="txt" style="font-weight:400; font-size:15px;">${n.texto}</div>
-            <button class="btn-icon danger" onclick="borrarNota(${n.id})">
-              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-            </button>
+            <button class="btn-icon danger" onclick="borrarNota(${n.id})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
           </div>
         `;
         cont.appendChild(el);
@@ -608,7 +537,6 @@
       save(); renderNotas();
     }
 
-    // ====== RACHA Y RESUMEN ======
     function actualizarRacha() {
       const hoy = hoyStr();
       const todasHechas = TAREAS_DIARIAS.every(t => state.diarias[hoy+"_"+t.id]?.hecho);
@@ -637,7 +565,6 @@
 
       actualizarBanner('bannerResumen');
 
-      // Historial de Ayer
       const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
       const ayerF = obtenerFechaStr(ayer);
       
@@ -669,6 +596,19 @@
     renderSemanal();
     renderNotas();
     renderResumenYHistorial();
+  </script>
+
+  <!-- ONESIGNAL (CONECTADO Y LISTO) -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "268752c5-8abb-427c-8200-18f4efd54381",
+        serviceWorkerPath: "OneSignalSDKWorker.js",
+        notifyButton: { enable: true }
+      });
+    });
   </script>
 </body>
 </html>
