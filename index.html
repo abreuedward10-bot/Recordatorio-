@@ -12,7 +12,9 @@
       --bg: #111111; --card: #1c1c1e; --txt: #f2f2f7; --muted: #8e8e93;
       --ok: #30d158; --warn: #ff9f0a; --bad: #ff453a; --input-bg: #2c2c2e; --border: #3a3a3c;
       --glass-bg: rgba(28, 28, 30, 0.65); --glass-border: rgba(255, 255, 255, 0.08);
-      --prioridad: #ff453a;
+      
+      /* Colores por defecto de los pilares */
+      --c-yt: #ff453a; --c-fin: #30d158; --c-hija: #ff2d55; --c-casa: #0a84ff; --c-social: #bf5af2; --c-carro: #ff9f0a; --c-custom: #64d2ff;
     }
     body.light-theme {
       --bg: #f2f2f7; --card: #ffffff; --txt: #1c1c1e; --muted: #8e8e93;
@@ -42,22 +44,23 @@
     .cal-day.past .name, .cal-day.past .num { opacity: 0.5; }
     .cal-day.future { opacity: 0.3; cursor: default; }
 
-    .card-separada { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border); transition: all 0.4s ease; position: relative;}
-    .card-separada h3 { font-size: 16px; margin: 0 0 12px 0; color: var(--txt); border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
+    /* DISEÑO DE TARJETAS CON COLOR */
+    .card-separada { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border); transition: all 0.4s ease; border-top: 4px solid var(--accent-color, var(--muted)); }
+    .card-separada h3 { font-size: 16px; margin: 0 0 12px 0; color: var(--accent-color, var(--txt)); border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
     
     .card-completada { background: rgba(48, 209, 88, 0.1); border-color: var(--ok); box-shadow: 0 0 15px rgba(48, 209, 88, 0.2); }
     .card-completada h3 { color: var(--ok); border-bottom-color: rgba(48, 209, 88, 0.3); }
     .badge-completado { font-size: 10px; background: var(--ok); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold;}
-    .racha-pilar { font-size: 11px; color: var(--muted); margin-left: 5px; }
+    .racha-pilar { font-size: 11px; color: var(--muted); font-weight: normal; margin-left: 5px; }
 
     .task { display:flex; flex-direction:column; padding:12px 0; border-bottom:1px solid var(--border); gap:8px; }
     .task:last-child { border-bottom:none; padding-bottom: 0; }
     .task:first-child { padding-top: 0; }
-    .task-top { display:flex; align-items:center; gap:8px; width:100%; }
-    .task .txt { flex:1; font-size:16px; font-weight:500; transition: color 0.3s; }
+    .task-top { display:flex; align-items:center; gap:8px; width:100%; flex-wrap: wrap; }
+    .task .txt { flex:1; font-size:16px; font-weight:500; transition: color 0.3s; min-width: 100px;}
     .task.hecho .txt { text-decoration:line-through; color:var(--muted); }
     .task.omitido .txt { text-decoration:line-through; color: var(--muted); font-style: italic; opacity: 0.6;}
-    .task.prioridad { border-left: 3px solid var(--prioridad); padding-left: 8px; background: rgba(255,69,58,0.05); border-radius: 4px;}
+    .task.prioridad { border-left: 3px solid var(--bad); padding-left: 8px; background: rgba(255,69,58,0.05); border-radius: 4px;}
     
     .check { width:26px; height:26px; border-radius:50%; border:2px solid var(--muted); background:transparent; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition: all 0.2s; cursor:pointer; padding:0;}
     .check svg { width: 14px; height: 14px; fill: none; stroke: transparent; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s;}
@@ -66,28 +69,35 @@
     
     input[type="text"], input[type="time"], input[type="password"] { background:var(--input-bg); border:none; color:var(--txt); padding:10px; border-radius:10px; font-size:15px; font-family:inherit; outline: none;}
     input[type="text"] { flex:1; width: 100%; }
-    input[type="time"] { width: 75px; padding: 6px 2px; font-size: 12px; text-align: center; }
+    input[type="time"] { width: 80px; padding: 8px 4px; font-size: 13px; text-align: center; }
     
     .nota-row { display: flex; gap: 8px; width: 100%; align-items: center; }
     .nota-input { flex: 1; background: var(--input-bg); border: 1px solid transparent; padding: 10px 12px; border-radius: 10px; font-size: 14px; color: var(--txt); }
-    
-    .btn-icon { background: transparent; border: none; color: var(--muted); padding: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%; }
-    .btn-icon svg { width: 18px; height: 18px; fill: currentColor; }
-    .btn-icon.danger { color: var(--bad); opacity: 0.7; }
-    .btn-icon.danger:active { opacity: 1; background: rgba(255,69,58,0.1); }
-    .btn-icon.priority-btn { color: var(--muted); }
-    .task.prioridad .btn-icon.priority-btn { color: var(--prioridad); }
 
-    button.primary { background:var(--txt); color:var(--bg); border:none; padding:10px 16px; border-radius:12px; font-weight:600; font-size:15px; cursor:pointer; display: flex; align-items: center; justify-content: center;}
+    /* BOTONES DE ACCIÓN (Más grandes y táctiles) */
+    .action-btns { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-icon { background: var(--input-bg); border: none; color: var(--muted); padding: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; }
+    .btn-icon svg { width: 18px; height: 18px; fill: currentColor; }
+    .btn-icon:active { opacity: 0.7; }
+    .btn-icon.danger { color: var(--bad); }
+    .btn-icon.priority-btn { color: var(--muted); }
+    .task.prioridad .btn-icon.priority-btn { color: var(--bad); background: rgba(255,69,58,0.2); }
+
+    /* INPUT ROW CORREGIDO (Para que no se vea feo) */
+    .add-row { display: flex; gap: 8px; margin-top: 14px; background: var(--input-bg); padding: 6px; border-radius: 12px; }
+    .add-row input[type="text"] { background: transparent; padding: 8px; }
+    .add-row input[type="time"] { background: var(--bg); width: 85px; }
+    button.primary { background:var(--txt); color:var(--bg); border:none; padding:10px 14px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
     button.primary svg { width: 18px; height: 18px; fill: currentColor; }
-    button.secondary { background:transparent; border:1px dashed var(--muted); color:var(--muted); padding:8px; border-radius:10px; font-size:13px; width:100%; cursor:pointer; margin-top:12px;}
+    button.secondary { background:transparent; border:1px dashed var(--muted); color:var(--muted); padding:10px; border-radius:10px; font-size:13px; width:100%; cursor:pointer; margin-top:12px;}
     button.secondary:active { background:var(--input-bg); }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: var(--glass-bg); backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-    .nav-btn { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 500; width: 64px; height: 60px; cursor: pointer; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: var(--glass-bg); backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); display: flex; justify-content: flex-start; align-items: center; overflow-x: auto; z-index: 100; scrollbar-width: none; padding: 0 10px;}
+    .bottom-nav::-webkit-scrollbar { display: none; }
+    .nav-btn { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 500; min-width: 70px; height: 60px; cursor: pointer; flex-shrink: 0; transition: color 0.2s;}
     .nav-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;}
-    .nav-btn.active { color: var(--txt); }
-    .nav-btn.active svg { transform: translateY(-2px); fill: var(--txt); stroke: var(--txt); }
+    .nav-btn.active { color: var(--accent-nav, var(--txt)); }
+    .nav-btn.active svg { transform: translateY(-2px); fill: currentColor; stroke: currentColor; }
 
     .stat-box { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .stat-box:last-child { border-bottom: none; }
@@ -101,12 +111,10 @@
     .debug-box { background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; margin-top: 10px; white-space: pre-wrap;}
     .balance-item { background: var(--input-bg); padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; border-left: 3px solid var(--warn); }
 
-    /* Gráfico de barras simple */
     .chart-container { display: flex; justify-content: space-between; align-items: flex-end; height: 80px; padding-top: 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px;}
     .chart-bar { width: 12%; background: var(--ok); border-radius: 4px 4px 0 0; transition: height 0.3s; opacity: 0.8;}
     .chart-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
 
-    /* Toast de felicitación */
     #toast { visibility: hidden; min-width: 250px; background-color: var(--ok); color: #000; text-align: center; border-radius: 30px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 100px; font-size: 16px; font-weight: bold; transform: translateX(-50%); box-shadow: 0 4px 12px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
     #toast.show { visibility: visible; opacity: 1; bottom: 120px; }
   </style>
@@ -120,15 +128,17 @@
     <div class="racha-mini"><b id="rachaTop">0</b></div>
   </div>
 
+  <!-- PESTAÑA HOY -->
   <div id="tab-hoy" class="tab-content active">
     <div class="calendar-strip" id="calendarStrip"></div>
     <div id="alertaFechaPasada"></div>
     <div id="diarias"></div>
   </div>
 
+  <!-- PESTAÑA COMPRAS -->
   <div id="tab-compras" class="tab-content">
     <h2>Compras y Pendientes</h2>
-    <div class="card-separada">
+    <div class="card-separada" style="--accent-color: var(--warn)">
       <div id="compras"></div>
       <div class="add-row">
         <input type="text" id="nuevaCompra" placeholder="Ej: comprar bombillo" />
@@ -138,9 +148,10 @@
     </div>
   </div>
 
+  <!-- PESTAÑA NOTAS -->
   <div id="tab-notas" class="tab-content">
     <h2>Bandeja de Ideas / Notas</h2>
-    <div class="card-separada">
+    <div class="card-separada" style="--accent-color: var(--c-custom)">
       <div id="notasLista"></div>
       <div class="add-row">
         <input type="text" id="nuevaNota" placeholder="Idea suelta..." />
@@ -149,22 +160,23 @@
     </div>
   </div>
 
+  <!-- PESTAÑA RESUMEN -->
   <div id="tab-resumen" class="tab-content">
     <h2>Progreso de Hoy</h2>
-    <div class="card-separada" style="padding: 16px;">
+    <div class="card-separada" style="padding: 16px; --accent-color: var(--ok)">
       <div class="stat-box"><span class="stat-label">✅ Diarias hechas</span><span class="stat-value" id="resumenDiarias">0/0</span></div>
       <div class="stat-box"><span class="stat-label">📋 Compras pendientes</span><span class="stat-value" id="resumenCompras">0</span></div>
       <div class="stat-box"><span class="stat-label">🔥 Racha global</span><span class="stat-value" style="color: var(--ok);" id="resumenRacha">0 días</span></div>
     </div>
 
     <h2>Estadísticas (Últimos 7 días)</h2>
-    <div class="card-separada" style="padding: 16px;">
+    <div class="card-separada" style="padding: 16px; --accent-color: var(--ok)">
       <div class="chart-container" id="chartContainer"></div>
       <div class="chart-label" id="chartLabels"></div>
     </div>
 
     <h2>Cierre del Día</h2>
-    <div class="card-separada" style="padding: 16px;">
+    <div class="card-separada" style="padding: 16px; --accent-color: var(--bad)">
       <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Haz un balance de lo que faltó hoy y decide qué hacer con ello.</p>
       <button class="primary" style="width: 100%; margin-bottom: 10px; background: var(--bad); color: #fff;" onclick="generarBalance()">Finalizar el día y ver balance</button>
       <button class="secondary" style="margin-bottom: 15px;" onclick="copiarTareasDeAyer()">📋 Copiar tareas que hice ayer</button>
@@ -176,47 +188,57 @@
       </div>
     </div>
 
-    <h2>Ajustes de Apariencia</h2>
-    <div class="theme-selector" style="margin-bottom: 14px;">
-      <div class="theme-opt" id="opt-dark" onclick="setTheme('dark')">Oscuro</div>
-      <div class="theme-opt" id="opt-light" onclick="setTheme('light')">Claro</div>
-      <div class="theme-opt" id="opt-system" onclick="setTheme('system')">Sistema</div>
+    <h2>Ajustes y Pestañas</h2>
+    <div class="card-separada" style="padding: 16px; --accent-color: var(--muted)">
+      <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Añade nuevas áreas a tu app:</p>
+      <div class="add-row" style="margin-bottom: 15px;">
+        <input type="text" id="nuevoPilarNombre" placeholder="Ej: Proyecto, Gym..." />
+        <button class="primary" onclick="crearPilar()">+</button>
+      </div>
+      
+      <div class="theme-selector" style="margin-bottom: 14px;">
+        <div class="theme-opt" id="opt-dark" onclick="setTheme('dark')">Oscuro</div>
+        <div class="theme-opt" id="opt-light" onclick="setTheme('light')">Claro</div>
+        <div class="theme-opt" id="opt-system" onclick="setTheme('system')">Sistema</div>
+      </div>
     </div>
 
     <h2>Configuración de Notificaciones</h2>
-    <div class="card-separada" style="padding: 16px;">
+    <div class="card-separada" style="padding: 16px; --accent-color: var(--muted)">
       <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Pega tu REST API Key.</p>
       <input type="password" id="apiKeyInput" placeholder="os_v2_..." style="width: 100%; margin-bottom: 10px;" />
       <button class="primary" style="width: 100%; margin-bottom: 10px;" onclick="guardarApiKey()">Guardar Llave</button>
       <p id="apiKeyStatus" style="font-size: 12px; color: var(--ok); margin-bottom: 0; display: none;">✅ Llave guardada</p>
       
       <hr style="border-color: var(--border); margin: 16px 0;">
-      <h3 style="font-size: 14px; margin-bottom: 8px;">Diagnóstico del Dispositivo</h3>
+      <h3 style="font-size: 14px; margin-bottom: 8px;">Diagnóstico</h3>
       <div id="debugInfo" class="debug-box">Cargando datos...</div>
-      <button class="primary" style="width: 100%; margin-top: 10px; background: var(--warn); color: #000;" onclick="forzarID()">🔄 Actualizar y Guardar ID</button>
+      <button class="primary" style="width: 100%; margin-top: 10px; background: var(--warn); color: #000;" onclick="forzarID()">🔄 Actualizar ID</button>
     </div>
   </div>
 
-  <div class="bottom-nav">
-    <button class="nav-btn active" onclick="cambiarPestana('hoy', this, 'Hoy')"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg><span>Hoy</span></button>
-    <button class="nav-btn" onclick="cambiarPestana('compras', this, 'Compras')"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Compras</span></button>
-    <button class="nav-btn" onclick="cambiarPestana('notas', this, 'Notas')"><svg viewBox="0 0 24 24"><path d="M3 18h12v-2H3v2zM3 6v2h18V6H3zm0 7h18v-2H3v2z"/></svg><span>Notas</span></button>
-    <button class="nav-btn" onclick="cambiarPestana('resumen', this, 'Resumen')"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>Resumen</span></button>
+  <!-- BARRA INFERIOR DINÁMICA -->
+  <div class="bottom-nav" id="bottomNav">
+    <button class="nav-btn active" style="--accent-nav: var(--ok)" onclick="cambiarPestana('hoy', this, 'Hoy')"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg><span>Hoy</span></button>
+    <button class="nav-btn" style="--accent-nav: var(--warn)" onclick="cambiarPestana('compras', this, 'Compras')"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Compras</span></button>
+    <button class="nav-btn" style="--accent-nav: var(--c-custom)" onclick="cambiarPestana('notas', this, 'Notas')"><svg viewBox="0 0 24 24"><path d="M3 18h12v-2H3v2zM3 6v2h18V6H3zm0 7h18v-2H3v2z"/></svg><span>Notas</span></button>
+    <button class="nav-btn" style="--accent-nav: var(--muted)" onclick="cambiarPestana('resumen', this, 'Resumen')"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>Resumen</span></button>
   </div>
 
   <script>
     const ONESIGNAL_APP_ID = "268752c5-8abb-427c-8200-18f4efd54381";
     
-    const PILARES = [
-      { id: "yt", texto: "YouTube" },
-      { id: "fin", texto: "Finanzas" },
-      { id: "hija", texto: "Hija" },
-      { id: "casa", texto: "Casa / Trámites" },
-      { id: "social", texto: "Social" },
-      { id: "carro", texto: "Carro / Mantenimiento" }
+    // Lista base de pilares. Se pueden añadir más desde la app.
+    let PILARES = [
+      { id: "yt", texto: "YouTube", color: "var(--c-yt)" },
+      { id: "fin", texto: "Finanzas", color: "var(--c-fin)" },
+      { id: "hija", texto: "Hija", color: "var(--c-hija)" },
+      { id: "casa", texto: "Casa / Trámites", color: "var(--c-casa)" },
+      { id: "social", texto: "Social", color: "var(--c-social)" },
+      { id: "carro", texto: "Carro", color: "var(--c-carro)" }
     ];
 
-    const KEY = "miorden_v5"; 
+    const KEY = "miorden_v6"; 
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
     let pomodoroInterval = null;
@@ -227,15 +249,15 @@
       const raw = localStorage.getItem(KEY);
       if (raw) {
         let s = JSON.parse(raw);
-        // Asegurar que existan las propiedades nuevas
+        // Restaurar pilares guardados si existen
+        if(s.customPilares) PILARES = s.customPilares;
         if(!s.rachasPilar) s.rachasPilar = {};
         if(!s.historial) s.historial = {};
         return s;
       }
-      const estadoInicial = { tareasHoy: {}, compras:[], notas:[], racha:0, ultimoDia:null, theme: 'system', rachasPilar: {}, historial: {} };
+      const estadoInicial = { tareasHoy: {}, compras:[], notas:[], racha:0, ultimoDia:null, theme: 'system', rachasPilar: {}, historial: {}, customPilares: PILARES };
       PILARES.forEach(p => {
-        let textoDefecto = p.texto;
-        if(p.id === 'carro') textoDefecto = "Revisar aceite/cauchos/luces";
+        let textoDefecto = p.id === 'carro' ? "Revisar aceite/cauchos/luces" : p.texto;
         let horaDefecto = p.id === 'carro' ? "11:00" : "";
         estadoInicial.tareasHoy[p.id] = [{ id: Date.now() + Math.random(), texto: textoDefecto, hora: horaDefecto, nota: "", hecho: false, omitido: false, prioridad: false }];
         estadoInicial.rachasPilar[p.id] = 0;
@@ -349,6 +371,24 @@
       if(id === 'resumen') { renderResumenYHistorial(); actualizarDebug(); document.getElementById("resultadoBalance").style.display = "none"; }
     }
 
+    // --- CREAR NUEVO PILAR / PESTAÑA ---
+    function crearPilar() {
+      const nombre = document.getElementById("nuevoPilarNombre").value.trim();
+      if (!nombre) return;
+      const id = "custom_" + Date.now();
+      const nuevoPilar = { id: id, texto: nombre, color: "var(--c-custom)" };
+      
+      PILARES.push(nuevoPilar);
+      state.customPilares = PILARES; // Guardamos la lista actualizada
+      state.tareasHoy[id] = [{ id: Date.now() + Math.random(), texto: nombre, hora: "", nota: "", hecho: false, omitido: false, prioridad: false }];
+      state.rachasPilar[id] = 0;
+      
+      save();
+      document.getElementById("nuevoPilarNombre").value = "";
+      renderDiarias();
+      alert("¡Nueva pestaña '" + nombre + "' añadida con éxito!");
+    }
+
     // --- TARJETAS Y VERDE AL COMPLETAR ---
     function renderDiarias() {
       const cont = document.getElementById("diarias");
@@ -362,9 +402,9 @@
       PILARES.forEach(pilar => {
         const card = document.createElement("div");
         card.className = "card-separada";
+        card.style.setProperty('--accent-color', pilar.color); // Color dinámico
         
         const tareasDelPilar = state.tareasHoy[pilar.id] || [];
-        // Una tarea se considera finalizada si está hecha u omitida
         const todasFinalizadas = tareasDelPilar.length > 0 && tareasDelPilar.every(t => t.hecho || t.omitido);
 
         if (todasFinalizadas && esHoy) card.classList.add("card-completada");
@@ -395,19 +435,19 @@
             <div class="task-top" style="${styleDisabled}">
               <button class="check" onclick="toggleTarea('${pilar.id}', ${index})" ${disabledAttr}><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
               <div class="txt" style="${t.omitido ? 'text-decoration:line-through; opacity:0.6;' : ''}">${t.texto}</div>
-              
-              ${esHoy ? `
-                <button class="btn-icon priority-btn" onclick="togglePrioridad('${pilar.id}', ${index})" title="Marcar como prioridad"><svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></button>
-                <button class="btn-icon" onclick="iniciarPomodoro('${t.texto}')" title="Modo Enfoque (25 min)"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></button>
-                <button class="btn-icon" onclick="omitirTarea('${pilar.id}', ${index})" title="Omitir hoy (no cuenta como fallo)"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></button>
-                <button class="btn-icon" onclick="posponerTarea('${pilar.id}', ${index})" title="Pasar a mañana"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>
-                <button class="btn-icon danger" onclick="eliminarTareaCompleta('${pilar.id}', ${index})" title="Eliminar"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
-              ` : ''}
               <input type="time" value="${t.hora || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'hora', this.value)" ${disabledAttr} />
             </div>
             <div class="nota-row" style="${styleDisabled}">
               <input type="text" class="nota-input" placeholder="${esHoy ? 'Escribe qué harás aquí...' : 'Sin nota'}" value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'nota', this.value)" ${disabledAttr} />
             </div>
+            ${esHoy ? `
+            <div class="action-btns" style="${styleDisabled}">
+              <button class="btn-icon priority-btn" onclick="togglePrioridad('${pilar.id}', ${index})" title="Prioridad"><svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></button>
+              <button class="btn-icon" onclick="iniciarPomodoro('${t.texto}')" title="Enfoque"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></button>
+              <button class="btn-icon" onclick="omitirTarea('${pilar.id}', ${index})" title="Omitir"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></button>
+              <button class="btn-icon" onclick="posponerTarea('${pilar.id}', ${index})" title="Pasar a mañana"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>
+              <button class="btn-icon danger" onclick="eliminarTareaCompleta('${pilar.id}', ${index})" title="Eliminar"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            </div>` : ''}
           `;
           card.appendChild(el);
         });
@@ -438,7 +478,8 @@
       if (!confirm("¿Eliminar esta tarea de la lista de hoy?")) return;
       state.tareasHoy[pilarId].splice(index, 1);
       if (state.tareasHoy[pilarId].length === 0) {
-        state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: PILARES.find(p=>p.id===pilarId).texto, hora: "", nota: "", hecho: false, omitido: false, prioridad: false });
+        const p = PILARES.find(p=>p.id===pilarId);
+        state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: p ? p.texto : "Nueva Tarea", hora: "", nota: "", hecho: false, omitido: false, prioridad: false });
       }
       save(); renderDiarias();
     }
@@ -447,11 +488,9 @@
       if (fechaSeleccionada !== hoyStr()) return;
       const t = state.tareasHoy[pilarId][index];
       t.hecho = !t.hecho;
-      if (t.hecho) t.omitido = false; // Si la marca hecha, quita el omitido
-      
+      if (t.hecho) t.omitido = false;
       save(); 
       if (navigator.vibrate) navigator.vibrate(t.hecho ? 50 : 20);
-      
       if (t.hecho) mostrarToast();
       renderDiarias();
       
@@ -491,17 +530,15 @@
     // --- POMODORO ---
     function iniciarPomodoro(nombreTarea) {
       if (pomodoroInterval) clearInterval(pomodoroInterval);
-      
-      let tiempo = 25 * 60; // 25 minutos
-      alert(`🍅 MODO ENFOQUE INICIADO\n\nTarea: ${nombreTarea}\n\nConcéntrate 25 minutos. Deja el teléfono y ponte a ello.`);
-      
+      let tiempo = 25 * 60;
+      alert(`🍅 MODO ENFOQUE INICIADO\n\nTarea: ${nombreTarea}\n\nConcéntrate 25 minutos.`);
       pomodoroInterval = setInterval(() => {
         tiempo--;
         if (tiempo <= 0) {
           clearInterval(pomodoroInterval);
           pomodoroInterval = null;
           if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]);
-          alert("¡TIEMPO! ⏰\n\nHas completado 25 minutos de enfoque. Tómate un descanso de 5 minutos.");
+          alert("¡TIEMPO! ⏰\n\nHas completado 25 minutos de enfoque.");
           programarNotificacion("¡Tiempo de Enfoque terminado!", "Has completado 25 minutos en: " + nombreTarea, new Date().toTimeString().slice(0,5));
         }
       }, 1000);
@@ -550,13 +587,11 @@
       const ayer = ayerStr();
       const hist = state.historial[ayer];
       if (!hist) { alert("No hay historial guardado de ayer todavía."); return; }
-      
       if (!confirm("¿Restaurar las tareas que hiciste ayer para hoy?")) return;
-
       PILARES.forEach(pilar => {
         if(hist.tareasHoy[pilar.id]) {
-          state.tareasHoy[pilar.id] = JSON.parse(JSON.stringify(hist.tareasHoy[pilar.id])); // Copia profunda
-          state.tareasHoy[pilar.id].forEach(t => { t.hecho = false; t.omitido = false; }); // Reseteamos
+          state.tareasHoy[pilar.id] = JSON.parse(JSON.stringify(hist.tareasHoy[pilar.id]));
+          state.tareasHoy[pilar.id].forEach(t => { t.hecho = false; t.omitido = false; });
         }
       });
       save(); renderDiarias(); alert("Tareas de ayer copiadas a hoy.");
@@ -595,14 +630,11 @@
     function actualizarRacha() {
       const hoy = hoyStr();
       let todasHechasGlobal = true;
-      let pilarCompletado = false;
 
-      // Comprobar racha por pilar
       PILARES.forEach(p => {
         const tareas = state.tareasHoy[p.id] || [];
         const finPilar = tareas.length > 0 && tareas.every(t => t.hecho || t.omitido);
         if (finPilar) {
-          pilarCompletado = true;
           const ultKey = "ultimoDia_" + p.id;
           if (state[ultKey] !== hoy) {
             const ayer = ayerStr();
@@ -620,8 +652,6 @@
         }
       }
       document.getElementById("rachaTop").textContent = state.racha;
-
-      // Guardar historial para el botón de "Copiar Ayer"
       state.historial[hoy] = { tareasHoy: JSON.parse(JSON.stringify(state.tareasHoy)) };
       save();
     }
@@ -633,7 +663,6 @@
       document.getElementById("resumenCompras").textContent = state.compras.filter(c=>!c.hecho).length;
       document.getElementById("resumenRacha").textContent = `${state.racha} días`;
 
-      // Gráfico
       const chartCont = document.getElementById("chartContainer");
       const labelsCont = document.getElementById("chartLabels");
       chartCont.innerHTML = ""; labelsCont.innerHTML = "";
