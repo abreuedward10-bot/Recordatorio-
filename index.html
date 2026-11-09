@@ -41,7 +41,6 @@
     .cal-day.past .name, .cal-day.past .num { opacity: 0.5; }
     .cal-day.future { opacity: 0.3; cursor: default; }
 
-    /* TARJETAS SEPARADAS */
     .card-separada { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border); }
     .card-separada h3 { font-size: 16px; margin: 0 0 12px 0; color: var(--txt); border-bottom: 1px solid var(--border); padding-bottom: 8px;}
 
@@ -118,9 +117,14 @@
     </div>
   </div>
 
+  <!-- PESTAÑA CARRO REDISEÑADA CON TARJETA Y MÚLTIPLES TAREAS -->
   <div id="tab-carro" class="tab-content">
-    <h2>Mantenimiento Semanal</h2>
-    <div class="card-separada" id="semanal"></div>
+    <h2>Mantenimiento del Carro</h2>
+    <div class="card-separada">
+      <h3>Carro</h3>
+      <div id="semanal"></div>
+      <button class="secondary" onclick="agregarTareaCarro()">+ Añadir otro pendiente del carro</button>
+    </div>
   </div>
 
   <div id="tab-notas" class="tab-content">
@@ -173,7 +177,6 @@
 
   <script>
     const ONESIGNAL_APP_ID = "268752c5-8abb-427c-8200-18f4efd54381";
-    const DIAS_CARRO = 1; 
     const PILARES = [
       { id: "yt", texto: "YouTube" },
       { id: "fin", texto: "Finanzas" },
@@ -181,19 +184,20 @@
       { id: "casa", texto: "Casa / Trámites" },
       { id: "social", texto: "Social" }
     ];
-    const TAREA_CARRO = { id:"carro", texto:"Carro (Mantenimiento)", hora:"11:00" };
 
-    const KEY = "miorden_v2";
+    const KEY = "miorden_v3"; // Actualizamos versión
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
 
     function load() {
       const raw = localStorage.getItem(KEY);
       if (raw) return JSON.parse(raw);
-      const estadoInicial = { tareasHoy: {}, compras:[], carro:{}, notas:[], racha:0, ultimoDia:null, theme: 'system' };
+      const estadoInicial = { tareasHoy: {}, compras:[], carro:[], notas:[], racha:0, ultimoDia:null, theme: 'system' };
       PILARES.forEach(p => {
         estadoInicial.tareasHoy[p.id] = [{ id: Date.now() + Math.random(), texto: p.texto, hora: "", nota: "", hecho: false }];
       });
+      // Añadimos una tarea por defecto al carro
+      estadoInicial.carro = [{ id: Date.now() + Math.random(), texto: "Revisar aceite/cauchos/luces", hora: "11:00", nota: "", hecho: false }];
       return estadoInicial;
     }
     function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -305,11 +309,9 @@
       if (!esHoy) alerta.innerHTML = `<div style="background:rgba(255,159,10,0.1); color:var(--warn); padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px; text-align:center;">Estás viendo el pasado.</div>`;
       else alerta.innerHTML = "";
 
-      // Creamos una tarjeta separada por cada Pilar
       PILARES.forEach(pilar => {
         const card = document.createElement("div");
         card.className = "card-separada";
-        
         const cardHeader = document.createElement("h3");
         cardHeader.textContent = pilar.texto;
         card.appendChild(cardHeader);
@@ -324,9 +326,7 @@
 
           el.innerHTML = `
             <div class="task-top" style="${styleDisabled}">
-              <button class="check" onclick="toggleTarea('${pilar.id}', ${index})" ${disabledAttr}>
-                <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
-              </button>
+              <button class="check" onclick="toggleTarea('${pilar.id}', ${index})" ${disabledAttr}><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
               <div class="txt">${t.texto}</div>
               ${esHoy ? `<button class="btn-icon danger" onclick="eliminarTareaCompleta('${pilar.id}', ${index})" title="Eliminar"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>` : ''}
               <input type="time" value="${t.hora || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'hora', this.value)" ${disabledAttr} />
@@ -348,11 +348,10 @@
 
         cont.appendChild(card);
       });
-
       if (esHoy) actualizarRacha();
     }
 
-    // --- ACCIONES ---
+    // --- ACCIONES TAREAS ---
     function agregarTareaAlPilar(pilarId) {
       const texto = prompt("¿Qué tarea quieres añadir?");
       if (!texto) return;
@@ -376,7 +375,6 @@
       t.hecho = !t.hecho;
       save(); if (navigator.vibrate) navigator.vibrate(t.hecho ? 50 : 20);
       renderDiarias();
-      
       let todasHechas = true;
       Object.keys(state.tareasHoy).forEach(pId => { state.tareasHoy[pId].forEach(tarea => { if (!tarea.hecho) todasHechas = false; }); });
       if (todasHechas) setTimeout(() => alert("¡Felicidades! Has completado todas tus tareas de hoy."), 300);
@@ -390,7 +388,60 @@
       if (campo === 'hora' && valor) programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
     }
 
-    // --- RESTO ---
+    // --- CARRO ---
+    function renderSemanal() {
+      const cont = document.getElementById("semanal");
+      cont.innerHTML = "";
+      
+      let tareasCarro = state.carro || [];
+
+      tareasCarro.forEach((t, index) => {
+        const el = document.createElement("div");
+        el.className = "task " + (t.hecho ? "hecho" : "");
+        
+        el.innerHTML = `
+          <div class="task-top">
+            <button class="check" onclick="toggleCarro(${index})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
+            <div class="txt">${t.texto}</div>
+            <button class="btn-icon danger" onclick="eliminarTareaCarro(${index})" title="Eliminar"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            <input type="time" value="${t.hora || ''}" onchange="updateCarro(${index}, 'hora', this.value)" />
+          </div>
+          <div class="nota-row">
+            <input type="text" class="nota-input" placeholder="Observaciones (ej. cambiar aceite)..." value="${t.nota || ''}" onchange="updateCarro(${index}, 'nota', this.value)" />
+          </div>
+        `;
+        cont.appendChild(el);
+      });
+    }
+
+    function agregarTareaCarro() {
+      const texto = prompt("¿Qué pendiente del carro quieres añadir? (ej. Revisar cauchos)");
+      if (!texto) return;
+      state.carro.push({ id: Date.now() + Math.random(), texto: texto, hora: "", nota: "", hecho: false });
+      save(); renderSemanal();
+    }
+
+    function eliminarTareaCarro(index) {
+      if (!confirm("¿Eliminar este pendiente del carro?")) return;
+      state.carro.splice(index, 1);
+      if (state.carro.length === 0) {
+        state.carro.push({ id: Date.now() + Math.random(), texto: "Revisar aceite/cauchos/luces", hora: "", nota: "", hecho: false });
+      }
+      save(); renderSemanal();
+    }
+
+    function toggleCarro(index) {
+      state.carro[index].hecho = !state.carro[index].hecho;
+      save(); renderSemanal();
+    }
+
+    function updateCarro(index, campo, valor) {
+      state.carro[index][campo] = valor;
+      save();
+      if (campo === 'hora' && valor) programarNotificacion("Carro: " + state.carro[index].texto, state.carro[index].nota || "Es hora del carro", valor);
+    }
+
+    // --- COMPRAS Y NOTAS ---
     function addCompra() {
       const txt = document.getElementById("nuevaCompra").value.trim(); const hora = document.getElementById("horaCompra").value;
       if (!txt) return;
@@ -411,18 +462,6 @@
     function toggleCompra(id) { const c = state.compras.find(x=>x.id===id); if (c) { c.hecho = !c.hecho; save(); renderCompras(); } }
     function setHoraCompra(id, hora) { const c = state.compras.find(x=>x.id===id); if (c) { c.hora = hora; save(); if(hora) programarNotificacion("Compra pendiente", c.texto, hora); } }
     function borrarCompra(id) { if (!confirm("¿Borrar?")) return; state.compras = state.compras.filter(x=>x.id!==id); save(); renderCompras(); }
-
-    function renderSemanal() {
-      const cont = document.getElementById("semanal"); cont.innerHTML = "";
-      const esDiaCarro = new Date().getDay() === DIAS_CARRO;
-      const key = hoyStr()+"_carro"; const hecho = state.carro[key]?.hecho || false; const hora = state.carro[key]?.hora || TAREA_CARRO.hora;
-      if (!esDiaCarro && !state.carro[key]) { cont.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Hoy no toca carro.</div>'; return; }
-      const el = document.createElement("div"); el.className = "task " + (hecho?"hecho":"");
-      el.innerHTML = `<div class="task-top"><button class="check" onclick="toggleCarro()"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button><div class="txt">${TAREA_CARRO.texto}</div><input type="time" value="${hora}" onchange="updateCarro('hora', this.value)" /></div>`;
-      cont.appendChild(el);
-    }
-    function toggleCarro() { const key = hoyStr()+"_carro"; if (!state.carro[key]) state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora }; state.carro[key].hecho = !state.carro[key].hecho; save(); renderSemanal(); }
-    function updateCarro(campo, valor) { const key = hoyStr()+"_carro"; if (!state.carro[key]) state.carro[key] = { hecho:false, hora:TAREA_CARRO.hora }; state.carro[key][campo] = valor; save(); if (campo === 'hora' && valor) programarNotificacion("Carro", "Es hora del carro", valor); }
 
     function addNota() { const txt = document.getElementById("nuevaNota").value.trim(); if (!txt) return; state.notas.push({ id: Date.now(), texto: txt }); document.getElementById("nuevaNota").value = ""; save(); renderNotas(); }
     function renderNotas() {
@@ -450,7 +489,6 @@
       document.getElementById("resumenDiarias").textContent = `${hechas}/${totalTareas}`;
       document.getElementById("resumenCompras").textContent = state.compras.filter(c=>!c.hecho).length;
       document.getElementById("resumenRacha").textContent = `${state.racha} días`;
-      document.getElementById("historialAyer").innerHTML = `<div>No hay historial guardado aún en esta versión.</div>`;
     }
 
     // Init
