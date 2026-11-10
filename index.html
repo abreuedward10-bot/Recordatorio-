@@ -76,6 +76,24 @@
     .nota-row { display: flex; gap: 8px; width: 100%; align-items: center; }
     .nota-input { flex: 1; padding: 12px 14px; font-size: 14px; }
 
+    /* DISEÑO DE SUBTAREAS MEJORADO (BOTONES OSCUROS) */
+    .subtasks-container { background: var(--bg); border-radius: 14px; padding: 12px; margin-top: 8px; display: none; border: 1px solid var(--border); }
+    .subtasks-container.active { display: block; }
+    
+    .subtask-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 14px;}
+    .subtask-item .sub-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--muted); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0;}
+    .subtask-item .sub-check svg { width: 10px; height: 10px; fill: none; stroke: transparent; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;}
+    .subtask-item.done .sub-check { background: var(--ok); border-color: var(--ok); }
+    .subtask-item.done .sub-check svg { stroke: #000; }
+    .subtask-item .sub-text { flex: 1; cursor: pointer; color: var(--txt); }
+    .subtask-item.done .sub-text { text-decoration: line-through; color: var(--muted); }
+    .subtask-item .sub-del { background: transparent; border: none; color: var(--bad); font-size: 16px; cursor: pointer; padding: 0 4px;}
+
+    /* BOTÓN DE AGREGAR PASO INTEGRADO */
+    .subtask-add-row { display: flex; gap: 8px; margin-top: 12px; }
+    .subtask-add-row input { padding: 10px 12px; font-size: 13px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); color: var(--txt); flex: 1;}
+    .subtask-add-row button { background: var(--card); border: 1px solid var(--border); color: var(--txt); width: 36px; height: 36px; border-radius: 10px; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;}
+
     .action-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 8px;}
     .btn-icon { background: var(--card); border: 1px solid var(--border); color: var(--txt); padding: 10px 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 12px; font-size: 16px;}
     .btn-icon svg { width: 20px; height: 20px; fill: currentColor; }
@@ -114,7 +132,7 @@
     .wallet-card { 
       background: linear-gradient(135deg, #2a2a2a 0%, #111111 100%); 
       border-radius: 16px; 
-      aspect-ratio: 1.58 / 1; /* Proporción tarjeta de crédito */
+      aspect-ratio: 1.58 / 1; 
       padding: 18px; 
       color: #fff; 
       margin-bottom: 15px; 
@@ -135,7 +153,6 @@
 
     .card-top { display: flex; justify-content: flex-end; align-items: flex-start; }
     
-    /* CHIP SIMULADO (AHORA A LA DERECHA) */
     .card-middle {
       display: flex;
       justify-content: space-between;
@@ -153,10 +170,8 @@
     .card-chip::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(0,0,0,0.2); }
 
     .card-number { font-family: monospace; font-size: 15px; letter-spacing: 2px; color: var(--muted); }
-    
     .wallet-amount { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-top: 5px;}
     
-    /* BARRA DE PROGRESO */
     .goal-title { font-size: 11px; color: var(--muted); font-weight: 500; display: flex; justify-content: space-between; margin-bottom: 6px; }
     .goal-title span.meta-lograda { color: var(--gold); font-weight: 800; animation: pulse 2s infinite; }
 
@@ -432,6 +447,7 @@
         <div id="resultadoBalance" style="display: none; margin-top: 15px;">
           <div id="listaFaltantes"></div>
           <button class="primary" style="width: 100%; margin-top: 15px;" onclick="pasarFaltantesAManana()">Pasar todo a mañana</button>
+          <button class="secondary" style="width: 100%; margin-top: 10px; border-color: var(--bad); color: var(--bad);" onclick="eliminarFaltantes()">Eliminar tareas faltantes</button>
         </div>
       </div>
     </div>
@@ -926,7 +942,18 @@
           el.className = `task ${t.hecho ? 'hecho' : ''} ${t.prioridad ? 'prioridad' : ''}`;
           const styleDisabled = esHoy ? "" : "opacity: 0.6; pointer-events: none;";
 
-          let subHtml = `<div class="subtasks-container" id="subs-${t.id}">${(t.subtareas||[]).map((st, sIdx) => `<div class="subtask-item ${st.hecho ? 'done' : ''}"><button onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})">${st.hecho ? '✅' : '⬜'}</button><span onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})" style="flex:1; cursor:pointer;">${st.texto}</span><button onclick="eliminarSubtask('${pilar.id}', ${index}, ${sIdx})" style="color:var(--bad);">×</button></div>`).join('')}<div class="subtask-add-row"><input type="text" placeholder="Nuevo paso..." id="input-sub-${t.id}" onkeypress="if(event.key==='Enter') addSubtask('${pilar.id}', ${index})" /><button onclick="addSubtask('${pilar.id}', ${index})">+</button></div></div>`;
+          let subHtml = `<div class="subtasks-container" id="subs-${t.id}">
+            ${(t.subtareas||[]).map((st, sIdx) => `
+              <div class="subtask-item ${st.hecho ? 'done' : ''}">
+                <button class="sub-check" onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
+                <span class="sub-text" onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})">${st.texto}</span>
+                <button class="sub-del" onclick="eliminarSubtask('${pilar.id}', ${index}, ${sIdx})">×</button>
+              </div>`).join('')}
+            <div class="subtask-add-row">
+              <input type="text" placeholder="Nuevo paso..." id="input-sub-${t.id}" onkeypress="if(event.key==='Enter') addSubtask('${pilar.id}', ${index})" />
+              <button onclick="addSubtask('${pilar.id}', ${index})">+</button>
+            </div>
+          </div>`;
           if(t.subtareas && t.subtareas.length > 0) subHtml = subHtml.replace('class="subtasks-container"', 'class="subtasks-container active"');
 
           el.innerHTML = `
@@ -1074,6 +1101,17 @@
       if (!confirm("¿Pasar todas las tareas que faltaron a pendientes de mañana?")) return;
       PILARES.forEach(pilar => { (state.tareasHoy[pilar.id] || []).forEach(t => { if (!t.hecho) state.compras.push({ id: Date.now() + Math.random(), texto: "⏭️ " + pilar.texto + ": " + t.texto, creado: hoyStr(), hora: t.hora || "", hecho: false }); }); });
       save(); alert("Tareas pasadas."); document.getElementById("resultadoBalance").style.display = "none"; renderCompras();
+    }
+
+    function eliminarFaltantes() {
+      if (!confirm("¿Estás seguro de que quieres eliminar todas las tareas que faltaron hoy? Esto borrará las tareas pendientes del día de hoy.")) return;
+      PILARES.forEach(pilar => {
+        state.tareasHoy[pilar.id] = (state.tareasHoy[pilar.id] || []).filter(t => t.hecho);
+        if (state.tareasHoy[pilar.id].length === 0) {
+          state.tareasHoy[pilar.id].push({ id: Date.now(), texto: PILARES.find(p=>p.id===pilar.id).texto, hora: "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] });
+        }
+      });
+      save(); renderDiarias(); document.getElementById("resultadoBalance").style.display = "none"; mostrarToast("Tareas faltantes eliminadas");
     }
 
     function copiarTareasDeAyer() {
