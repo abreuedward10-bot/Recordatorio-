@@ -109,69 +109,38 @@
     .profile-info h2 { margin: 0; font-size: 22px; font-weight: 800; }
     .profile-info p { margin: 2px 0 0 0; font-size: 13px; color: var(--muted); }
 
-    .wallet-card { background: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%); border-radius: 24px; padding: 24px; color: #fff; margin-bottom: 20px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; overflow: hidden;}
+    /* TARJETA ESTILO DÉBITO */
+    .wallet-card { 
+      background: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%); 
+      border-radius: 24px; padding: 24px; color: #fff; margin-bottom: 20px; 
+      border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+      position: relative; overflow: hidden;
+    }
     .wallet-header { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;}
     .wallet-amount { font-size: 44px; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; }
     
-    /* NUEVA BARRA DE PROGRESO (ESTILO EXACTO FOTO) */
+    /* BARRA DE PROGRESO (SIN EL PORCENTAJE GRANDE) */
     .goal-container { margin-bottom: 20px; }
-    
-    .goal-header {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-    .goal-title {
-      font-size: 13px;
-      color: var(--muted);
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-    .goal-percent-big {
-      font-size: 32px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -0.5px;
-    }
+    .goal-title { font-size: 13px; color: var(--muted); font-weight: 500; display: block; margin-bottom: 8px; }
 
     .goal-bar-bg { 
-      width: 100%; 
-      height: 36px; 
-      background: #121212; 
-      border-radius: 18px; 
-      position: relative;
-      padding: 4px;
-      border: 1px solid #2c2c2e;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-      margin-bottom: 8px;
+      width: 100%; height: 36px; background: #121212; border-radius: 18px; 
+      position: relative; padding: 4px; border: 1px solid #2c2c2e;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); margin-bottom: 8px;
     }
     
     .goal-bar-fill { 
-      height: 100%; 
-      background: linear-gradient(90deg, #30d158 0%, #64d2ff 100%); 
-      width: 0%; 
-      border-radius: 14px; 
-      transition: width 0.5s ease-out; 
+      height: 100%; background: linear-gradient(90deg, #30d158 0%, #64d2ff 100%); 
+      width: 0%; border-radius: 14px; transition: width 0.5s ease-out; 
       box-shadow: 0 0 15px rgba(48, 209, 88, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 8px;
-      position: relative;
-      min-width: 20px; /* Para que la píldora se vea incluso en 0% */
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-right: 8px; position: relative; min-width: 20px;
     }
 
     .goal-bar-pill {
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 12px;
-      white-space: nowrap;
-      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); color: #fff;
+      font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 12px;
+      white-space: nowrap; border: 1px solid rgba(255,255,255,0.1);
     }
 
     .wallet-actions { display: flex; gap: 12px; margin-top: 20px;}
@@ -336,16 +305,15 @@
     </div>
 
     <h2>Mi Billetera de Ahorros</h2>
+    
+    <!-- TARJETA ESTILO DÉBITO -->
     <div class="wallet-card">
       <div class="wallet-header"><span>Ahorro Total</span><span>•••• 4321</span></div>
       <div class="wallet-amount" id="walletBalance">$0.00</div>
       
-      <!-- NUEVA BARRA DE PROGRESO ESTILO FOTO -->
+      <!-- BARRA DE PROGRESO -->
       <div class="goal-container">
-        <div class="goal-header">
-          <span class="goal-title">Progreso de Ahorro</span>
-          <span class="goal-percent-big" id="goalPercent">0%</span>
-        </div>
+        <span class="goal-title">Progreso de Ahorro</span>
         <div class="goal-bar-bg">
           <div class="goal-bar-fill" id="goalFill">
             <span class="goal-bar-pill" id="goalLabel">Meta: $0</span>
@@ -758,15 +726,13 @@
       document.getElementById("profilePic").src = state.perfilFoto;
       document.getElementById("walletBalance").textContent = "$" + (state.ahorros || 0).toFixed(2);
       
-      // Actualizar nueva barra de progreso
+      // Actualizar barra de progreso SIN el porcentaje grande
       if (state.ahorrosMeta > 0) {
         let porc = (state.ahorros / state.ahorrosMeta) * 100;
         if (porc > 100) porc = 100;
-        document.getElementById("goalPercent").textContent = Math.round(porc) + "%";
         document.getElementById("goalFill").style.width = porc + "%";
         document.getElementById("goalLabel").textContent = "Meta: $" + state.ahorrosMeta.toFixed(0);
       } else {
-        document.getElementById("goalPercent").textContent = "0%";
         document.getElementById("goalFill").style.width = "0%";
         document.getElementById("goalLabel").textContent = "Sin meta";
       }
