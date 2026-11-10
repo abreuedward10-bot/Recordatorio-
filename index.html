@@ -113,7 +113,7 @@
     .wallet-header { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;}
     .wallet-amount { font-size: 44px; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; }
     
-    /* NUEVA BARRA DE PROGRESO ESTILO FOTO */
+    /* NUEVA BARRA DE PROGRESO (ESTILO EXACTO FOTO) */
     .goal-container { margin-bottom: 20px; }
     
     .goal-header {
@@ -159,10 +159,11 @@
       justify-content: flex-end;
       padding-right: 8px;
       position: relative;
+      min-width: 20px; /* Para que la píldora se vea incluso en 0% */
     }
 
     .goal-bar-pill {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(4px);
       color: #fff;
       font-size: 12px;
@@ -757,6 +758,7 @@
       document.getElementById("profilePic").src = state.perfilFoto;
       document.getElementById("walletBalance").textContent = "$" + (state.ahorros || 0).toFixed(2);
       
+      // Actualizar nueva barra de progreso
       if (state.ahorrosMeta > 0) {
         let porc = (state.ahorros / state.ahorrosMeta) * 100;
         if (porc > 100) porc = 100;
