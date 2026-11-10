@@ -133,19 +133,28 @@
       box-shadow: 0 10px 30px rgba(48, 209, 88, 0.3);
     }
 
-    .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .card-top { display: flex; justify-content: flex-end; align-items: flex-start; }
     
-    /* CHIP SIMULADO */
-    .card-chip {
-      width: 35px; height: 26px; background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 100%);
-      border-radius: 5px; position: relative; overflow: hidden; border: 1px solid #b8860b;
+    /* CHIP SIMULADO (AHORA A LA DERECHA) */
+    .card-middle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: -10px;
     }
-    .card-chip::after { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(0,0,0,0.2); box-shadow: 0 3px 0 rgba(0,0,0,0.2), 0 -3px 0 rgba(0,0,0,0.2); }
+
+    .card-chip {
+      width: 45px; height: 35px; 
+      background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 100%);
+      border-radius: 6px; position: relative; overflow: hidden; border: 1px solid #b8860b;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    .card-chip::after { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(0,0,0,0.2); box-shadow: 0 4px 0 rgba(0,0,0,0.2), 0 -4px 0 rgba(0,0,0,0.2); }
     .card-chip::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(0,0,0,0.2); }
 
     .card-number { font-family: monospace; font-size: 15px; letter-spacing: 2px; color: var(--muted); }
     
-    .wallet-amount { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-top: -5px;}
+    .wallet-amount { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-top: 5px;}
     
     /* BARRA DE PROGRESO */
     .goal-title { font-size: 11px; color: var(--muted); font-weight: 500; display: flex; justify-content: space-between; margin-bottom: 6px; }
@@ -352,13 +361,16 @@
     <!-- TARJETA ESTILO DÉBITO RECTANGULAR -->
     <div class="wallet-card" id="walletCard">
       <div class="card-top">
-        <div class="card-chip"></div>
         <div class="card-number">•••• 4321</div>
       </div>
       
-      <div>
-        <div style="font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Ahorro Total</div>
-        <div class="wallet-amount" id="walletBalance">$0.00</div>
+      <!-- CHIP Y SALDO EN EL MEDIO -->
+      <div class="card-middle">
+        <div>
+          <div style="font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Ahorro Total</div>
+          <div class="wallet-amount" id="walletBalance">$0.00</div>
+        </div>
+        <div class="card-chip"></div> 
       </div>
       
       <!-- BARRA DE PROGRESO DENTRO DE LA TARJETA -->
