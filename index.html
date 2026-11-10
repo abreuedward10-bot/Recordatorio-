@@ -110,18 +110,21 @@
     .profile-info h2 { margin: 0; font-size: 22px; font-weight: 800; }
     .profile-info p { margin: 2px 0 0 0; font-size: 13px; color: var(--muted); }
 
-    /* TARJETA ESTILO DÉBITO RECTANGULAR (SIN CORTES) */
+    /* TARJETA ESTILO DÉBITO (RECTANGULAR) */
     .wallet-card { 
       background: linear-gradient(135deg, #2a2a2a 0%, #111111 100%); 
-      border-radius: 20px; 
-      padding: 20px; 
+      border-radius: 16px; 
+      aspect-ratio: 1.58 / 1; /* Proporción tarjeta de crédito */
+      padding: 18px; 
       color: #fff; 
-      margin-bottom: 20px; 
+      margin-bottom: 15px; 
       border: 1px solid #444; 
       box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
     }
     
     .wallet-card.meta-alcanzada {
@@ -134,40 +137,33 @@
     
     /* CHIP SIMULADO */
     .card-chip {
-      width: 40px; height: 30px; background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 100%);
-      border-radius: 6px; position: relative; overflow: hidden; border: 1px solid #b8860b;
+      width: 35px; height: 26px; background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 100%);
+      border-radius: 5px; position: relative; overflow: hidden; border: 1px solid #b8860b;
     }
-    .card-chip::after { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(0,0,0,0.2); box-shadow: 0 4px 0 rgba(0,0,0,0.2), 0 -4px 0 rgba(0,0,0,0.2); }
+    .card-chip::after { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(0,0,0,0.2); box-shadow: 0 3px 0 rgba(0,0,0,0.2), 0 -3px 0 rgba(0,0,0,0.2); }
     .card-chip::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(0,0,0,0.2); }
 
-    .card-number { font-family: monospace; font-size: 16px; letter-spacing: 2px; color: var(--muted); }
-    .wallet-amount { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+    .card-number { font-family: monospace; font-size: 15px; letter-spacing: 2px; color: var(--muted); }
     
-    /* BARRA DE PROGRESO CORREGIDA (TEXTO INDEPENDIENTE) */
-    .goal-container { margin-top: 5px; }
-    .goal-title { font-size: 12px; color: var(--muted); font-weight: 500; display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .wallet-amount { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-top: -5px;}
     
-    .goal-title span.meta-lograda {
-      color: var(--gold); font-weight: 800; animation: pulse 2s infinite;
-    }
+    /* BARRA DE PROGRESO */
+    .goal-title { font-size: 11px; color: var(--muted); font-weight: 500; display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .goal-title span.meta-lograda { color: var(--gold); font-weight: 800; animation: pulse 2s infinite; }
 
-    @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.5; }
-      100% { opacity: 1; }
-    }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
     .goal-bar-bg { 
-      width: 100%; height: 36px; background: #121212; border-radius: 18px; 
-      position: relative; padding: 4px; border: 1px solid #2c2c2e;
+      width: 100%; height: 26px; background: #121212; border-radius: 13px; 
+      position: relative; padding: 3px; border: 1px solid #2c2c2e;
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
       display: flex; align-items: center;
     }
     
     .goal-bar-fill { 
-      position: absolute; left: 4px; top: 4px; bottom: 4px;
+      position: absolute; left: 3px; top: 3px; bottom: 3px;
       background: linear-gradient(90deg, #30d158 0%, #64d2ff 100%); 
-      width: 0%; border-radius: 14px; transition: width 0.5s ease-out; 
+      width: 0%; border-radius: 10px; transition: width 0.5s ease-out; 
       box-shadow: 0 0 10px rgba(48, 209, 88, 0.5);
     }
 
@@ -177,16 +173,22 @@
     }
 
     .goal-bar-pill {
-      position: relative; z-index: 2; margin-left: 10px;
+      position: relative; z-index: 2; margin-left: 8px;
       background: rgba(0, 0, 0, 0.7); color: #fff;
-      font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px;
+      font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px;
       white-space: nowrap;
     }
 
-    .wallet-actions { display: flex; gap: 10px; margin-top: 10px;}
-    .wallet-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 700; font-size: 15px; display: flex; justify-content: center; align-items: center; gap: 6px; cursor: pointer;}
-    .wallet-btn.add { background: #fff; color: #000; }
-    .wallet-btn.sub { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    /* BOTONES FUERA DE LA TARJETA */
+    .wallet-actions-outside { display: flex; gap: 10px; margin-bottom: 25px;}
+    .wallet-btn-outside { 
+      flex: 1; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 15px; 
+      display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--card); color: var(--txt);
+      transition: transform 0.2s;
+    }
+    .wallet-btn-outside:active { transform: scale(0.95); }
+    .wallet-btn-outside.add { background: var(--txt); color: var(--bg); border: none; }
 
     /* HISTORIAL */
     .history-list { display: flex; flex-direction: column; gap: 12px; }
@@ -347,7 +349,7 @@
 
     <h2>Mi Billetera de Ahorros</h2>
     
-    <!-- TARJETA ESTILO DÉBITO CORREGIDA -->
+    <!-- TARJETA ESTILO DÉBITO RECTANGULAR -->
     <div class="wallet-card" id="walletCard">
       <div class="card-top">
         <div class="card-chip"></div>
@@ -355,11 +357,11 @@
       </div>
       
       <div>
-        <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Ahorro Total</div>
+        <div style="font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Ahorro Total</div>
         <div class="wallet-amount" id="walletBalance">$0.00</div>
       </div>
       
-      <!-- BARRA DE PROGRESO Y MENSAJE -->
+      <!-- BARRA DE PROGRESO DENTRO DE LA TARJETA -->
       <div class="goal-container">
         <div class="goal-title">
           <span>Progreso de Ahorro</span>
@@ -369,13 +371,17 @@
           <div class="goal-bar-fill" id="goalFill"></div>
           <span class="goal-bar-pill" id="goalLabel">Sin meta</span>
         </div>
-        <button style="background:transparent; border:none; color:var(--info); font-size:11px; cursor:pointer; padding:0; margin-top:6px;" onclick="editarMeta()">Editar Meta</button>
       </div>
+    </div>
 
-      <div class="wallet-actions">
-        <button class="wallet-btn add" onclick="abrirModal('add')">+ Añadir</button>
-        <button class="wallet-btn sub" onclick="abrirModal('sub')">- Retirar</button>
-      </div>
+    <!-- BOTONES FUERA DE LA TARJETA -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 5px;">
+      <button style="background:transparent; border:none; color:var(--info); font-size:13px; cursor:pointer; padding:0;" onclick="editarMeta()">Editar Meta</button>
+    </div>
+
+    <div class="wallet-actions-outside">
+      <button class="wallet-btn-outside add" onclick="abrirModal('add')">+ Añadir</button>
+      <button class="wallet-btn-outside sub" onclick="abrirModal('sub')">- Retirar</button>
     </div>
 
     <h2>Historial de Movimientos</h2>
