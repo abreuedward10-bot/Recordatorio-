@@ -11,7 +11,7 @@
     :root {
       --bg: #000000; --card: #1A1A1A; --card-hover: #2A2A2A; --txt: #FFFFFF; --muted: #8E8E93;
       --input-bg: #121212; --border: #2C2C2E; --glass-bg: rgba(10, 10, 10, 0.85);
-      --ok: #B0FF00; /* Verde Neón de la imagen */
+      --ok: #B0FF00; /* Verde Neón */
       --warn: #ff9f0a; --bad: #ff453a; --info: #0A84FF;
       --gold: #FFD700;
     }
@@ -40,16 +40,17 @@
     h2 { font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin:20px 0 8px 0; font-weight: 600; padding-left: 4px;}
     h2:first-child { margin-top: 10px; }
     
-    /* NUEVO CALENDARIO TIPO HABITOS */
+    /* NUEVO CALENDARIO CON ALTO CONTRASTE */
     .calendar-strip { 
       display: flex; 
       justify-content: space-between; 
-      gap: 6px; 
+      gap: 8px; 
       margin-bottom: 20px; 
       overflow-x: auto; 
-      scrollbar-width: none; /* Ocultar barra de scroll en Firefox */
+      scrollbar-width: none; 
+      padding: 4px 0;
     }
-    .calendar-strip::-webkit-scrollbar { display: none; } /* Ocultar barra de scroll en Chrome/Safari */
+    .calendar-strip::-webkit-scrollbar { display: none; }
     
     .cal-day { 
       flex: 1; 
@@ -58,27 +59,25 @@
       align-items: center; 
       justify-content: center; 
       padding: 12px 0; 
-      border-radius: 14px; 
-      background: var(--card); 
-      border: 1px solid var(--border); 
+      border-radius: 16px; 
+      background: #2C2C2E; /* Gris más claro para resaltar */
       cursor: pointer; 
       transition: all 0.2s;
       min-width: 45px;
     }
-    .cal-day .name { font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 4px; text-transform: capitalize; }
-    .cal-day .num { font-size: 16px; font-weight: 700; color: var(--txt); }
+    .cal-day .name { font-size: 11px; color: #E5E5EA; font-weight: 500; margin-bottom: 4px; }
+    .cal-day .num { font-size: 16px; font-weight: 700; color: #FFFFFF; }
     
     /* DÍA ACTIVO CON EL VERDE NEÓN */
     .cal-day.active { 
       background: var(--ok); 
-      border-color: var(--ok); 
-      box-shadow: 0 4px 15px rgba(176, 255, 0, 0.3); 
+      box-shadow: 0 4px 15px rgba(176, 255, 0, 0.4); 
     }
-    .cal-day.active .name { color: #000; }
-    .cal-day.active .num { color: #000; }
+    .cal-day.active .name { color: #000; font-weight: 700; }
+    .cal-day.active .num { color: #000; font-weight: 800; }
     
-    .cal-day.past { opacity: 0.4; }
-    .cal-day.future { opacity: 0.2; cursor: default; }
+    .cal-day.past { opacity: 0.6; }
+    .cal-day.future { opacity: 0.3; cursor: default; }
 
     .card-separada { background: var(--card); border-radius: 24px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid var(--border); overflow: hidden; }
     .card-header { background: var(--card); padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
