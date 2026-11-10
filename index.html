@@ -71,6 +71,15 @@
     input[type="text"], input[type="time"], input[type="number"], select { background:var(--input-bg); border:1px solid var(--border); color:var(--txt); padding:12px; border-radius:14px; font-size:15px; font-family:inherit; outline: none; }
     input[type="text"] { flex:1; width: 100%; }
     input[type="time"] { width: 105px; min-width: 105px; padding: 10px 6px; font-size: 14px; text-align: center; font-weight: 600;}
+    
+    /* INDICADOR VISUAL DE ALARMA ACTIVADA */
+    input[type="time"].has-time {
+      border-color: var(--ok);
+      color: var(--ok);
+      background: rgba(48, 209, 88, 0.1);
+      font-weight: 800;
+    }
+
     select { padding: 10px; }
     
     .nota-row { display: flex; gap: 8px; width: 100%; align-items: center; }
@@ -235,7 +244,6 @@
 
   <div id="toast">¡Bien hecho!</div>
   
-  <!-- INPUTS OCULTOS PARA FOTOS Y BACKUP -->
   <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="subirFoto(event)">
   <input type="file" id="restoreUpload" accept=".json" style="display: none;" onchange="restaurarBackup(event)">
 
@@ -282,7 +290,6 @@
   </div>
 
   <div class="top-bar">
-    <!-- TÍTULO INICIAL AHORROS -->
     <h1 id="tituloPestana">Ahorros</h1>
     <div class="racha-mini"><b id="rachaTop">0</b> 🔥</div>
   </div>
@@ -309,7 +316,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA AHORROS (ACTIVA POR DEFECTO) -->
+  <!-- PESTAÑA AHORROS -->
   <div id="tab-ahorros" class="tab-content active">
     <div class="profile-header" onclick="editarPerfil()">
       <div class="avatar-container">
@@ -324,7 +331,6 @@
 
     <h2>Mi Billetera de Ahorros</h2>
     
-    <!-- TARJETA ESTILO DÉBITO RECTANGULAR -->
     <div class="wallet-card" id="walletCard">
       <div class="card-top">
         <div class="card-number">•••• 4321</div>
@@ -338,7 +344,6 @@
         <div class="card-chip"></div> 
       </div>
       
-      <!-- BARRA DE PROGRESO DENTRO DE LA TARJETA -->
       <div class="goal-container">
         <div class="goal-title">
           <span>Progreso de Ahorro</span>
@@ -351,7 +356,6 @@
       </div>
     </div>
 
-    <!-- BOTONES FUERA DE LA TARJETA -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 5px;">
       <button style="background:transparent; border:none; color:var(--info); font-size:13px; cursor:pointer; padding:0;" onclick="editarMeta()">Editar Meta</button>
     </div>
@@ -441,12 +445,10 @@
   </div>
 
   <div class="bottom-nav">
-    <!-- BOTÓN HOY SIN ACTIVE -->
     <button class="nav-btn" id="btn-hoy" onclick="cambiarPestana('hoy', this, 'Hoy')"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg><span>Hoy</span></button>
     <button class="nav-btn" id="btn-compras" onclick="cambiarPestana('compras', this, 'Compras')"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Compras</span></button>
     
     <div class="nav-center-wrapper">
-      <!-- BOTÓN CENTRAL CON ACTIVE POR DEFECTO -->
       <button class="center-btn active" id="btn-ahorros" onclick="cambiarPestana('ahorros', this, 'Ahorros')"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></button>
     </div>
     
@@ -463,7 +465,7 @@
       { id: "social", texto: "Social", color: "#bf5af2" }, { id: "carro", texto: "Carro", color: "#ff9f0a" }
     ];
 
-    const KEY = "miorden_v15"; 
+    const KEY = "miorden_v16"; 
     let state = load();
     let fechaSeleccionada = obtenerFechaStr(new Date());
     let pomodoroInterval = null;
@@ -519,7 +521,7 @@
       toast.textContent = msg || frasesExito[Math.floor(Math.random() * frasesExito.length)];
       toast.className = "show";
       playDing();
-      setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2500);
+      setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
     }
 
     // --- SEGURIDAD (PIN) ---
@@ -637,43 +639,59 @@
       dlAnchorElem.click();
     }
 
-    // --- NOTIFICACIONES ---
+    // --- NOTIFICACIONES (MEJORADO CON FEEDBACK) ---
     function actualizarDebug() {
       const pId = localStorage.getItem("onesignal_player_id");
       const aKey = localStorage.getItem("onesignal_api_key");
-      document.getElementById("debugInfo").innerHTML = `<strong>ID:</strong> ${pId ? pId.substring(0, 12) + '...' : '❌'}\n<strong>Key:</strong> ${aKey ? '✅' : '❌'}`;
+      document.getElementById("debugInfo").innerHTML = `<strong>ID:</strong> ${pId ? pId.substring(0, 12) + '...' : '❌ FALTA ID'}\n<strong>Key:</strong> ${aKey ? '✅ GUARDADA' : '❌ FALTA KEY'}`;
     }
 
     async function forzarID() {
       if (window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
         const id = OneSignal.User.PushSubscription.id;
         if (id) { localStorage.setItem("onesignal_player_id", id); alert("ID guardado: " + id); }
-        else alert("OneSignal no ha generado un ID.");
-      } else alert("OneSignal aún no carga.");
+        else alert("OneSignal no ha generado un ID. Asegúrate de haber aceptado las notificaciones.");
+      } else alert("OneSignal aún no carga. Espera unos segundos.");
       actualizarDebug();
     }
 
     async function programarNotificacion(titulo, mensaje, horaStr) {
       const apiKey = localStorage.getItem("onesignal_api_key");
       const playerId = localStorage.getItem("onesignal_player_id");
-      if (!apiKey || !playerId || !horaStr) return;
+
+      // VALIDACIÓN CRÍTICA: Si falta la llave o el ID, avisar al usuario
+      if (!apiKey || !playerId) {
+        alert("⚠️ No se puede programar la alarma.\n\nVe a la pestaña 'Resumen' y asegúrate de tener configurada tu API Key de OneSignal y haber presionado 'Actualizar ID'.");
+        return;
+      }
+      
       const [hh, mm] = horaStr.split(":");
       const ahora = new Date();
       let fechaEnvio = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), parseInt(hh), parseInt(mm), 0);
       if (fechaEnvio < ahora) fechaEnvio.setDate(fechaEnvio.getDate() + 1);
+
       try {
-        await fetch("https://api.onesignal.com/notifications", {
+        const res = await fetch("https://api.onesignal.com/notifications", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": "Key " + apiKey },
           body: JSON.stringify({ app_id: ONESIGNAL_APP_ID, include_player_ids: [playerId], headings: { en: titulo }, contents: { en: mensaje }, send_after: fechaEnvio.toISOString() })
         });
-      } catch (err) {}
+        
+        // Feedback visual de éxito
+        if (res.ok) {
+          mostrarToast("🔔 Alarma guardada para las " + horaStr);
+        } else {
+          mostrarToast("❌ Error al programar la alarma");
+        }
+      } catch (err) {
+        mostrarToast("❌ Error de conexión");
+      }
     }
 
     function guardarApiKey() {
       const val = document.getElementById("apiKeyInput").value.trim();
       if (val.startsWith("os_v2_")) {
-        localStorage.setItem("onesignal_api_key", val); actualizarDebug(); alert("Llave guardada.");
+        localStorage.setItem("onesignal_api_key", val); actualizarDebug(); alert("Llave guardada correctamente.");
       } else alert("La llave debe empezar con os_v2_");
     }
 
@@ -692,9 +710,8 @@
       if(id === 'notas') { renderNotas(); }
     }
 
-    // --- AHORROS Y PERFIL ---
+    // --- AHORROS ---
     function editarPerfil() { document.getElementById("photoUpload").click(); }
-    
     function subirFoto(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -704,32 +721,18 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 250; 
-          const MAX_HEIGHT = 250;
-          let width = img.width;
-          let height = img.height;
+          const MAX_WIDTH = 250; const MAX_HEIGHT = 250;
+          let width = img.width; let height = img.height;
 
-          if (width > height) {
-            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-          } else {
-            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-          }
+          if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
+          else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
           
-          canvas.width = width;
-          canvas.height = height;
+          canvas.width = width; canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-          state.perfilFoto = dataUrl;
-          
-          try {
-            save();
-            renderAhorros();
-            mostrarToast("Foto de perfil actualizada");
-          } catch (error) {
-            alert("Hubo un problema al guardar la imagen. Intenta con otra foto.");
-          }
+          state.perfilFoto = canvas.toDataURL('image/jpeg', 0.7);
+          try { save(); renderAhorros(); mostrarToast("Foto actualizada"); } catch (error) { alert("Error al guardar foto."); }
         };
         img.src = e.target.result;
       };
@@ -943,11 +946,12 @@
           </div>`;
           if(t.subtareas && t.subtareas.length > 0) subHtml = subHtml.replace('class="subtasks-container"', 'class="subtasks-container active"');
 
+          // Clase 'has-time' para pintar el reloj de verde si tiene hora
           el.innerHTML = `
             <div class="task-top" style="${styleDisabled}">
               <button class="check" onclick="toggleTarea('${pilar.id}', ${index})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
               <div class="txt" onclick="toggleSubtasksView('${t.id}')" style="cursor:pointer;">${t.texto}</div>
-              <input type="time" value="${t.hora || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'hora', this.value)" />
+              <input type="time" class="${t.hora ? 'has-time' : ''}" value="${t.hora || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'hora', this.value)" />
             </div>
             <div class="nota-row" style="${styleDisabled}">
               <input type="text" class="nota-input" placeholder="Nota..." value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'nota', this.value)" />
@@ -1000,7 +1004,19 @@
     function updateTarea(pilarId, index, campo, valor) {
       if (fechaSeleccionada !== hoyStr()) return;
       const t = state.tareasHoy[pilarId][index]; t[campo] = valor; save();
-      if (campo === 'hora' && valor) programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
+      
+      if (campo === 'hora' && valor) {
+        // Al cambiar la hora, pintar el input de verde inmediatamente
+        document.querySelectorAll('input[type="time"]').forEach(input => {
+           if (input.value === valor) input.classList.add('has-time');
+        });
+        programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
+      } else if (campo === 'hora' && !valor) {
+        // Si borra la hora, quitar el verde
+        document.querySelectorAll('input[type="time"]').forEach(input => {
+           if (!input.value) input.classList.remove('has-time');
+        });
+      }
     }
 
     function posponerTarea(pilarId, index) {
@@ -1053,7 +1069,13 @@
       if (!txt) return;
       state.compras.push({ id: Date.now(), texto: txt, creado: hoyStr(), hora, hecho:false });
       document.getElementById("nuevaCompra").value = ""; document.getElementById("horaCompra").value = "";
-      save(); renderCompras(); if (hora) programarNotificacion("Compra pendiente", txt, hora);
+      save(); renderCompras(); 
+      if (hora) {
+        document.getElementById("horaCompra").classList.add('has-time');
+        programarNotificacion("Compra pendiente", txt, hora);
+      } else {
+        document.getElementById("horaCompra").classList.remove('has-time');
+      }
     }
     function renderCompras() {
       const cont = document.getElementById("compras");
