@@ -679,7 +679,7 @@
         
         // Feedback visual de éxito
         if (res.ok) {
-          mostrarToast("🔔 Alarma guardada para las " + horaStr);
+          mostrarToast("🔔 Alarma guardada a las " + horaStr);
         } else {
           mostrarToast("❌ Error al programar la alarma");
         }
@@ -955,7 +955,6 @@
             </div>
             <div class="nota-row" style="${styleDisabled}">
               <input type="text" class="nota-input" placeholder="Nota..." value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'nota', this.value)" />
-              <input type="number" placeholder="Min" style="width: 60px; padding: 10px; text-align:center;" value="${t.duracion || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'duracion', parseInt(this.value) || 0)" title="Duración en minutos" />
             </div>
             ${subHtml}
             ${esHoy ? `<div class="action-btns" style="${styleDisabled}">
