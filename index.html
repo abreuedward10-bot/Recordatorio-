@@ -664,15 +664,27 @@
         const res = await fetch("https://api.onesignal.com/notifications", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": "Key " + apiKey },
-          body: JSON.stringify({ app_id: ONESIGNAL_APP_ID, include_player_ids: [playerId], headings: { en: titulo }, contents: { en: mensaje }, send_after: fechaEnvio.toISOString() })
+          body: JSON.stringify({ 
+            app_id: ONESIGNAL_APP_ID, 
+            include_subscription_ids: [playerId], // CORREGIDO AQUÍ PARA WEB V16
+            headings: { en: titulo }, 
+            contents: { en: mensaje }, 
+            send_after: fechaEnvio.toISOString() 
+          })
         });
         
+        const data = await res.json(); // Añadido para leer respuesta
+
         if (res.ok) {
           mostrarToast("🔔 Alarma guardada a las " + horaStr);
+          console.log("Notificación programada exitosamente:", data);
         } else {
+          console.error("Error de OneSignal:", data); // Muestra el error exacto en consola
           mostrarToast("❌ Error al programar (Revisa tu API Key)");
+          alert("OneSignal rechazó la notificación. Error: " + JSON.stringify(data.errors || data));
         }
       } catch (err) {
+        console.error("Error de red:", err);
         mostrarToast("❌ Error de conexión");
       }
     }
