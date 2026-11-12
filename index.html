@@ -11,14 +11,13 @@
     :root {
       --bg: #000000; --card: #1A1A1A; --card-hover: #2A2A2A; --txt: #FFFFFF; --muted: #8E8E93;
       --input-bg: #121212; --border: #2C2C2E; --glass-bg: rgba(10, 10, 10, 0.85);
-      --ok: #B0FF00; /* Verde Neón */
+      --ok: #B0FF00;
       --warn: #ff9f0a; --bad: #ff453a; --info: #0A84FF;
       --gold: #FFD700;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--txt); padding: 0; padding-top: 60px; padding-bottom: 100px; }
     
-    /* OVERLAY DE BLOQUEO (PIN) */
     #lock-screen { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: #000; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; }
     #lock-screen.active { display: flex; }
     .pin-dots { display: flex; gap: 15px; margin-bottom: 30px; }
@@ -40,7 +39,6 @@
     h2 { font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin:20px 0 8px 0; font-weight: 600; padding-left: 4px;}
     h2:first-child { margin-top: 10px; }
     
-    /* CALENDARIO */
     .calendar-strip { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; padding: 4px 0; }
     .calendar-strip::-webkit-scrollbar { display: none; }
     .cal-day { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 0; border-radius: 16px; background: #2C2C2E; cursor: pointer; transition: all 0.2s; min-width: 45px; }
@@ -107,7 +105,6 @@
     button.primary svg { width: 20px; height: 20px; fill: currentColor; }
     button.secondary { background:transparent; border:1px dashed var(--muted); color:var(--muted); padding:14px; border-radius:14px; font-size:14px; width:100%; cursor:pointer; margin-top:12px; font-weight: 600;}
 
-    /* NAV INFERIOR */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: var(--glass-bg); backdrop-filter: blur(25px); border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; z-index: 100; padding: 0 15px; padding-bottom: env(safe-area-inset-bottom);}
     .nav-btn { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 600; width: 60px; height: 60px; cursor: pointer;}
     .nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;}
@@ -121,7 +118,6 @@
     .center-btn svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 2; }
     .center-btn.active { border-color: var(--ok); color: var(--ok); box-shadow: 0 10px 25px rgba(176,255,0,0.3); transform: translateY(-5px);}
 
-    /* AHORROS Y PERFIL */
     .profile-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 10px; cursor: pointer; }
     .avatar-container { position: relative; width: 60px; height: 60px; }
     .avatar-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); background: #333; }
@@ -129,7 +125,6 @@
     .profile-info h2 { margin: 0; font-size: 22px; font-weight: 800; }
     .profile-info p { margin: 2px 0 0 0; font-size: 13px; color: var(--muted); }
 
-    /* TARJETA ESTILO DÉBITO RECTANGULAR */
     .wallet-card { background: linear-gradient(135deg, #2a2a2a 0%, #111111 100%); border-radius: 16px; aspect-ratio: 1.58 / 1; padding: 18px; color: #fff; margin-bottom: 15px; border: 1px solid #444; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden;}
     .wallet-card.meta-alcanzada { background: linear-gradient(135deg, #1f3a27 0%, #0d1f14 100%); border-color: var(--ok); box-shadow: 0 10px 30px rgba(176, 255, 0, 0.3); }
     .card-top { display: flex; justify-content: flex-end; align-items: flex-start; }
@@ -140,7 +135,6 @@
     .card-number { font-family: monospace; font-size: 15px; letter-spacing: 2px; color: var(--muted); }
     .wallet-amount { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-top: 5px;}
     
-    /* BARRA DE PROGRESO */
     .goal-title { font-size: 11px; color: var(--muted); font-weight: 500; display: flex; justify-content: space-between; margin-bottom: 6px; }
     .goal-title span.meta-lograda { color: var(--gold); font-weight: 800; animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
@@ -154,7 +148,6 @@
     .wallet-btn-outside:active { transform: scale(0.95); }
     .wallet-btn-outside.add { background: var(--txt); color: var(--bg); border: none; }
 
-    /* HISTORIAL */
     .history-list { display: flex; flex-direction: column; gap: 12px; }
     .history-item { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 16px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer;}
     .history-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--input-bg); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 14px;}
@@ -166,7 +159,6 @@
     .history-amount.ingreso { color: var(--ok); }
     .history-amount.egreso { color: var(--bad); }
 
-    /* NOTAS Y OTROS */
     .note-card { display: flex; flex-direction: column; background: var(--card); border-radius: 20px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
     .note-top { display: flex; justify-content: space-between; align-items: flex-start; }
     .note-text { font-size: 15px; flex: 1; line-height: 1.4;}
@@ -213,11 +205,12 @@
     
     .editable-title { cursor: pointer; display: flex; align-items: center; gap: 8px; }
     .pencil-icon { font-size: 14px; opacity: 0.5; }
+
+    .time-badge { color: var(--ok); font-weight: 800; font-size: 12px; background: rgba(176,255,0,0.1); padding: 2px 8px; border-radius: 8px; margin-left: 6px; border: 1px solid rgba(176,255,0,0.3); white-space: nowrap;}
   </style>
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO (PIN) -->
   <div id="lock-screen">
     <h2 style="font-size: 24px; margin-bottom: 30px;">Ingresa tu PIN</h2>
     <div class="pin-dots" id="pinDots">
@@ -255,18 +248,42 @@
     </div>
   </div>
 
-  <!-- MODAL NOTA -->
+  <!-- MODAL NOTA (CREAR / EDITAR) -->
   <div class="modal-overlay" id="modalNota">
     <div class="modal-content">
-      <h3 class="modal-title">Nueva Nota</h3>
+      <h3 class="modal-title" id="modalNotaTitle">Nueva Nota</h3>
       <input type="text" id="nuevaNotaTexto" placeholder="Escribe tu idea..." style="width: 100%; margin-bottom: 10px;" />
       <select id="nuevaNotaTag" style="width: 100%; margin-bottom: 15px;">
         <option value="Idea">#Idea</option><option value="YouTube">#YouTube</option>
         <option value="Personal">#Personal</option><option value="Compra">#Compra</option>
       </select>
       <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="document.getElementById('modalNota').classList.remove('active')">Cancelar</button>
+        <button class="modal-btn cancel" onclick="cerrarModalNota()">Cancelar</button>
         <button class="modal-btn confirm" onclick="guardarNota()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NUEVA TARJETA (PILAR) -->
+  <div class="modal-overlay" id="modalPilar">
+    <div class="modal-content">
+      <h3 class="modal-title">Nueva Tarjeta</h3>
+      <p style="font-size: 14px; color: var(--muted); margin: 0 0 8px 0;">Nombre de la tarjeta:</p>
+      <input type="text" id="nuevoPilarNombre" placeholder="Ej: Ejercicio, Estudio..." style="width: 100%; margin-bottom: 15px;" />
+      <p style="font-size: 14px; color: var(--muted); margin: 0 0 10px 0;">Color:</p>
+      <div class="color-picker-row" id="colorPickerPilar">
+        <div class="color-circle" style="background: #ff453a;" onclick="selectColor(this, '#ff453a')"></div>
+        <div class="color-circle" style="background: #30d158;" onclick="selectColor(this, '#30d158')"></div>
+        <div class="color-circle" style="background: #ff2d55;" onclick="selectColor(this, '#ff2d55')"></div>
+        <div class="color-circle" style="background: #0a84ff;" onclick="selectColor(this, '#0a84ff')"></div>
+        <div class="color-circle" style="background: #bf5af2;" onclick="selectColor(this, '#bf5af2')"></div>
+        <div class="color-circle" style="background: #ff9f0a;" onclick="selectColor(this, '#ff9f0a')"></div>
+        <div class="color-circle" style="background: #FFD700;" onclick="selectColor(this, '#FFD700')"></div>
+        <div class="color-circle" style="background: #64d2ff;" onclick="selectColor(this, '#64d2ff')"></div>
+      </div>
+      <div class="modal-actions" style="margin-top: 15px;">
+        <button class="modal-btn cancel" onclick="cerrarModalPilar()">Cancelar</button>
+        <button class="modal-btn confirm" onclick="crearPilar()">Crear</button>
       </div>
     </div>
   </div>
@@ -288,6 +305,7 @@
     <div class="calendar-strip" id="calendarStrip"></div>
     <div id="alertaFechaPasada"></div>
     <div id="diarias"></div>
+    <button class="secondary" style="color: var(--ok); border-color: var(--ok); margin-top: 8px;" onclick="abrirModalPilar()">＋ Nueva Tarjeta</button>
   </div>
 
   <!-- PESTAÑA COMPRAS -->
@@ -362,7 +380,7 @@
   <div id="tab-notas" class="tab-content">
     <h2>Bandeja de Ideas</h2>
     <div style="margin-bottom: 15px;">
-      <button class="primary" style="width: 100%;" onclick="document.getElementById('modalNota').classList.add('active')">+ Crear Nueva Nota</button>
+      <button class="primary" style="width: 100%;" onclick="abrirModalNota()">+ Crear Nueva Nota</button>
     </div>
     <div id="notasLista"></div>
   </div>
@@ -384,9 +402,7 @@
     <div class="card-separada">
       <div class="card-body" style="padding: 16px;">
         
-        <div id="balanceResumen" style="text-align: center; padding: 15px 0; font-size: 15px; color: var(--txt);">
-           <!-- Aquí se muestra el texto resumen -->
-        </div>
+        <div id="balanceResumen" style="text-align: center; padding: 15px 0; font-size: 15px; color: var(--txt);"></div>
 
         <button class="secondary" style="margin-bottom: 10px;" onclick="copiarTareasDeAyer()">📋 Copiar tareas de ayer</button>
         <button class="secondary" style="color: var(--info); border-color: var(--info);" onclick="exportarICS()">📅 Exportar tareas al Calendario</button>
@@ -421,14 +437,13 @@
       </div>
     </div>
 
-    <!-- CONFIGURACIÓN DE NOTIFICACIONES EN RESUMEN -->
     <h2>Notificaciones Push</h2>
     <div class="card-separada">
       <div class="card-body" style="padding: 16px;">
         <p style="font-size: 13px; color: var(--muted); margin-top: 0;">Pega tu REST API Key de OneSignal aquí para reactivar los avisos.</p>
         <input type="password" id="apiKeyInput" placeholder="os_v2_..." style="width: 100%; margin-bottom: 10px;" />
         <button class="primary" style="width: 100%; margin-bottom: 10px;" onclick="guardarApiKey()">Guardar Llave</button>
-        <div id="debugInfo" class="debug-box" style="background:#000; color:#0f0; font-family:monospace; font-size:11px; padding:10px; border-radius:10px; margin-bottom: 10px;">Cargando...</div>
+        <div id="debugInfo" class="debug-box" style="background:#000; color:#0f0; font-family:monospace; font-size:11px; padding:10px; border-radius:10px; margin-bottom: 10px; white-space: pre-line;">Cargando...</div>
         <button class="primary" style="width: 100%; background: var(--warn); color: #000;" onclick="forzarID()">🔄 Forzar Registro de mi Teléfono</button>
       </div>
     </div>
@@ -462,6 +477,7 @@
     let pomodoroTiempo = 25 * 60;
     let accionAhorro = "add";
     let editandoTransaccionId = null;
+    let editandoNotaId = null;
     let pinInput = "";
 
     const frasesExito = ["¡Bien hecho!", "¡Un paso menos!", "¡Sigue así!", "¡Eres un crack!", "¡Vas por buen camino!", "¡Tarea completada!"];
@@ -514,7 +530,6 @@
       setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
     }
 
-    // --- SEGURIDAD (PIN) ---
     function verificarPIN() {
       if (state.config.pin && state.config.pin.length === 4) {
         document.getElementById("lock-screen").classList.add("active");
@@ -522,11 +537,8 @@
     }
 
     function pressPin(num) {
-      if (num === 'del') {
-        pinInput = pinInput.slice(0, -1);
-      } else if (pinInput.length < 4) {
-        pinInput += num;
-      }
+      if (num === 'del') { pinInput = pinInput.slice(0, -1); }
+      else if (pinInput.length < 4) { pinInput += num; }
       
       const dots = document.querySelectorAll(".pin-dot");
       dots.forEach((dot, i) => { if(i < pinInput.length) dot.classList.add("filled"); else dot.classList.remove("filled"); });
@@ -547,16 +559,11 @@
     function configurarPIN() {
       const nuevo = prompt("Ingresa un PIN de 4 dígitos (o deja vacío para quitarlo):");
       if (nuevo === null) return;
-      if (nuevo === "") {
-        state.config.pin = null; save(); alert("Bloqueo desactivado.");
-      } else if (/^\d{4}$/.test(nuevo)) {
-        state.config.pin = nuevo; save(); alert("PIN guardado correctamente.");
-      } else {
-        alert("El PIN debe ser exactamente 4 números.");
-      }
+      if (nuevo === "") { state.config.pin = null; save(); alert("Bloqueo desactivado."); }
+      else if (/^\d{4}$/.test(nuevo)) { state.config.pin = nuevo; save(); alert("PIN guardado correctamente."); }
+      else { alert("El PIN debe ser exactamente 4 números."); }
     }
 
-    // --- RESPALDO (BACKUP) ---
     function descargarBackup() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
       const dlAnchorElem = document.createElement('a');
@@ -573,27 +580,17 @@
         try {
           const imported = JSON.parse(e.target.result);
           if(imported.tareasHoy) {
-            state = imported;
-            save();
+            state = imported; save();
             alert("Datos restaurados con éxito. La app se reiniciará.");
             location.reload();
-          } else {
-            alert("Archivo no válido.");
-          }
-        } catch (err) {
-          alert("Error al leer el archivo.");
-        }
+          } else { alert("Archivo no válido."); }
+        } catch (err) { alert("Error al leer el archivo."); }
       };
       reader.readAsText(file);
     }
 
-    // --- CONFIGURACIONES ---
-    function toggleConfig(key, val) {
-      state.config[key] = val;
-      save();
-    }
+    function toggleConfig(key, val) { state.config[key] = val; save(); }
 
-    // --- EXPORTAR CALENDARIO (.ICS) ---
     function exportarICS() {
       let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MiOrden//ES\n";
       let count = 0;
@@ -606,7 +603,6 @@
             const startDate = new Date();
             startDate.setHours(parseInt(hh), parseInt(mm), 0, 0);
             const endDate = new Date(startDate.getTime() + (t.duracion || 30) * 60000); 
-            
             const fmt = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
             
             ics += "BEGIN:VEVENT\n";
@@ -629,19 +625,18 @@
       dlAnchorElem.click();
     }
 
-    // --- NOTIFICACIONES ---
     function actualizarDebug() {
       const pId = localStorage.getItem("onesignal_player_id");
       const aKey = localStorage.getItem("onesignal_api_key");
-      document.getElementById("debugInfo").innerHTML = `<strong>ID del Teléfono:</strong> ${pId ? '✅ CONECTADO' : '❌ FALTA ID (Presiona el botón amarillo)'}\n<strong>API Key:</strong> ${aKey ? '✅ GUARDADA' : '❌ FALTA LLAVE'}`;
+      document.getElementById("debugInfo").innerHTML = `<strong>ID del Teléfono:</strong> ${pId ? '✅ CONECTADO' : '❌ FALTA ID'}\n<strong>API Key:</strong> ${aKey ? '✅ GUARDADA' : '❌ FALTA LLAVE'}`;
     }
 
     async function forzarID() {
       if (window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
         const id = OneSignal.User.PushSubscription.id;
-        if (id) { localStorage.setItem("onesignal_player_id", id); alert("¡Éxito! Tu teléfono está registrado y listo para recibir avisos."); }
-        else alert("OneSignal no ha generado un ID. Asegúrate de haber aceptado las notificaciones cuando abriste la app.");
-      } else alert("OneSignal aún no ha cargado. Espera 5 segundos e intenta de nuevo.");
+        if (id) { localStorage.setItem("onesignal_player_id", id); alert("¡Éxito! Tu teléfono está registrado."); }
+        else alert("OneSignal no ha generado un ID. Asegúrate de aceptar las notificaciones.");
+      } else alert("OneSignal aún no ha cargado. Espera 5 segundos.");
       actualizarDebug();
     }
 
@@ -649,9 +644,8 @@
       const apiKey = localStorage.getItem("onesignal_api_key");
       const playerId = localStorage.getItem("onesignal_player_id");
 
-      // VALIDACIÓN CRÍTICA: Si falta la llave o el ID, avisar al usuario
       if (!apiKey || !playerId) {
-        alert("⚠️ No se puede programar la alarma.\n\nVe a la pestaña 'Resumen' y asegúrate de tener configurada tu API Key de OneSignal y presiona 'Forzar Registro de mi Teléfono'.");
+        alert("⚠️ No se puede programar la alarma.\n\nVe a 'Resumen' y configura tu API Key de OneSignal + Forzar Registro.");
         return;
       }
       
@@ -666,37 +660,24 @@
           headers: { "Content-Type": "application/json", "Authorization": "Key " + apiKey },
           body: JSON.stringify({ 
             app_id: ONESIGNAL_APP_ID, 
-            include_subscription_ids: [playerId], // CORREGIDO AQUÍ PARA WEB V16
+            include_subscription_ids: [playerId],
             headings: { en: titulo }, 
             contents: { en: mensaje }, 
             send_after: fechaEnvio.toISOString() 
           })
         });
-        
-        const data = await res.json(); // Añadido para leer respuesta
-
-        if (res.ok) {
-          mostrarToast("🔔 Alarma guardada a las " + horaStr);
-          console.log("Notificación programada exitosamente:", data);
-        } else {
-          console.error("Error de OneSignal:", data); // Muestra el error exacto en consola
-          mostrarToast("❌ Error al programar (Revisa tu API Key)");
-          alert("OneSignal rechazó la notificación. Error: " + JSON.stringify(data.errors || data));
-        }
-      } catch (err) {
-        console.error("Error de red:", err);
-        mostrarToast("❌ Error de conexión");
-      }
+        const data = await res.json();
+        if (res.ok) { mostrarToast("🔔 Alarma guardada a las " + horaStr); }
+        else { mostrarToast("❌ Error al programar"); alert("OneSignal rechazó la notificación. Error: " + JSON.stringify(data.errors || data)); }
+      } catch (err) { mostrarToast("❌ Error de conexión"); }
     }
 
     function guardarApiKey() {
       const val = document.getElementById("apiKeyInput").value.trim();
-      if (val.startsWith("os_v2_")) {
-        localStorage.setItem("onesignal_api_key", val); actualizarDebug(); alert("Llave guardada correctamente.");
-      } else alert("La llave debe empezar con os_v2_");
+      if (val.startsWith("os_v2_")) { localStorage.setItem("onesignal_api_key", val); actualizarDebug(); alert("Llave guardada."); }
+      else alert("La llave debe empezar con os_v2_");
     }
 
-    // --- NAVEGACIÓN ---
     function cambiarPestana(id, btn, titulo) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
@@ -711,12 +692,10 @@
       if(id === 'notas') { renderNotas(); }
     }
 
-    // --- AHORROS ---
     function editarPerfil() { document.getElementById("photoUpload").click(); }
     function subirFoto(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         const img = new Image();
@@ -724,14 +703,11 @@
           const canvas = document.createElement('canvas');
           const MAX_WIDTH = 250; const MAX_HEIGHT = 250;
           let width = img.width; let height = img.height;
-
           if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
           else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
-          
           canvas.width = width; canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-
           state.perfilFoto = canvas.toDataURL('image/jpeg', 0.7);
           try { save(); renderAhorros(); mostrarToast("Foto actualizada"); } catch (error) { alert("Error al guardar foto."); }
         };
@@ -795,9 +771,7 @@
       const anterior = state.ahorros;
       state.ahorros = state.historialAhorros.reduce((total, t) => total + (t.tipo === 'ingreso' ? t.monto : -t.monto), 0);
       save(); renderAhorros(); 
-      
       if (state.ahorros >= 0) playDing();
-      
       if (state.ahorrosMeta > 0 && anterior < state.ahorrosMeta && state.ahorros >= state.ahorrosMeta) {
          setTimeout(() => {
              mostrarToast("🏆 ¡FELICIDADES! ¡Has alcanzado tu meta de ahorro! 🎉");
@@ -817,17 +791,10 @@
       if (state.ahorrosMeta > 0) {
         let porc = (state.ahorros / state.ahorrosMeta) * 100;
         if (porc > 100) porc = 100;
-        
         document.getElementById("goalFill").style.width = porc + "%";
         document.getElementById("goalLabel").textContent = "Meta: $" + state.ahorrosMeta.toFixed(0);
-        
-        if (state.ahorros >= state.ahorrosMeta) {
-          card.classList.add("meta-alcanzada");
-          msgEl.style.display = "block";
-        } else {
-          card.classList.remove("meta-alcanzada");
-          msgEl.style.display = "none";
-        }
+        if (state.ahorros >= state.ahorrosMeta) { card.classList.add("meta-alcanzada"); msgEl.style.display = "block"; }
+        else { card.classList.remove("meta-alcanzada"); msgEl.style.display = "none"; }
       } else {
         document.getElementById("goalFill").style.width = "0%";
         document.getElementById("goalLabel").textContent = "Sin meta";
@@ -852,12 +819,54 @@
       `).join('');
     }
 
-    // --- NOTAS ---
+    // ============= NOTAS (con edición) =============
+    function abrirModalNota() {
+      editandoNotaId = null;
+      document.getElementById("modalNotaTitle").textContent = "Nueva Nota";
+      document.getElementById("nuevaNotaTexto").value = "";
+      document.getElementById("nuevaNotaTag").value = "Idea";
+      document.getElementById("modalNota").classList.add("active");
+    }
+
+    function editarNota(id) {
+      const n = state.notas.find(x => x.id === id);
+      if (!n) return;
+      editandoNotaId = id;
+      document.getElementById("modalNotaTitle").textContent = "Editar Nota";
+      document.getElementById("nuevaNotaTexto").value = n.texto;
+      
+      const tagSelect = document.getElementById("nuevaNotaTag");
+      const tagActual = n.tag || "Idea";
+      tagSelect.value = tagActual;
+      // Si el tag no existía en las opciones (por versiones anteriores), lo añadimos
+      if (tagSelect.value !== tagActual) {
+        const opt = document.createElement("option");
+        opt.value = tagActual; opt.textContent = "#" + tagActual;
+        tagSelect.appendChild(opt);
+        tagSelect.value = tagActual;
+      }
+      
+      document.getElementById("modalNota").classList.add("active");
+    }
+
+    function cerrarModalNota() {
+      editandoNotaId = null;
+      document.getElementById("modalNota").classList.remove("active");
+    }
+
     function guardarNota() {
       const txt = document.getElementById("nuevaNotaTexto").value.trim();
       const tag = document.getElementById("nuevaNotaTag").value;
       if (!txt) return;
-      state.notas.push({ id: Date.now(), texto: txt, tag: tag, pinned: false });
+      
+      if (editandoNotaId) {
+        const n = state.notas.find(x => x.id === editandoNotaId);
+        if (n) { n.texto = txt; n.tag = tag; }
+        editandoNotaId = null;
+      } else {
+        state.notas.push({ id: Date.now(), texto: txt, tag: tag, pinned: false });
+      }
+      
       save(); renderNotas();
       document.getElementById("nuevaNotaTexto").value = "";
       document.getElementById("modalNota").classList.remove("active");
@@ -873,7 +882,10 @@
         <div class="note-card">
           <div class="note-top">
             <div class="note-text">${n.texto}</div>
-            <button class="pin-btn ${n.pinned ? 'pinned' : ''}" onclick="togglePinNota(${n.id})">📌</button>
+            <div style="display:flex; gap:2px; flex-shrink:0;">
+              <button class="pin-btn ${n.pinned ? 'pinned' : ''}" onclick="togglePinNota(${n.id})">📌</button>
+              <button class="pin-btn" onclick="editarNota(${n.id})">✏️</button>
+            </div>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
              <div class="note-tag">#${n.tag || 'General'}</div>
@@ -889,7 +901,7 @@
     }
     function borrarNota(id) { if (!confirm("¿Borrar?")) return; state.notas = state.notas.filter(x=>x.id!==id); save(); renderNotas(); }
 
-    // --- RESTO DE FUNCIONES BÁSICAS ---
+    // ============= CALENDARIO / DIARIAS =============
     function renderCalendario() {
       const cont = document.getElementById("calendarStrip"); cont.innerHTML = "";
       const hoy = new Date(); const inicioSemana = new Date(hoy); inicioSemana.setDate(hoy.getDate() - hoy.getDay());
@@ -990,7 +1002,6 @@
       save(); renderDiarias();
     }
 
-    // --- LÓGICA DE RACHA CORREGIDA ---
     function toggleTarea(pilarId, index) {
       if (fechaSeleccionada !== hoyStr()) return;
       const t = state.tareasHoy[pilarId][index]; 
@@ -1001,14 +1012,11 @@
         mostrarToast();
       } else {
         if (navigator.vibrate) navigator.vibrate(20);
-        // Lógica para revertir la racha si se desmarca
         const ultKey = "ultimoDia_" + pilarId;
         if (state[ultKey] === hoyStr()) {
-           // Si la racha se ganó hoy, se resta 1 y se vuelve al estado de ayer
            state.rachasPilar[pilarId] = Math.max(0, (state.rachasPilar[pilarId] || 1) - 1);
-           state[ultKey] = ayerStr(); // Se devuelve el estado al día anterior
+           state[ultKey] = ayerStr();
         }
-        // Lo mismo para la racha global
         if (state.ultimoDia === hoyStr()) {
            state.racha = Math.max(0, state.racha - 1);
            state.ultimoDia = ayerStr();
@@ -1052,7 +1060,7 @@
     function toggleSubtask(pilarId, index, subIndex) { const t = state.tareasHoy[pilarId][index]; t.subtareas[subIndex].hecho = !t.subtareas[subIndex].hecho; if(t.subtareas[subIndex].hecho) playDing(); save(); renderDiarias(); }
     function eliminarSubtask(pilarId, index, subIndex) { const t = state.tareasHoy[pilarId][index]; t.subtareas.splice(subIndex, 1); save(); renderDiarias(); }
 
-    // --- ENFOQUE ---
+    // ============= ENFOQUE =============
     function seleccionarTiempoEnfoque(nombreTarea) {
       const tiempo = prompt("¿Cuántos minutos de enfoque? (15, 25, 45, 60)", "25");
       if (tiempo && !isNaN(tiempo)) iniciarPomodoro(nombreTarea, parseInt(tiempo));
@@ -1080,7 +1088,7 @@
     }
     function abandonarPomodoro() { if(!confirm("¿Abandonar enfoque?")) return; clearInterval(pomodoroInterval); pomodoroInterval = null; document.getElementById("focus-overlay").classList.remove("active"); }
 
-    // --- COMPRAS Y OTRAS FUNCIONES ---
+    // ============= COMPRAS (con hora visible) =============
     function addCompra() {
       const txt = document.getElementById("nuevaCompra").value.trim(); const hora = document.getElementById("horaCompra").value;
       if (!txt) return;
@@ -1094,42 +1102,44 @@
         document.getElementById("horaCompra").classList.remove('has-time');
       }
     }
+
     function renderCompras() {
       const cont = document.getElementById("compras");
       cont.innerHTML = state.compras.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:10px;">Nada pendiente.</div>' : "";
       state.compras.forEach(c => {
         const el = document.createElement("div"); el.className = "task " + (c.hecho?"hecho":"");
-        el.innerHTML = `<div class="task-top"><button class="check" onclick="toggleCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button><div class="txt" style="font-weight:400; font-size:15px;">${c.texto} ${c.creado !== hoyStr()?'<span style="font-size:10px;color:var(--warn)">(de ayer)</span>':''}</div><button class="btn-icon danger" onclick="borrarCompra(${c.id})"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`;
+        const horaBadge = c.hora ? `<span class="time-badge">⏰ ${c.hora}</span>` : '';
+        const deAyerBadge = c.creado !== hoyStr() ? '<span style="font-size:10px;color:var(--warn); margin-left:6px;">(de ayer)</span>' : '';
+        el.innerHTML = `<div class="task-top">
+          <button class="check" onclick="toggleCompra(${c.id})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
+          <div class="txt" style="font-weight:400; font-size:15px; display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+            <span>${c.texto}</span>${horaBadge}${deAyerBadge}
+          </div>
+          <button class="btn-icon danger" onclick="borrarCompra(${c.id})"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+        </div>`;
         cont.appendChild(el);
       });
     }
     function toggleCompra(id) { const c = state.compras.find(x=>x.id===id); if (c) { c.hecho = !c.hecho; save(); renderCompras(); if(c.hecho) mostrarToast(); } }
     function borrarCompra(id) { if (!confirm("¿Borrar?")) return; state.compras = state.compras.filter(x=>x.id!==id); save(); renderCompras(); }
 
-    // --- OPCIÓN 3: SOLO RESUMEN VISUAL ---
+    // ============= RESUMEN =============
     function renderResumenYHistorial() {
       let tot = 0; let hec = 0;
       Object.keys(state.tareasHoy).forEach(pId => { state.tareasHoy[pId].forEach(t => { if(t.hecho) hec++; tot++; }); });
       
-      // Actualizar los cuadros superiores
       document.getElementById("resumenDiarias").textContent = `${hec}/${tot}`;
       document.getElementById("resumenCompras").textContent = state.compras.filter(c=>!c.hecho).length;
       document.getElementById("resumenRacha").textContent = `${state.racha}`;
       
-      // Texto simple en vez de botones de balance
       const balanceEl = document.getElementById("balanceResumen");
-      if (hec === tot && tot > 0) {
-        balanceEl.innerHTML = `🏆 ¡Día perfecto! Completaste las <b>${tot}</b> tareas.`;
-      } else if (hec === 0) {
-        balanceEl.innerHTML = `Hoy no has completado ninguna tarea aún.`;
-      } else {
-        balanceEl.innerHTML = `Hoy llevas <b>${hec}</b> de <b>${tot}</b> tareas completadas. ¡Sigue así!`;
-      }
+      if (hec === tot && tot > 0) { balanceEl.innerHTML = `🏆 ¡Día perfecto! Completaste las <b>${tot}</b> tareas.`; }
+      else if (hec === 0) { balanceEl.innerHTML = `Hoy no has completado ninguna tarea aún.`; }
+      else { balanceEl.innerHTML = `Hoy llevas <b>${hec}</b> de <b>${tot}</b> tareas completadas. ¡Sigue así!`; }
 
       document.getElementById("toggleSonido").checked = state.config.sounds !== false;
       document.getElementById("toggleVacaciones").checked = state.config.vacation === true;
 
-      // Gráfico de barras
       const chartCont = document.getElementById("chartContainer"); const labelsCont = document.getElementById("chartLabels");
       chartCont.innerHTML = ""; labelsCont.innerHTML = "";
       const diasSemana = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"];
@@ -1170,14 +1180,38 @@
       state.historial[hoy] = { tareasHoy: JSON.parse(JSON.stringify(state.tareasHoy)) }; save();
     }
 
-    function selectColor(el, color) { document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); colorSeleccionado = color; }
-    function crearPilar() {
-      const nombre = document.getElementById("nuevoPilarNombre").value.trim(); if (!nombre) return;
-      const id = "custom_" + Date.now();
-      PILARES.push({ id: id, texto: nombre, color: colorSeleccionado }); state.customPilares = PILARES;
-      state.tareasHoy[id] = [{ id: Date.now(), texto: nombre, hora: "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] }]; state.rachasPilar[id] = 0;
-      save(); document.getElementById("nuevoPilarNombre").value = ""; renderDiarias();
+    // ============= PILARES / TARJETAS =============
+    function abrirModalPilar() {
+      document.getElementById("nuevoPilarNombre").value = "";
+      colorSeleccionado = "#ff453a";
+      const circles = document.querySelectorAll('#colorPickerPilar .color-circle');
+      circles.forEach(c => c.classList.remove('selected'));
+      if (circles[0]) circles[0].classList.add('selected');
+      document.getElementById("modalPilar").classList.add("active");
     }
+
+    function cerrarModalPilar() { document.getElementById("modalPilar").classList.remove("active"); }
+
+    function selectColor(el, color) {
+      document.querySelectorAll('#colorPickerPilar .color-circle').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      colorSeleccionado = color;
+    }
+
+    function crearPilar() {
+      const nombre = document.getElementById("nuevoPilarNombre").value.trim();
+      if (!nombre) { alert("Escribe un nombre para la tarjeta."); return; }
+      const id = "custom_" + Date.now();
+      PILARES.push({ id: id, texto: nombre, color: colorSeleccionado });
+      state.customPilares = PILARES;
+      state.tareasHoy[id] = [{ id: Date.now(), texto: nombre, hora: "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] }];
+      state.rachasPilar[id] = 0;
+      save();
+      cerrarModalPilar();
+      renderDiarias();
+      mostrarToast("✨ Tarjeta creada");
+    }
+
     function editarNombrePilar(id) {
       const p = PILARES.find(x => x.id === id); if (!p) return;
       const n = prompt("Nuevo nombre:", p.texto);
