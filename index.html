@@ -69,11 +69,13 @@
     .task.hecho .check { background:var(--ok); border-color:var(--ok); box-shadow: 0 0 12px rgba(176, 255, 0, 0.5); }
     .task.hecho .check svg { stroke: #000; }
     
-    input[type="text"], input[type="time"], input[type="number"], select, input[type="password"] { background:var(--input-bg); border:1px solid var(--border); color:var(--txt); padding:12px; border-radius:14px; font-size:15px; font-family:inherit; outline: none; }
+    input[type="text"], input[type="time"], input[type="date"], input[type="number"], select, input[type="password"] { background:var(--input-bg); border:1px solid var(--border); color:var(--txt); padding:12px; border-radius:14px; font-size:15px; font-family:inherit; outline: none; }
     input[type="text"] { flex:1; width: 100%; }
     input[type="time"] { width: 105px; min-width: 105px; padding: 10px 6px; font-size: 14px; text-align: center; font-weight: 600;}
+    input[type="date"] { width: 130px; min-width: 130px; padding: 10px 6px; font-size: 13px; text-align: center; font-weight: 600;}
     
     input[type="time"].has-time { border-color: var(--ok); color: var(--ok); background: rgba(176, 255, 0, 0.1); font-weight: 800; }
+    input[type="date"].has-date { border-color: var(--info); color: var(--info); background: rgba(10, 132, 255, 0.1); font-weight: 800; }
     select { padding: 10px; }
     
     .nota-row { display: flex; gap: 8px; width: 100%; align-items: center; }
@@ -111,7 +113,7 @@
     .nav-btn.active { color: var(--txt); }
     .nav-btn.active#btn-hoy { color: var(--ok); filter: drop-shadow(0 0 8px rgba(176,255,0,0.5)); }
     .nav-btn.active#btn-compras { color: var(--warn); filter: drop-shadow(0 0 8px rgba(255,159,10,0.5)); }
-    .nav-btn.active#btn-notas { color: #64d2ff; filter: drop-shadow(0 0 8px rgba(100,210,255,0.5)); }
+    .nav-btn.active#btn-calendario { color: #64d2ff; filter: drop-shadow(0 0 8px rgba(100,210,255,0.5)); }
 
     .nav-center-wrapper { position: relative; width: 70px; height: 70px; display: flex; justify-content: center; }
     .center-btn { position: absolute; top: -25px; width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); border: 3px solid #333; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8); cursor: pointer; transition: all 0.3s;}
@@ -159,13 +161,6 @@
     .history-amount.ingreso { color: var(--ok); }
     .history-amount.egreso { color: var(--bad); }
 
-    .note-card { display: flex; flex-direction: column; background: var(--card); border-radius: 20px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
-    .note-top { display: flex; justify-content: space-between; align-items: flex-start; }
-    .note-text { font-size: 15px; flex: 1; line-height: 1.4;}
-    .note-tag { font-size: 10px; background: var(--input-bg); padding: 2px 8px; border-radius: 10px; color: var(--info); font-weight: bold; display: inline-block; margin-top: 8px;}
-    .pin-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px; font-size: 18px;}
-    .pin-btn.pinned { color: var(--warn); }
-
     .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .setting-row:last-child { border-bottom: none; }
     .setting-label { font-size: 15px; color: var(--txt); font-weight: 500;}
@@ -185,6 +180,51 @@
     .modal-btn { flex: 1; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; border: none; min-width: 100px;}
     .modal-btn.cancel { background: var(--input-bg); color: var(--txt); }
     .modal-btn.confirm { background: var(--ok); color: #000; }
+
+    /* ESTILO GOOGLE TASKS BOTTOM SHEET */
+    .bottom-sheet {
+      background: var(--card); width: 100%; max-width: 500px;
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+      border-radius: 24px 24px 0 0; padding: 24px; box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      border-top: 1px solid var(--border); z-index: 10000; display: flex; flex-direction: column;
+    }
+    #modalTarea.active .bottom-sheet { transform: translateX(-50%) translateY(0); }
+    #modalTarea { align-items: flex-end; }
+    
+    .gt-input {
+      background: transparent; border: none; color: var(--txt); font-size: 20px;
+      width: 100%; outline: none; padding: 0; margin-bottom: 20px; font-weight: 500;
+    }
+    .gt-input::placeholder { color: var(--muted); }
+    
+    .gt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .gt-row input[type="time"], .gt-row input[type="date"], .gt-row select {
+      background: var(--input-bg); border: 1px solid var(--border); padding: 10px; border-radius: 12px; font-size: 13px; flex: 1; min-width: 100px;
+    }
+    .gt-icon-btn {
+      background: transparent; border: none; color: var(--muted); cursor: pointer;
+      font-size: 24px; padding: 5px; transition: color 0.2s;
+    }
+    .gt-icon-btn.active { color: var(--warn); }
+    
+    .gt-divider { height: 1px; background: var(--border); margin: 15px 0; }
+    
+    .gt-actions { display: flex; justify-content: flex-end; align-items: center; gap: 15px; }
+    .gt-btn-text { background: transparent; border: none; font-size: 16px; font-weight: 600; cursor: pointer; color: var(--muted); }
+    .gt-btn-text.save { color: #64d2ff; }
+    .gt-btn-text:active { opacity: 0.5; }
+
+    /* CALENDARIO TAB */
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 10px; }
+    .cal-cell { padding: 10px 0; border-radius: 10px; background: var(--input-bg); cursor: pointer; font-size: 14px; position: relative; transition: background 0.2s; }
+    .cal-cell.empty { background: transparent; cursor: default; }
+    .cal-cell.selected { background: var(--ok); color: #000; font-weight: 800; }
+    .cal-cell.today { border: 2px solid var(--ok); color: var(--ok); }
+    .cal-cell.today.selected { color: #000; border-color: transparent; }
+    .cal-cell .cal-dot { width: 5px; height: 5px; background: var(--ok); border-radius: 50%; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); }
+    .cal-cell.selected .cal-dot { background: #000; }
+    .cal-header-days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: bold; }
 
     .chart-container { display: flex; justify-content: space-between; align-items: flex-end; height: 80px; padding-top: 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px;}
     .chart-bar { width: 12%; background: var(--ok); border-radius: 4px 4px 0 0; box-shadow: 0 0 10px rgba(176,255,0,0.3);}
@@ -248,22 +288,6 @@
     </div>
   </div>
 
-  <!-- MODAL NOTA -->
-  <div class="modal-overlay" id="modalNota">
-    <div class="modal-content">
-      <h3 class="modal-title" id="modalNotaTitle">Nueva Nota</h3>
-      <input type="text" id="nuevaNotaTexto" placeholder="Escribe tu idea..." style="width: 100%; margin-bottom: 10px;" />
-      <select id="nuevaNotaTag" style="width: 100%; margin-bottom: 15px;">
-        <option value="Idea">#Idea</option><option value="YouTube">#YouTube</option>
-        <option value="Personal">#Personal</option><option value="Compra">#Compra</option>
-      </select>
-      <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="cerrarModalNota()">Cancelar</button>
-        <button class="modal-btn confirm" onclick="guardarNota()">Guardar</button>
-      </div>
-    </div>
-  </div>
-
   <!-- MODAL NUEVA TARJETA -->
   <div class="modal-overlay" id="modalPilar">
     <div class="modal-content">
@@ -284,6 +308,29 @@
       <div class="modal-actions" style="margin-top: 15px;">
         <button class="modal-btn cancel" onclick="cerrarModalPilar()">Cancelar</button>
         <button class="modal-btn confirm" onclick="crearPilar()">Crear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ESTILO GOOGLE TASKS -->
+  <div class="modal-overlay" id="modalTarea">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <input type="text" id="gt_tarea_texto" class="gt-input" placeholder="Nueva tarea" autocomplete="off">
+      
+      <div class="gt-row">
+        <select id="gt_tarea_pilar"></select>
+        <input type="date" id="gt_tarea_fecha">
+        <input type="time" id="gt_tarea_hora">
+        <button class="gt-icon-btn" id="gt_tarea_star" onclick="toggleStarGT()">★</button>
+      </div>
+      
+      <input type="text" id="gt_tarea_nota" class="gt-input" placeholder="Detalles / Nota (Opcional)" style="font-size: 15px; margin-bottom: 10px; color: var(--muted);">
+      
+      <div class="gt-divider"></div>
+      
+      <div class="gt-actions">
+        <button class="gt-btn-text" onclick="cerrarModalTarea()">Cancelar</button>
+        <button class="gt-btn-text save" onclick="guardarTareaDesdeModal()">Guardar</button>
       </div>
     </div>
   </div>
@@ -376,13 +423,27 @@
     <div class="history-list" id="historyList"></div>
   </div>
 
-  <!-- PESTAÑA NOTAS -->
-  <div id="tab-notas" class="tab-content">
-    <h2>Bandeja de Ideas</h2>
-    <div style="margin-bottom: 15px;">
-      <button class="primary" style="width: 100%;" onclick="abrirModalNota()">+ Crear Nueva Nota</button>
+  <!-- PESTAÑA CALENDARIO -->
+  <div id="tab-calendario" class="tab-content">
+    <h2>Mi Calendario</h2>
+    <div class="card-separada">
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <button class="btn-icon" style="padding:8px 12px;" onclick="cambiarMesCalendario(-1)">◀</button>
+          <h3 id="calMesAno" style="margin:0; font-size:16px;">Noviembre 2026</h3>
+          <button class="btn-icon" style="padding:8px 12px;" onclick="cambiarMesCalendario(1)">▶</button>
+        </div>
+        <div class="cal-header-days">
+          <span>D</span><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
     </div>
-    <div id="notasLista"></div>
+
+    <h2 id="calSelectedDateTitle">Tareas del día</h2>
+    <div id="calTaskList" class="card-separada">
+       <div class="card-body" id="calTaskListBody"></div>
+    </div>
   </div>
 
   <!-- PESTAÑA RESUMEN -->
@@ -457,7 +518,7 @@
       <button class="center-btn active" id="btn-ahorros" onclick="cambiarPestana('ahorros', this, 'Ahorros')"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></button>
     </div>
     
-    <button class="nav-btn" id="btn-notas" onclick="cambiarPestana('notas', this, 'Notas')"><svg viewBox="0 0 24 24"><path d="M3 18h12v-2H3v2zM3 6v2h18V6H3zm0 7h18v-2H3v2z"/></svg><span>Notas</span></button>
+    <button class="nav-btn" id="btn-calendario" onclick="cambiarPestana('calendario', this, 'Calendario')"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg><span>Calendario</span></button>
     <button class="nav-btn" id="btn-resumen" onclick="cambiarPestana('resumen', this, 'Resumen')"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>Resumen</span></button>
   </div>
 
@@ -477,8 +538,13 @@
     let pomodoroTiempo = 25 * 60;
     let accionAhorro = "add";
     let editandoTransaccionId = null;
-    let editandoNotaId = null;
     let pinInput = "";
+    let tareaPrioridadGT = false;
+    
+    // Variables del Calendario
+    let calMesActual = new Date().getMonth();
+    let calAnoActual = new Date().getFullYear();
+    let calFechaSeleccionada = hoyStr();
 
     const frasesExito = ["¡Bien hecho!", "¡Un paso menos!", "¡Sigue así!", "¡Eres un crack!", "¡Vas por buen camino!", "¡Tarea completada!"];
 
@@ -497,7 +563,6 @@
       }
       const estadoInicial = { tareasHoy: {}, compras:[], notas:[], racha:0, ultimoDia:null, rachasPilar: {}, historial: {}, customPilares: PILARES, ahorros: 0, ahorrosMeta: 0, historialAhorros: [], perfilNombre: "Hola, Edward", perfilFoto: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238E8E93'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E", config: { sounds: true, vacation: false, pin: null } };
       
-      // CORRECCIÓN 1: Las tarjetas nuevas inician VACÍAS
       PILARES.forEach(p => {
         estadoInicial.tareasHoy[p.id] = []; 
         estadoInicial.rachasPilar[p.id] = 0;
@@ -603,6 +668,10 @@
             count++;
             const [hh, mm] = t.hora.split(":");
             const startDate = new Date();
+            if (t.fecha) {
+              const [yyyy, mo, dd] = t.fecha.split("-");
+              startDate.setFullYear(parseInt(yyyy), parseInt(mo)-1, parseInt(dd));
+            }
             startDate.setHours(parseInt(hh), parseInt(mm), 0, 0);
             const endDate = new Date(startDate.getTime() + (t.duracion || 30) * 60000); 
             const fmt = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
@@ -618,12 +687,12 @@
       });
       ics += "END:VCALENDAR";
 
-      if (count === 0) { alert("No hay tareas con hora hoy para exportar."); return; }
+      if (count === 0) { alert("No hay tareas con hora para exportar."); return; }
 
       const dataStr = "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
       const dlAnchorElem = document.createElement('a');
       dlAnchorElem.setAttribute("href", dataStr);
-      dlAnchorElem.setAttribute("download", "tareas_hoy.ics");
+      dlAnchorElem.setAttribute("download", "tareas.ics");
       dlAnchorElem.click();
     }
 
@@ -642,18 +711,23 @@
       actualizarDebug();
     }
 
-    async function programarNotificacion(titulo, mensaje, horaStr) {
+    async function programarNotificacion(titulo, mensaje, horaStr, fechaStr) {
       const apiKey = localStorage.getItem("onesignal_api_key");
       const playerId = localStorage.getItem("onesignal_player_id");
 
-      if (!apiKey || !playerId) {
-        alert("⚠️ No se puede programar la alarma.\n\nVe a 'Resumen' y configura tu API Key de OneSignal + Forzar Registro.");
-        return;
-      }
+      if (!apiKey || !playerId) return;
       
       const [hh, mm] = horaStr.split(":");
       const ahora = new Date();
-      let fechaEnvio = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), parseInt(hh), parseInt(mm), 0);
+      let fechaEnvio = new Date();
+      
+      if (fechaStr) {
+        const [yyyy, mo, dd] = fechaStr.split("-");
+        fechaEnvio = new Date(parseInt(yyyy), parseInt(mo)-1, parseInt(dd), parseInt(hh), parseInt(mm), 0);
+      } else {
+        fechaEnvio = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), parseInt(hh), parseInt(mm), 0);
+      }
+      
       if (fechaEnvio < ahora) fechaEnvio.setDate(fechaEnvio.getDate() + 1);
 
       try {
@@ -669,8 +743,8 @@
           })
         });
         const data = await res.json();
-        if (res.ok) { mostrarToast("🔔 Alarma guardada a las " + horaStr); }
-        else { mostrarToast("❌ Error al programar"); alert("OneSignal rechazó la notificación. Error: " + JSON.stringify(data.errors || data)); }
+        if (res.ok) { mostrarToast("🔔 Alarma guardada"); }
+        else { mostrarToast("❌ Error al programar"); alert("Error: " + JSON.stringify(data.errors || data)); }
       } catch (err) { mostrarToast("❌ Error de conexión"); }
     }
 
@@ -691,7 +765,7 @@
       document.getElementById('tituloPestana').textContent = titulo;
       if(id === 'resumen') { renderResumenYHistorial(); actualizarDebug(); }
       if(id === 'ahorros') { renderAhorros(); }
-      if(id === 'notas') { renderNotas(); }
+      if(id === 'calendario') { renderCalendarioTab(); }
     }
 
     function editarPerfil() { document.getElementById("photoUpload").click(); }
@@ -821,86 +895,6 @@
       `).join('');
     }
 
-    function abrirModalNota() {
-      editandoNotaId = null;
-      document.getElementById("modalNotaTitle").textContent = "Nueva Nota";
-      document.getElementById("nuevaNotaTexto").value = "";
-      document.getElementById("nuevaNotaTag").value = "Idea";
-      document.getElementById("modalNota").classList.add("active");
-    }
-
-    function editarNota(id) {
-      const n = state.notas.find(x => x.id === id);
-      if (!n) return;
-      editandoNotaId = id;
-      document.getElementById("modalNotaTitle").textContent = "Editar Nota";
-      document.getElementById("nuevaNotaTexto").value = n.texto;
-      
-      const tagSelect = document.getElementById("nuevaNotaTag");
-      const tagActual = n.tag || "Idea";
-      tagSelect.value = tagActual;
-      if (tagSelect.value !== tagActual) {
-        const opt = document.createElement("option");
-        opt.value = tagActual; opt.textContent = "#" + tagActual;
-        tagSelect.appendChild(opt);
-        tagSelect.value = tagActual;
-      }
-      
-      document.getElementById("modalNota").classList.add("active");
-    }
-
-    function cerrarModalNota() {
-      editandoNotaId = null;
-      document.getElementById("modalNota").classList.remove("active");
-    }
-
-    function guardarNota() {
-      const txt = document.getElementById("nuevaNotaTexto").value.trim();
-      const tag = document.getElementById("nuevaNotaTag").value;
-      if (!txt) return;
-      
-      if (editandoNotaId) {
-        const n = state.notas.find(x => x.id === editandoNotaId);
-        if (n) { n.texto = txt; n.tag = tag; }
-        editandoNotaId = null;
-      } else {
-        state.notas.push({ id: Date.now(), texto: txt, tag: tag, pinned: false });
-      }
-      
-      save(); renderNotas();
-      document.getElementById("nuevaNotaTexto").value = "";
-      document.getElementById("modalNota").classList.remove("active");
-    }
-
-    function renderNotas() {
-      const cont = document.getElementById("notasLista");
-      if (state.notas.length === 0) { cont.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">No hay notas.</div>'; return; }
-      
-      const sortedNotas = [...state.notas].sort((a, b) => (b.pinned === true ? 1 : 0) - (a.pinned === true ? 1 : 0));
-
-      cont.innerHTML = sortedNotas.map(n => `
-        <div class="note-card">
-          <div class="note-top">
-            <div class="note-text">${n.texto}</div>
-            <div style="display:flex; gap:2px; flex-shrink:0;">
-              <button class="pin-btn ${n.pinned ? 'pinned' : ''}" onclick="togglePinNota(${n.id})">📌</button>
-              <button class="pin-btn" onclick="editarNota(${n.id})">✏️</button>
-            </div>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-             <div class="note-tag">#${n.tag || 'General'}</div>
-             <button class="btn-icon danger" style="padding:4px;" onclick="borrarNota(${n.id})"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function togglePinNota(id) {
-      const n = state.notas.find(x => x.id === id);
-      if (n) { n.pinned = !n.pinned; save(); renderNotas(); }
-    }
-    function borrarNota(id) { if (!confirm("¿Borrar?")) return; state.notas = state.notas.filter(x=>x.id!==id); save(); renderNotas(); }
-
     function renderCalendario() {
       const cont = document.getElementById("calendarStrip"); cont.innerHTML = "";
       const hoy = new Date(); const inicioSemana = new Date(hoy); inicioSemana.setDate(hoy.getDate() - hoy.getDay());
@@ -923,7 +917,11 @@
 
       PILARES.forEach(pilar => {
         const card = document.createElement("div"); card.className = "card-separada";
-        const tareasDelPilar = state.tareasHoy[pilar.id] || [];
+        const todasLasTareas = state.tareasHoy[pilar.id] || [];
+        
+        // FILTRO CRÍTICO: Solo mostrar tareas que no tienen fecha (diarias) o que su fecha coincide con la seleccionada
+        const tareasDelPilar = todasLasTareas.filter(t => !t.fecha || t.fecha === fechaSeleccionada);
+        
         const todasFinalizadas = tareasDelPilar.length > 0 && tareasDelPilar.every(t => t.hecho);
         const rachaP = state.rachasPilar[pilar.id] || 0;
         
@@ -938,7 +936,11 @@
           <div class="card-body"></div>`;
         
         const body = card.querySelector(".card-body");
-        tareasDelPilar.forEach((t, index) => {
+        
+        todasLasTareas.forEach((t, originalIndex) => {
+          // Si la tarea es para otro día, saltar en la vista diaria
+          if (t.fecha && t.fecha !== fechaSeleccionada) return;
+
           const el = document.createElement("div");
           el.className = `task ${t.hecho ? 'hecho' : ''} ${t.prioridad ? 'prioridad' : ''}`;
           const styleDisabled = esHoy ? "" : "opacity: 0.6; pointer-events: none;";
@@ -946,64 +948,124 @@
           let subHtml = `<div class="subtasks-container" id="subs-${t.id}">
             ${(t.subtareas||[]).map((st, sIdx) => `
               <div class="subtask-item ${st.hecho ? 'done' : ''}">
-                <button class="sub-check" onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
-                <span class="sub-text" onclick="toggleSubtask('${pilar.id}', ${index}, ${sIdx})">${st.texto}</span>
-                <button class="sub-del" onclick="eliminarSubtask('${pilar.id}', ${index}, ${sIdx})">×</button>
+                <button class="sub-check" onclick="toggleSubtask('${pilar.id}', ${originalIndex}, ${sIdx})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
+                <span class="sub-text" onclick="toggleSubtask('${pilar.id}', ${originalIndex}, ${sIdx})">${st.texto}</span>
+                <button class="sub-del" onclick="eliminarSubtask('${pilar.id}', ${originalIndex}, ${sIdx})">×</button>
               </div>`).join('')}
             <div class="subtask-add-row">
-              <input type="text" placeholder="Nuevo paso..." id="input-sub-${t.id}" onkeypress="if(event.key==='Enter') addSubtask('${pilar.id}', ${index})" />
-              <button onclick="addSubtask('${pilar.id}', ${index})">+</button>
+              <input type="text" placeholder="Nuevo paso..." id="input-sub-${t.id}" onkeypress="if(event.key==='Enter') addSubtask('${pilar.id}', ${originalIndex})" />
+              <button onclick="addSubtask('${pilar.id}', ${originalIndex})">+</button>
             </div>
           </div>`;
           if(t.subtareas && t.subtareas.length > 0) subHtml = subHtml.replace('class="subtasks-container"', 'class="subtasks-container active"');
 
           el.innerHTML = `
             <div class="task-top" style="${styleDisabled}">
-              <button class="check" onclick="toggleTarea('${pilar.id}', ${index})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
+              <button class="check" onclick="toggleTarea('${pilar.id}', ${originalIndex})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
               <div class="txt" onclick="toggleSubtasksView('${t.id}')" style="cursor:pointer;">${t.texto}</div>
-              <input type="time" class="${t.hora ? 'has-time' : ''}" value="${t.hora || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'hora', this.value)" />
+              <input type="time" class="${t.hora ? 'has-time' : ''}" value="${t.hora || ''}" onchange="updateTarea('${pilar.id}', ${originalIndex}, 'hora', this.value)" />
             </div>
             <div class="nota-row" style="${styleDisabled}">
-              <input type="text" class="nota-input" placeholder="Nota..." value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${index}, 'nota', this.value)" />
+              <input type="text" class="nota-input" placeholder="Nota..." value="${t.nota || ''}" onchange="updateTarea('${pilar.id}', ${originalIndex}, 'nota', this.value)" />
             </div>
             ${subHtml}
             ${esHoy ? `<div class="action-btns" style="${styleDisabled}">
               <button class="btn-icon" onclick="toggleSubtasksView('${t.id}')">☑️</button>
-              <button class="btn-icon priority-btn" onclick="togglePrioridad('${pilar.id}', ${index})"><svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></button>
+              <button class="btn-icon priority-btn" onclick="togglePrioridad('${pilar.id}', ${originalIndex})"><svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></button>
               <button class="btn-icon" onclick="seleccionarTiempoEnfoque('${t.texto}')"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></button>
-              <button class="btn-icon" onclick="posponerTarea('${pilar.id}', ${index})"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>
-              <button class="btn-icon danger" onclick="eliminarTareaCompleta('${pilar.id}', ${index})"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+              <button class="btn-icon" onclick="posponerTarea('${pilar.id}', ${originalIndex})"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>
+              <button class="btn-icon danger" onclick="eliminarTareaCompleta('${pilar.id}', ${originalIndex})"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
             </div>` : ''}`;
           body.appendChild(el);
         });
 
         if (esHoy) {
           const btnAdd = document.createElement("button"); btnAdd.className = "secondary"; btnAdd.innerHTML = `+ Añadir tarea`;
-          btnAdd.onclick = () => agregarTareaAlPilar(pilar.id); body.appendChild(btnAdd);
+          btnAdd.onclick = () => abrirModalTarea(pilar.id); body.appendChild(btnAdd);
         }
         cont.appendChild(card);
       });
       if (esHoy) actualizarRacha();
     }
 
-    function agregarTareaAlPilar(pilarId) {
-      const texto = prompt("¿Qué tarea quieres añadir?"); if (!texto) return;
-      // Aquí ya agregamos la tarea manualmente a la tarjeta vacía
-      state.tareasHoy[pilarId].push({ id: Date.now() + Math.random(), texto: texto, hora: "", nota: "", duracion: 0, hecho: false, prioridad: false, subtareas: [] });
-      save(); renderDiarias();
+    // ============= NUEVO SISTEMA DE CREAR TAREA =============
+    function abrirModalTarea(pilarIdDefecto) {
+      document.getElementById("gt_tarea_texto").value = "";
+      document.getElementById("gt_tarea_hora").value = "";
+      document.getElementById("gt_tarea_nota").value = "";
+      document.getElementById("gt_tarea_fecha").value = fechaSeleccionada; // Pre-llenar con la fecha actual
+      
+      const select = document.getElementById("gt_tarea_pilar");
+      select.innerHTML = "";
+      PILARES.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.texto;
+        select.appendChild(opt);
+      });
+      
+      select.value = pilarIdDefecto;
+      
+      tareaPrioridadGT = false;
+      document.getElementById("gt_tarea_star").classList.remove("active");
+      
+      document.getElementById("modalTarea").classList.add("active");
+      setTimeout(() => document.getElementById("gt_tarea_texto").focus(), 100);
     }
+
+    function cerrarModalTarea() {
+      document.getElementById("modalTarea").classList.remove("active");
+    }
+
+    function toggleStarGT() {
+      tareaPrioridadGT = !tareaPrioridadGT;
+      const star = document.getElementById("gt_tarea_star");
+      if (tareaPrioridadGT) star.classList.add("active");
+      else star.classList.remove("active");
+    }
+
+    function guardarTareaDesdeModal() {
+      const texto = document.getElementById("gt_tarea_texto").value.trim();
+      const pilarId = document.getElementById("gt_tarea_pilar").value;
+      const hora = document.getElementById("gt_tarea_hora").value;
+      const fecha = document.getElementById("gt_tarea_fecha").value;
+      const nota = document.getElementById("gt_tarea_nota").value.trim();
+
+      if (!texto) { alert("Escribe el nombre de la tarea."); return; }
+
+      const nuevaTarea = {
+        id: Date.now() + Math.random(),
+        texto: texto,
+        hora: hora,
+        fecha: fecha, // Aquí se guarda la fecha
+        nota: nota,
+        duracion: 0,
+        hecho: false,
+        prioridad: tareaPrioridadGT,
+        subtareas: []
+      };
+
+      if (!state.tareasHoy[pilarId]) state.tareasHoy[pilarId] = [];
+      state.tareasHoy[pilarId].push(nuevaTarea);
+
+      save();
+      renderDiarias();
+      renderCalendarioTab(); // Actualizar el calendario por si se agregó una tarea futura
+      cerrarModalTarea();
+      
+      if (hora) {
+        programarNotificacion("Tarea: " + texto, nota || "Es hora de tu tarea", hora, fecha);
+      }
+    }
+    // ========================================================
 
     function eliminarTareaCompleta(pilarId, index) {
       if (!confirm("¿Eliminar esta tarea?")) return;
       state.tareasHoy[pilarId].splice(index, 1);
-      
-      // CORRECCIÓN 3: Eliminado el bloque que obligaba a crear una tarea por defecto si quedaba vacía
-      
-      save(); renderDiarias();
+      save(); renderDiarias(); renderCalendarioTab();
     }
 
     function toggleTarea(pilarId, index) {
-      if (fechaSeleccionada !== hoyStr()) return;
       const t = state.tareasHoy[pilarId][index]; 
       t.hecho = !t.hecho;
       
@@ -1012,31 +1074,21 @@
         mostrarToast();
       } else {
         if (navigator.vibrate) navigator.vibrate(20);
-        const ultKey = "ultimoDia_" + pilarId;
-        if (state[ultKey] === hoyStr()) {
-           state.rachasPilar[pilarId] = Math.max(0, (state.rachasPilar[pilarId] || 1) - 1);
-           state[ultKey] = ayerStr();
-        }
-        if (state.ultimoDia === hoyStr()) {
-           state.racha = Math.max(0, state.racha - 1);
-           state.ultimoDia = ayerStr();
-        }
       }
       
-      save(); renderDiarias();
+      save(); renderDiarias(); renderCalendarioTab();
     }
 
     function togglePrioridad(pilarId, index) { state.tareasHoy[pilarId][index].prioridad = !state.tareasHoy[pilarId][index].prioridad; save(); renderDiarias(); }
 
     function updateTarea(pilarId, index, campo, valor) {
-      if (fechaSeleccionada !== hoyStr()) return;
       const t = state.tareasHoy[pilarId][index]; t[campo] = valor; save();
       
       if (campo === 'hora' && valor) {
         document.querySelectorAll('input[type="time"]').forEach(input => {
            if (input.value === valor) input.classList.add('has-time');
         });
-        programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor);
+        programarNotificacion("Tarea: " + t.texto, t.nota || "Es hora de tu tarea", valor, t.fecha);
       } else if (campo === 'hora' && !valor) {
         document.querySelectorAll('input[type="time"]').forEach(input => {
            if (!input.value) input.classList.remove('has-time');
@@ -1081,7 +1133,7 @@
           document.getElementById("focus-overlay").classList.remove("active");
           if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]);
           alert(`¡TIEMPO! ⏰\nHas completado ${minutos} minutos de enfoque.`);
-          programarNotificacion("¡Enfoque terminado!", `Completaste ${minutos} min en: ` + nombreTarea, new Date().toTimeString().slice(0,5));
+          programarNotificacion("¡Enfoque terminado!", `Completaste ${minutos} min en: ` + nombreTarea, new Date().toTimeString().slice(0,5), hoyStr());
         }
       }, 1000);
     }
@@ -1095,7 +1147,7 @@
       save(); renderCompras(); 
       if (hora) {
         document.getElementById("horaCompra").classList.add('has-time');
-        programarNotificacion("Compra pendiente", txt, hora);
+        programarNotificacion("Compra pendiente", txt, hora, hoyStr());
       } else {
         document.getElementById("horaCompra").classList.remove('has-time');
       }
@@ -1123,7 +1175,14 @@
 
     function renderResumenYHistorial() {
       let tot = 0; let hec = 0;
-      Object.keys(state.tareasHoy).forEach(pId => { state.tareasHoy[pId].forEach(t => { if(t.hecho) hec++; tot++; }); });
+      Object.keys(state.tareasHoy).forEach(pId => { 
+        state.tareasHoy[pId].forEach(t => { 
+          if (!t.fecha || t.fecha === hoyStr()) {
+            if(t.hecho) hec++; 
+            tot++; 
+          }
+        }); 
+      });
       
       document.getElementById("resumenDiarias").textContent = `${hec}/${tot}`;
       document.getElementById("resumenCompras").textContent = state.compras.filter(c=>!c.hecho).length;
@@ -1162,7 +1221,10 @@
     function actualizarRacha() {
       const hoy = hoyStr(); let todasHechasGlobal = true;
       PILARES.forEach(p => {
-        const finPilar = (state.tareasHoy[p.id] || []).length > 0 && state.tareasHoy[p.id].every(t => t.hecho);
+        // Solo evaluar las tareas de hoy o sin fecha
+        const tareasHoyPilar = (state.tareasHoy[p.id] || []).filter(t => !t.fecha || t.fecha === hoy);
+        const finPilar = tareasHoyPilar.length > 0 && tareasHoyPilar.every(t => t.hecho);
+        
         if (finPilar) {
           const ultKey = "ultimoDia_" + p.id;
           if (state[ultKey] !== hoy) { state.rachasPilar[p.id] = (state[ultKey] === ayerStr()) ? (state.rachasPilar[p.id] || 0) + 1 : 1; state[ultKey] = hoy; save(); }
@@ -1174,8 +1236,99 @@
       }
       if (state.config.vacation) state.ultimoDia = hoy; 
       document.getElementById("rachaTop").textContent = state.racha;
-      state.historial[hoy] = { tareasHoy: JSON.parse(JSON.stringify(state.tareasHoy)) }; save();
+      
+      // Guardar historial de hoy (solo las de hoy)
+      const tareasHoySnapshot = {};
+      PILARES.forEach(p => {
+        tareasHoySnapshot[p.id] = (state.tareasHoy[p.id] || []).filter(t => !t.fecha || t.fecha === hoy);
+      });
+      state.historial[hoy] = { tareasHoy: tareasHoySnapshot }; save();
     }
+
+    // ============= VISTA DE CALENDARIO =============
+    function cambiarMesCalendario(dir) {
+      calMesActual += dir;
+      if (calMesActual > 11) { calMesActual = 0; calAnoActual++; }
+      else if (calMesActual < 0) { calMesActual = 11; calAnoActual--; }
+      renderCalendarioTab();
+    }
+
+    function seleccionarDiaCal(fechaStr) {
+      calFechaSeleccionada = fechaStr;
+      renderCalendarioTab();
+    }
+
+    function renderCalendarioTab() {
+      const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      document.getElementById("calMesAno").textContent = `${nombresMeses[calMesActual]} ${calAnoActual}`;
+      
+      const primerDia = new Date(calAnoActual, calMesActual, 1).getDay();
+      const diasEnMes = new Date(calAnoActual, calMesActual + 1, 0).getDate();
+      
+      const grid = document.getElementById("calGrid");
+      grid.innerHTML = "";
+      
+      // Celdas vacías al inicio
+      for (let i = 0; i < primerDia; i++) {
+        grid.innerHTML += `<div class="cal-cell empty"></div>`;
+      }
+      
+      // Días del mes
+      for (let i = 1; i <= diasEnMes; i++) {
+        const fechaStr = `${calAnoActual}-${String(calMesActual + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        
+        // Verificar si hay tareas ese día
+        let tieneTareas = false;
+        PILARES.forEach(p => {
+          if ((state.tareasHoy[p.id] || []).some(t => t.fecha === fechaStr)) tieneTareas = true;
+        });
+        
+        let clases = "cal-cell";
+        if (fechaStr === calFechaSeleccionada) clases += " selected";
+        if (fechaStr === hoyStr()) clases += " today";
+        
+        const dot = tieneTareas ? `<div class="cal-dot"></div>` : '';
+        
+        grid.innerHTML += `<div class="${clases}" onclick="seleccionarDiaCal('${fechaStr}')">${i}${dot}</div>`;
+      }
+      
+      // Mostrar las tareas del día seleccionado
+      const [y, m, d] = calFechaSeleccionada.split("-");
+      document.getElementById("calSelectedDateTitle").textContent = `Tareas del ${d}/${m}/${y}`;
+      
+      const listBody = document.getElementById("calTaskListBody");
+      let tareasDelDia = [];
+      
+      PILARES.forEach(pilar => {
+        const tareasPilar = (state.tareasHoy[pilar.id] || []).filter(t => t.fecha === calFechaSeleccionada);
+        tareasPilar.forEach(t => {
+          tareasDelDia.push({ ...t, pilarId: pilar.id, pilarColor: pilar.color, pilarTexto: pilar.texto });
+        });
+      });
+      
+      if (tareasDelDia.length === 0) {
+        listBody.innerHTML = '<div style="color:var(--muted); text-align:center; padding:10px;">No hay tareas para este día.</div>';
+      } else {
+        listBody.innerHTML = tareasDelDia.map(t => {
+          const horaBadge = t.hora ? `<span class="time-badge">⏰ ${t.hora}</span>` : '';
+          // Buscamos el índice original para poder modificar la tarea
+          const originalIndex = state.tareasHoy[t.pilarId].findIndex(x => x.id === t.id);
+          
+          return `
+          <div class="task ${t.hecho ? 'hecho' : ''}">
+            <div class="task-top">
+              <button class="check" onclick="toggleTarea('${t.pilarId}', ${originalIndex})"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>
+              <div class="txt" style="font-size:14px;">
+                <span style="color:${t.pilarColor}; font-weight:800; font-size:11px; text-transform:uppercase;">${t.pilarTexto}</span><br>
+                ${t.texto} ${horaBadge}
+              </div>
+              <button class="btn-icon danger" onclick="eliminarTareaCompleta('${t.pilarId}', ${originalIndex})"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+            </div>
+          </div>`;
+        }).join('');
+      }
+    }
+    // =============================================
 
     function abrirModalPilar() {
       document.getElementById("nuevoPilarNombre").value = "";
@@ -1201,7 +1354,6 @@
       PILARES.push({ id: id, texto: nombre, color: colorSeleccionado });
       state.customPilares = PILARES;
       
-      // CORRECCIÓN 2: La tarjeta nueva inicia VACÍA, sin la tarea por defecto
       state.tareasHoy[id] = []; 
       state.rachasPilar[id] = 0;
       
@@ -1223,7 +1375,7 @@
     }
 
     // Init
-    verificarPIN(); renderCalendario(); renderDiarias(); renderAhorros(); renderCompras(); renderNotas(); renderResumenYHistorial(); actualizarDebug();
+    verificarPIN(); renderCalendario(); renderDiarias(); renderAhorros(); renderCompras(); renderResumenYHistorial(); actualizarDebug();
     setInterval(actualizarDebug, 3000);
   </script>
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
