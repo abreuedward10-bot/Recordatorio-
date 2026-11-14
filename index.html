@@ -307,23 +307,26 @@
     </div>
   </div>
 
-  <!-- MODAL ESTILO GOOGLE TASKS -->
+  <!-- MODAL ESTILO GOOGLE TASKS REESTRUCTURADO -->
   <div class="modal-overlay" id="modalTarea">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
       <input type="text" id="gt_tarea_texto" class="gt-input" placeholder="¿Qué hay que hacer?" autocomplete="off">
       
-      <div class="gt-row">
-        <input type="text" id="gt_tarea_pestana" list="listaPestanas" placeholder="Nombre de la Pestaña (Ej: Trabajo)">
-        <datalist id="listaPestanas"></datalist>
-      </div>
-
+      <!-- Fila de Fecha, Hora y Prioridad -->
       <div class="gt-row">
         <input type="date" id="gt_tarea_fecha">
         <input type="time" id="gt_tarea_hora">
         <button class="gt-icon-btn" id="gt_tarea_star" onclick="toggleStarGT()">★</button>
       </div>
+
+      <!-- Fila de la Pestaña -->
+      <div class="gt-row">
+        <input type="text" id="gt_tarea_pestana" list="listaPestanas" placeholder="En la pestaña: (Ej: Trabajo)" style="width: 100%;">
+        <datalist id="listaPestanas"></datalist>
+      </div>
       
-      <input type="text" id="gt_tarea_nota" class="gt-input" placeholder="Detalles / Nota (Opcional)" style="font-size: 15px; margin-bottom: 10px; color: var(--muted);">
+      <!-- Detalles -->
+      <input type="text" id="gt_tarea_nota" class="gt-input" placeholder="Detalles / Nota (Opcional)" style="font-size: 15px; margin-bottom: 10px; color: var(--muted); margin-top: 5px;">
       
       <div class="gt-divider"></div>
       
@@ -346,7 +349,7 @@
     <div class="racha-mini"><b id="rachaTop">0</b> 🔥</div>
   </div>
 
-  <!-- PESTAÑA TAREAS (Antes Hoy) -->
+  <!-- PESTAÑA TAREAS -->
   <div id="tab-hoy" class="tab-content">
     <div class="calendar-strip" id="calendarStrip"></div>
     <div id="alertaFechaPasada"></div>
