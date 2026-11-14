@@ -200,11 +200,11 @@
     .modal-btn.cancel { background: var(--input-bg); color: var(--txt); }
     .modal-btn.confirm { background: var(--ok); color: #000; }
 
-    /* ESTILO GOOGLE TASKS BOTTOM SHEET */
+    /* ESTILO GOOGLE TASKS BOTTOM SHEET ACTUALIZADO */
     .bottom-sheet {
       background: var(--card); width: 100%; max-width: 500px;
       position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
-      border-radius: 24px 24px 0 0; padding: 24px; box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+      border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
       border-top: 1px solid var(--border); z-index: 10000; display: flex; flex-direction: column;
     }
@@ -212,20 +212,26 @@
     #modalTarea { align-items: flex-end; }
     
     .gt-input {
-      background: transparent; border: none; color: var(--txt); font-size: 20px;
-      width: 100%; outline: none; padding: 0; margin-bottom: 20px; font-weight: 500;
+      background: transparent; border: none; color: var(--txt); font-size: 22px;
+      width: 100%; outline: none; padding: 0; margin-bottom: 5px; font-weight: 600;
     }
-    .gt-input::placeholder { color: var(--muted); }
+    .gt-input::placeholder { color: var(--muted); font-weight: 500; }
     
-    .gt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+    .gt-input-sub {
+      background: transparent; border: none; color: var(--muted); font-size: 15px;
+      width: 100%; outline: none; padding: 0; margin-bottom: 20px;
+    }
+    
+    .gt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; }
     .gt-row input[type="text"], .gt-row input[type="time"], .gt-row input[type="date"] {
-      background: var(--input-bg); border: 1px solid var(--border); padding: 10px; border-radius: 12px; font-size: 13px; flex: 1; min-width: 100px;
+      background: var(--input-bg); border: 1px solid var(--border); padding: 10px 12px; border-radius: 12px; font-size: 14px; flex: 1; min-width: 0; color: var(--txt);
     }
+    
     .gt-icon-btn {
-      background: transparent; border: none; color: var(--muted); cursor: pointer;
-      font-size: 24px; padding: 5px; transition: color 0.2s;
+      background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px;
+      color: var(--muted); cursor: pointer; font-size: 20px; transition: all 0.2s;
     }
-    .gt-icon-btn.active { color: var(--warn); }
+    .gt-icon-btn.active { color: var(--warn); border-color: var(--warn); background: rgba(255, 159, 10, 0.1); }
     
     .gt-divider { height: 1px; background: var(--border); margin: 15px 0; }
     
@@ -307,26 +313,26 @@
     </div>
   </div>
 
-  <!-- MODAL ESTILO GOOGLE TASKS REESTRUCTURADO -->
+  <!-- MODAL ESTILO GOOGLE TASKS (PESTAÑA ARRIBA) -->
   <div class="modal-overlay" id="modalTarea">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
+      
+      <!-- 1. Título de la Pestaña (Arriba de todo) -->
+      <input type="text" id="gt_tarea_pestana" list="listaPestanas" class="gt-input" placeholder="Nombre de la Pestaña (Ej: Trabajo)" style="font-size: 18px; margin-bottom: 15px;">
+      <datalist id="listaPestanas"></datalist>
+      
+      <!-- 2. Título de la tarea -->
       <input type="text" id="gt_tarea_texto" class="gt-input" placeholder="¿Qué hay que hacer?" autocomplete="off">
       
-      <!-- Fila de Fecha, Hora y Prioridad -->
+      <!-- 3. Fecha, Hora y Prioridad -->
       <div class="gt-row">
         <input type="date" id="gt_tarea_fecha">
         <input type="time" id="gt_tarea_hora">
         <button class="gt-icon-btn" id="gt_tarea_star" onclick="toggleStarGT()">★</button>
       </div>
 
-      <!-- Fila de la Pestaña -->
-      <div class="gt-row">
-        <input type="text" id="gt_tarea_pestana" list="listaPestanas" placeholder="En la pestaña: (Ej: Trabajo)" style="width: 100%;">
-        <datalist id="listaPestanas"></datalist>
-      </div>
-      
-      <!-- Detalles -->
-      <input type="text" id="gt_tarea_nota" class="gt-input" placeholder="Detalles / Nota (Opcional)" style="font-size: 15px; margin-bottom: 10px; color: var(--muted); margin-top: 5px;">
+      <!-- 4. Detalles / Nota -->
+      <input type="text" id="gt_tarea_nota" class="gt-input-sub" placeholder="Detalles (Opcional)">
       
       <div class="gt-divider"></div>
       
